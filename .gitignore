@@ -1,0 +1,8 @@
+
+*.pyc
+*.npy
+*.npz
+*.png
+*.log
+*.json
+wandb/
