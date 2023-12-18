@@ -12,8 +12,9 @@
 
 module use /opt/insy/modulefiles
 module load miniconda/3.9
-module load cuda/11.2
+module load cuda/12.3
 conda activate /home/nfs/adelossantossu/.conda/envs/pytorch
 conda list >> conda_list.out
+nvcc --version >> nvcc_version.out
 
 srun python experiments/mnist/train_spike_count.py --gres=gpu --mail-type=END
