@@ -90,7 +90,7 @@ for c in range(20):
         "architecture": "SNN",
         "dataset": "MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "1.0.2",
+        "version": "1.0.3",
         }
     )
 
