@@ -73,26 +73,26 @@ for c in range(1):
 
     #Weights and biases
     # start a new wandb run to track this script
-    # wandb.init(
-    #     # set the wandb project where this run will be logged
-    #     project="Residual-SNN",
+    wandb.init(
+        # set the wandb project where this run will be logged
+        project="Residual-SNN",
         
-    #     # track hyperparameters and run metadata4
-    #     config={
-    #     "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-    #     "train_batch_size": TRAIN_BATCH_SIZE,
-    #     "residual_every_n": RESIDUAL_EVERY_N,
-    #     "use_residual": USE_RESIDUAL,
-    #     "n_of_train_samples": N_TRAIN_SAMPLES,
-    #     "n_of_test_samples": N_TEST_SAMPLES,
-    #     "n_neurons": N_NEURONS_1,
-    #     "learning_rate": LEARNING_RATE,
-    #     "architecture": "SNN",
-    #     "dataset": "MNIST",
-    #     "epochs": N_TRAINING_EPOCHS,
-    #     "version": "test",
-    #     }
-    # )
+        # track hyperparameters and run metadata4
+        config={
+        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
+        "train_batch_size": TRAIN_BATCH_SIZE,
+        "residual_every_n": RESIDUAL_EVERY_N,
+        "use_residual": USE_RESIDUAL,
+        "n_of_train_samples": N_TRAIN_SAMPLES,
+        "n_of_test_samples": N_TEST_SAMPLES,
+        "n_neurons": N_NEURONS_1,
+        "learning_rate": LEARNING_RATE,
+        "architecture": "SNN",
+        "dataset": "MNIST",
+        "epochs": N_TRAINING_EPOCHS,
+        "version": "test",
+        }
+    )
 
 
 
@@ -310,7 +310,7 @@ for c in range(1):
 
                     acc = records[test_accuracy_monitor]
                     loss_to_save = records[test_loss_monitor]
-                    # wandb.log({"acc": acc, "loss": loss_to_save, "time_to_output": mean_spikes_for_times, "first_spike": first_spike_for_times})
+                    wandb.log({"acc": acc, "loss": loss_to_save, "time_to_output": mean_spikes_for_times, "first_spike": first_spike_for_times})
 
                     if acc > best_acc:
                         best_acc = acc
@@ -321,7 +321,7 @@ for c in range(1):
     with open('times.txt', 'a') as f:
         string =f'End of run: {c}'+ "\n"
         f.write(string)
-    # wandb.finish()
+    wandb.finish()
 
 # Write average accuracy to file
 avg_acc = np.mean(best_acc_array)
