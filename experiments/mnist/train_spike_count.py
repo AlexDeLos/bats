@@ -39,8 +39,8 @@ DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 #Residual parameters
-USE_RESIDUAL = False
-RESIDUAL_EVERY_N = 50
+USE_RESIDUAL = True
+RESIDUAL_EVERY_N = 5
 N_HIDDEN_LAYERS = 5
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
@@ -63,7 +63,7 @@ TARGET_TRUE = 15
 
 best_acc_array = []
 
-for c in range(20):
+for c in range(1):
     if c > 9:
         USE_RESIDUAL = False
     # Plot parameters
@@ -140,13 +140,13 @@ for c in range(20):
                                         weight_initializer=weight_initializer,
                                         max_n_spike=SPIKE_BUFFER_SIZE_1,
                                         name="Residual layer " + str(i))
-            elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
-                hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i - RESIDUAL_EVERY_N], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-                                        theta=THRESHOLD_HAT_1,
-                                        delta_theta=DELTA_THRESHOLD_1,
-                                        weight_initializer=weight_initializer,
-                                        max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                        name="Residual layer " + str(i))
+            # elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
+            #     hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i - RESIDUAL_EVERY_N], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+            #                             theta=THRESHOLD_HAT_1,
+            #                             delta_theta=DELTA_THRESHOLD_1,
+            #                             weight_initializer=weight_initializer,
+            #                             max_n_spike=SPIKE_BUFFER_SIZE_1,
+            #                             name="Residual layer " + str(i))
 
 
             # elif (i == N_HIDDEN_LAYERS - 1 or i % RESIDUAL_EVERY_N ==0) and N_HIDDEN_LAYERS > 5 and USE_RESIDUAL:
