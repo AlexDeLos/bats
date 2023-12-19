@@ -39,13 +39,13 @@ DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 #Residual parameters
-USE_RESIDUAL = False
+USE_RESIDUAL = True
 RESIDUAL_EVERY_N = -1
 N_HIDDEN_LAYERS = 5
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
-N_TRAIN_SAMPLES = 60000 #! used to be 60000
-N_TEST_SAMPLES = 10000 #! used to be 10000	
+N_TRAIN_SAMPLES = 6000 #! used to be 60000
+N_TEST_SAMPLES = 1000 #! used to be 10000	
 TRAIN_BATCH_SIZE = 50 #! used to be 50
 TEST_BATCH_SIZE = 100
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
@@ -310,7 +310,7 @@ for c in range(1):
 
                     acc = records[test_accuracy_monitor]
                     loss_to_save = records[test_loss_monitor]
-                    wandb.log({"acc": acc, "loss": loss_to_save})# "time_to_output": mean_spikes_for_times, "first_spike": first_spike_for_times})
+                    wandb.log({"acc": acc, "loss": loss_to_save, "time_to_output": mean_spikes_for_times.item(), "first_spike": first_spike_for_times.item()})
 
                     if acc > best_acc:
                         best_acc = acc
