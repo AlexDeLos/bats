@@ -1,0 +1,4 @@
+Train Step Number: 1.0
+Output layer mean times: 0.11795968562364578
+Output layer first spike: 0.032964613288640976
+-------------------------------------

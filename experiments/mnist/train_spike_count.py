@@ -40,7 +40,7 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 #Residual parameters
 USE_RESIDUAL = True
-RESIDUAL_EVERY_N = 5
+RESIDUAL_EVERY_N = -1
 N_HIDDEN_LAYERS = 5
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
@@ -73,26 +73,26 @@ for c in range(1):
 
     #Weights and biases
     # start a new wandb run to track this script
-    wandb.init(
-        # set the wandb project where this run will be logged
-        project="Residual-SNN",
+    # wandb.init(
+    #     # set the wandb project where this run will be logged
+    #     project="Residual-SNN",
         
-        # track hyperparameters and run metadata4
-        config={
-        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-        "train_batch_size": TRAIN_BATCH_SIZE,
-        "residual_every_n": RESIDUAL_EVERY_N,
-        "use_residual": USE_RESIDUAL,
-        "n_of_train_samples": N_TRAIN_SAMPLES,
-        "n_of_test_samples": N_TEST_SAMPLES,
-        "n_neurons": N_NEURONS_1,
-        "learning_rate": LEARNING_RATE,
-        "architecture": "SNN",
-        "dataset": "MNIST",
-        "epochs": N_TRAINING_EPOCHS,
-        "version": "test",
-        }
-    )
+    #     # track hyperparameters and run metadata4
+    #     config={
+    #     "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
+    #     "train_batch_size": TRAIN_BATCH_SIZE,
+    #     "residual_every_n": RESIDUAL_EVERY_N,
+    #     "use_residual": USE_RESIDUAL,
+    #     "n_of_train_samples": N_TRAIN_SAMPLES,
+    #     "n_of_test_samples": N_TEST_SAMPLES,
+    #     "n_neurons": N_NEURONS_1,
+    #     "learning_rate": LEARNING_RATE,
+    #     "architecture": "SNN",
+    #     "dataset": "MNIST",
+    #     "epochs": N_TRAINING_EPOCHS,
+    #     "version": "test",
+    #     }
+    # )
 
 
 
@@ -134,6 +134,7 @@ for c in range(1):
                                         name="Hidden layer 0")
                 
             elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL:
+                #TODO: FIX PROBLEM WITH: CUDA_ERROR_ILLEGAL_ADDRESS: an illegal memory access was encountered Exception ignored in: 'cupy.cuda.function.Module.__dealloc__'
                 hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                         theta=THRESHOLD_HAT_1,
                                         delta_theta=DELTA_THRESHOLD_1,
@@ -320,7 +321,7 @@ for c in range(1):
     with open('times.txt', 'a') as f:
         string =f'End of run: {c}'+ "\n"
         f.write(string)
-    wandb.finish()
+    # wandb.finish()
 
 # Write average accuracy to file
 avg_acc = np.mean(best_acc_array)
