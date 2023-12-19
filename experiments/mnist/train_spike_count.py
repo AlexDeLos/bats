@@ -39,7 +39,7 @@ DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 #Residual parameters
-USE_RESIDUAL = True
+USE_RESIDUAL = False
 RESIDUAL_EVERY_N = 50
 N_HIDDEN_LAYERS = 5
 # Training parameters
@@ -90,7 +90,7 @@ for c in range(20):
         "architecture": "SNN",
         "dataset": "MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "1.0.3",
+        "version": "test",
         }
     )
 
