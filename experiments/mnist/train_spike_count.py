@@ -310,7 +310,7 @@ for c in range(1):
 
                     acc = records[test_accuracy_monitor]
                     loss_to_save = records[test_loss_monitor]
-                    wandb.log({"acc": acc, "loss": loss_to_save, "time_to_output": mean_spikes_for_times, "first_spike": first_spike_for_times})
+                    wandb.log({"acc": acc, "loss": loss_to_save})# "time_to_output": mean_spikes_for_times, "first_spike": first_spike_for_times})
 
                     if acc > best_acc:
                         best_acc = acc
