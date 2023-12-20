@@ -37,7 +37,8 @@ class AdamOptimizer(AbstractOptimizer):
 
         # Set m and v to 0 at first iteration
         if self.__m is None:
-            #! Error found here: 2 (found here when no break points are set)
+            #! Error found here: 4 (found here when no break points are set) -> also on the cluster
+            #TODO: Cluster errors happen here
             self.__m = [None if grad is None else cp.zeros(grad.shape, dtype=cp.float32) for grad in gradient]
             self.__v = [None if grad is None else cp.zeros(grad.shape, dtype=cp.float32) for grad in gradient]
         # Update m and v
