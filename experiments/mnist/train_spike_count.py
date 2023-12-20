@@ -272,9 +272,9 @@ if __name__ == "__main__":
                 first_spike_for_times = cp.nanmin(out_spikes)
                 print(f'Output layer mean times: {mean_spikes_for_times}')
                 print(f'Output layer first spike: {first_spike_for_times}')
-                with open('times.txt', 'a') as f:
-                    string = f'Train Step Number: {training_steps/TRAIN_PRINT_PERIOD_STEP}' + "\n"+ f'Output layer mean times: {mean_spikes_for_times}' + "\n" + f'Output layer first spike: {first_spike_for_times}' + "\n" + "-------------------------------------"+"\n"
-                    f.write(string)
+                # with open('times.txt', 'a') as f:
+                #     string = f'Train Step Number: {training_steps/TRAIN_PRINT_PERIOD_STEP}' + "\n"+ f'Output layer mean times: {mean_spikes_for_times}' + "\n" + f'Output layer first spike: {first_spike_for_times}' + "\n" + "-------------------------------------"+"\n"
+                #     f.write(string)
 
             # Test evaluation
             if training_steps % TEST_PERIOD_STEP == 0:
