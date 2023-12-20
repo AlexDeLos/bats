@@ -25,7 +25,7 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Hidden layer
-N_NEURONS_1 =84 #!800 #? Should I lower it?
+N_NEURONS_1 =800 #!800 #? Should I lower it?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.2
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -41,7 +41,7 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 #Residual parameters
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = -1
-N_HIDDEN_LAYERS = 2
+N_HIDDEN_LAYERS = 1
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
 N_TRAIN_SAMPLES = 6000 #! used to be 60000
