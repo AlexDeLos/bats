@@ -45,7 +45,7 @@ N_HIDDEN_LAYERS = 2
 #!PROBLEM: when hidden layer > 1 and residual is used
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
-N_TRAIN_SAMPLES = 6000 #! used to be 60000
+N_TRAIN_SAMPLES = 600 #! used to be 60000
 N_TEST_SAMPLES = 1000 #! used to be 10000	
 TRAIN_BATCH_SIZE = 50 #! used to be 50
 TEST_BATCH_SIZE = 100
@@ -261,7 +261,6 @@ if __name__ == "__main__":
             # Training metrics
             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
                 # Compute metrics
-
                 train_monitors_manager.record(epoch_metrics)
                 train_monitors_manager.print(epoch_metrics)
                 train_monitors_manager.export()
