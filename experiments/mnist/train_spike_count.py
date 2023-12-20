@@ -25,7 +25,7 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Hidden layer
-N_NEURONS_1 = 84 #!800 #? Should I lower it?
+N_NEURONS_1 = 120 #!800 #? Should I lower it?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.2
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -64,7 +64,7 @@ TARGET_TRUE = 15
 
 best_acc_array = []
 
-for c in range(20):
+for c in range(1):
     if c > 9:
         USE_RESIDUAL = False
     # Plot parameters
