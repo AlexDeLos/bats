@@ -41,7 +41,7 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 #Residual parameters
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = -1
-N_HIDDEN_LAYERS = 5
+N_HIDDEN_LAYERS = 1
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
 N_TRAIN_SAMPLES = 6000 #! used to be 60000
