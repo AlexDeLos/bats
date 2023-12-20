@@ -17,4 +17,4 @@ conda activate /home/nfs/adelossantossu/.conda/envs/pytorch
 conda list >> conda_list.out
 nvcc --version >> nvcc_version.out
 
-srun python experiments/mnist/train_spike_count.py --gres=gpu --mail-type=END
+srun python experiments/mnist/train_spike_count.py
