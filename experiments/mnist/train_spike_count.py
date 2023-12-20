@@ -41,7 +41,7 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 #Residual parameters
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = -1
-N_HIDDEN_LAYERS = 2
+N_HIDDEN_LAYERS = 5
 #!PROBLEM: when hidden layer > 1 and residual is used
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
