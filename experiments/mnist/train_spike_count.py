@@ -64,7 +64,7 @@ TARGET_TRUE = 15
 
 best_acc_array = []
 
-for c in range(1):
+for c in range(20):
     if c > 9:
         USE_RESIDUAL = False
     # Plot parameters
