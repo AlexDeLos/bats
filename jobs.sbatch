@@ -2,10 +2,10 @@
 
 #SBATCH --partition=general
 #SBATCH --qos=short
-#SBATCH --time=1:00:00
+#SBATCH --time=4:00:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=8192
+#SBATCH --mem=16384
 #SBATCH --mail-type=END
 #SBATCH --gres=gpu
 
