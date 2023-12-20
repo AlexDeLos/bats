@@ -69,28 +69,6 @@ EXPORT_METRICS = True
 EXPORT_DIR = Path("./experiments/mnist/output_metrics_REAL"+"-" + str(USE_RESIDUAL)+"-" +str(N_HIDDEN_LAYERS)+"-"+" hidden every " +str(RESIDUAL_EVERY_N) +"th Version 2")
 SAVE_DIR = Path("./experiments/mnist/best_model")
 
-#Weights and biases
-# start a new wandb run to track this script
-wandb.init(
-    # set the wandb project where this run will be logged
-    project="Residual-SNN",
-    
-    # track hyperparameters and run metadata4
-    config={
-    "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-    "train_batch_size": TRAIN_BATCH_SIZE,
-    "residual_every_n": RESIDUAL_EVERY_N,
-    "use_residual": USE_RESIDUAL,
-    "n_of_train_samples": N_TRAIN_SAMPLES,
-    "n_of_test_samples": N_TEST_SAMPLES,
-    "n_neurons": N_NEURONS_1,
-    "learning_rate": LEARNING_RATE,
-    "architecture": "SNN",
-    "dataset": "MNIST",
-    "epochs": N_TRAINING_EPOCHS,
-    "version": "test",
-    }
-)
 
 
 
@@ -99,6 +77,8 @@ def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
 
 
 if __name__ == "__main__":
+    
+
     max_int = np.iinfo(np.int32).max
     np_seed = np.random.randint(low=0, high=max_int)
     cp_seed = np.random.randint(low=0, high=max_int)
@@ -178,6 +158,28 @@ if __name__ == "__main__":
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
 
     # Metrics
+        #Weights and biases
+    # start a new wandb run to track this script
+    wandb.init(
+        # set the wandb project where this run will be logged
+        project="Residual-SNN",
+        
+        # track hyperparameters and run metadata4
+        config={
+        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
+        "train_batch_size": TRAIN_BATCH_SIZE,
+        "residual_every_n": RESIDUAL_EVERY_N,
+        "use_residual": USE_RESIDUAL,
+        "n_of_train_samples": N_TRAIN_SAMPLES,
+        "n_of_test_samples": N_TEST_SAMPLES,
+        "n_neurons": N_NEURONS_1,
+        "learning_rate": LEARNING_RATE,
+        "architecture": "SNN",
+        "dataset": "MNIST",
+        "epochs": N_TRAINING_EPOCHS,
+        "version": "test",
+        }
+    )
     training_steps = 0
     train_loss_monitor = LossMonitor(export_path=EXPORT_DIR / "loss_train")
     train_accuracy_monitor = AccuracyMonitor(export_path=EXPORT_DIR / "accuracy_train")
@@ -316,5 +318,5 @@ if __name__ == "__main__":
                     # print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks save to: {SAVE_DIR}")
     best_acc_array.append(best_acc)    
         
-wandb.finish()
+    wandb.finish()
 
