@@ -70,6 +70,7 @@ class LIFLayer(AbstractLayer):
         # END OF PREVIOUS LAYER INPUTS
 
         # Sort spikes for inference
+        #! Memory problem here in foward pass??? was it just random timing?
         new_shape, sorted_indices, spike_times_reshaped = get_sorted_spikes_indices(pre_spike_per_neuron,
                                                                                     pre_n_spike_per_neuron)
         if sorted_indices.size == 0:  # No input spike in the batch
@@ -99,15 +100,6 @@ class LIFLayer(AbstractLayer):
                                                       self.__tau, cp.float32(max_simulation), self.__max_n_spike)
             # break point here in order to see if normal layers have any NaN values
             # FOUND: No NaN values in normal layers
-            # if self.name == 'Output layer':
-            #     deep_copy = cp.copy(self.__spike_times_per_neuron)
-            #     mask = cp.isinf(deep_copy)
-            #     deep_copy[mask] = cp.nan
-            #     mean_spikes = cp.nanmean(deep_copy)
-            #     first_spike = cp.nanmin(deep_copy)
-            #     print(f'Output layer mean times: {mean_spikes}')
-            #     print(f'Output layer first spike: {first_spike}')
-
     def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
         pre_spike_per_neuron, _ = self.__previous_layer.spike_trains

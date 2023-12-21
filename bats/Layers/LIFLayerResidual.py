@@ -73,7 +73,7 @@ class LIFLayerResidual(AbstractLayer):
 
         #> pre_spike_per_neuron is a vector with the spike times of the previous layer
 
-        pre_spike_per_neuron = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes)
+        pre_spike_per_neuron = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, self.__max_n_spike)
         pre_n_spike_per_neuron = cp.append(pre_n_spike_per_neuron_residual, jump_connection_spike_count, axis=1)
 
         self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
@@ -129,7 +129,7 @@ class LIFLayerResidual(AbstractLayer):
 
         #> pre_spike_per_neuron is a vector with the spike times of the previous layer
 
-        pre_spike_per_neuron = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes)
+        pre_spike_per_neuron = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, self.__max_n_spike)
 
 
         propagate_recurrent_errors(self.__x, self.__post_exp_tau, errors, self.__delta_theta_tau, residual = True)
@@ -153,3 +153,28 @@ class LIFLayerResidual(AbstractLayer):
     def add_deltas(self, delta_weights: cp.ndarray) -> None:
         #!Why are the last two or three entries of delta_weights nan?
         self.__weights += delta_weights
+
+    """
+Fuse the inputs of two layers into one input that can be fed to the next layer.
+"""
+def fuse_inputs(residual_input, jump_input, max_n_spike, delay = 0) -> cp.ndarray:
+    batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
+    batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
+    #TODO: fix delay
+    # for input in residual_input:
+    #     for spike in input:
+    #             for t in spike:
+    #                  t = t + delay
+
+    if batch_size_res != batch_size_jump:
+        raise ValueError("Batch size of residual and jump connection must be the same.")
+    if max_n_spike < max_n_spike_res or max_n_spike < max_n_spike_jump:
+        raise ValueError("Max number of spikes must be greater than the max number of spikes in residual and jump connection.")
+
+    if max_n_spike_res != max_n_spike_jump:
+        max_n_spike = max(max_n_spike_res, max_n_spike_jump)
+        residual_input = cp.pad(residual_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_res)),constant_values = cp.inf,mode = 'constant')
+        jump_input = cp.pad(jump_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_jump)), constant_values = cp.inf,mode = 'constant')
+    
+    result = cp.append(residual_input, jump_input, axis=1)
+    return result

@@ -9,6 +9,8 @@ __compute_pre_exps_kernel = load_kernel(KERNEL_FILE, KERNEL_NAME)
 
 def compute_pre_exps(spike_times: cp.ndarray, tau_s: cp.float32, tau: cp.float32) -> Tuple[cp.ndarray, cp.ndarray]:
     batch_size, n_neurons, max_n_spike = spike_times.shape
+    #most likely I need to change this to not get an out of bounds exception when using the LIFLayerResidual
+    # and having the jump layer neurons also in the kernel. I need to make room for the jump layer neurons
     block_dim = (batch_size, 1, 1)
     grid_dim = (max_n_spike, n_neurons, 2)
 
