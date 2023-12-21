@@ -12,7 +12,7 @@ def compute_pre_exps(spike_times: cp.ndarray, tau_s: cp.float32, tau: cp.float32
     #most likely I need to change this to not get an out of bounds exception when using the LIFLayerResidual
     # and having the jump layer neurons also in the kernel. I need to make room for the jump layer neurons
     block_dim = (batch_size, 1, 1)
-    grid_dim = (max_n_spike, n_neurons, 2)
+    grid_dim = (max_n_spike, n_neurons+1, 2)
 
     exp_tau_s = cp.ndarray(spike_times.shape, dtype=cp.float32)
     exp_tau = cp.ndarray(spike_times.shape, dtype=cp.float32)
