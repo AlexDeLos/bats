@@ -108,14 +108,6 @@ class LIFLayerResidual(AbstractLayer):
                                                       pre_spike_weights, self.__c,
                                                       self.__delta_theta_tau,
                                                       self.__tau, cp.float32(max_simulation), self.__max_n_spike, residual = True)
-            if np.isnan(self.__n_spike_per_neuron).any() or np.isnan(self.__spike_times_per_neuron).any() or np.isnan(self.__a).any() or np.isnan(self.__x).any() or np.isnan(self.__post_exp_tau).any():
-                # Some spikes are not computed
-                # I just could replace the nan values with the max_simulation value
-                # But I am not sure if this is the right thing to do
-                # I think the problem is in the kernel
-                # I am going to do it anyway
-                w =0
-            w =0
             
 
     def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:

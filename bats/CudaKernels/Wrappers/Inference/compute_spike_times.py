@@ -32,11 +32,6 @@ def compute_spike_times(spike_times: cp.ndarray,
             max_simulation, max_n_pre_spike, max_n_post_spikes,
             n_spikes, a, x, post_spike_times, post_exp_tau)
     
-    #! this works wrong it adds NaN
-    # if residual:
-    #     x= 1
-    # else:
-    #     x = 0
     __compute_spike_times_kernel(grid_dim, block_dim, args)
 
     # if np.isnan(post_spike_times).any():
@@ -47,14 +42,5 @@ def compute_spike_times(spike_times: cp.ndarray,
     #     # I am going to do it anyway
     #     #TODO: check if this is the right thing to do and improve on it -> APPARENTLY NOT NEEDED XD
     #     post_spike_times= cp.nan_to_num(post_spike_times, nan=cp.inf, posinf=cp.inf)
-        
-    # if np.isnan(x).any():
-    #     x= cp.nan_to_num(x, nan=cp.inf, posinf=cp.inf)
-    
-    # if np.isnan(a).any():
-    #     a= cp.nan_to_num(a, nan=cp.inf, posinf=cp.inf)
-    
-    # if np.isnan(post_exp_tau).any():
-    #     post_exp_tau= cp.nan_to_num(post_exp_tau, nan=cp.inf, posinf=cp.inf)
 
     return n_spikes, a, x, post_spike_times, post_exp_tau

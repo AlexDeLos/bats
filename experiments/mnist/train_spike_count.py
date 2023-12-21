@@ -5,6 +5,7 @@ import os
 import wandb
 import random
 import sys
+import time
 
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -256,6 +257,9 @@ if __name__ == "__main__":
             del deltas
 
             training_steps += 1
+            # cp.get_default_memory_pool().free_all_blocks()
+            time.sleep(1)
+
             epoch_metrics = training_steps * TRAIN_BATCH_SIZE / N_TRAIN_SAMPLES
 
             # Training metrics
