@@ -18,6 +18,7 @@ def get_sorted_spikes_indices(spike_times_per_neuron, n_spike_per_neuron):
     max_total_spike = int(cp.max(total_spikes))
     sorted_indices = cp.argsort(spike_times_reshaped, axis=1)[:, :max_total_spike]
     # creates keys? (was orriginally just called n)
+    #TODO: possibly change it back
     keys = np.arange(max_total_spike)
     # sorted_indices = cp.argpartition(spike_times_reshaped, keys, axis=1)[:, :max_total_spike] #!This was what "works"
     return new_shape, sorted_indices, spike_times_reshaped

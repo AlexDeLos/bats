@@ -74,7 +74,7 @@ class LIFLayerResidual(AbstractLayer):
         #> pre_spike_per_neuron is a vector with the spike times of the previous layer
 
         pre_spike_per_neuron = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, self.__max_n_spike)
-        pre_n_spike_per_neuron = cp.append(pre_n_spike_per_neuron_residual, jump_connection_spike_count, axis=1)
+        pre_n_spike_per_neuron = np.append(pre_n_spike_per_neuron_residual, jump_connection_spike_count, axis=1)
 
         self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
         # self.__pre_exp_tau_s_residual, self.__pre_exp_tau_residual = compute_pre_exps(pre_spike_per_neuron_residual, self.__tau_s, self.__tau)
@@ -165,8 +165,8 @@ def fuse_inputs(residual_input, jump_input, max_n_spike, delay = 0) -> cp.ndarra
 
     if max_n_spike_res != max_n_spike_jump:
         max_n_spike = max(max_n_spike_res, max_n_spike_jump)
-        residual_input = cp.pad(residual_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_res)),constant_values = cp.inf,mode = 'constant')
-        jump_input = cp.pad(jump_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_jump)), constant_values = cp.inf,mode = 'constant')
+        residual_input = np.pad(residual_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_res)),constant_values = np.inf,mode = 'constant')
+        jump_input = np.pad(jump_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_jump)), constant_values = np.inf,mode = 'constant')
     
-    result = cp.append(residual_input, jump_input, axis=1)
+    result = np.append(residual_input, jump_input, axis=1)
     return result
