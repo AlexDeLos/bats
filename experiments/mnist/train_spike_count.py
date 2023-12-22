@@ -25,7 +25,7 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Hidden layer
-N_NEURONS_1 = 140 #!800 #? Should I lower it?
+N_NEURONS_1 = 240 #!800 #? Should I lower it?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.2
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -41,7 +41,7 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 #Residual parameters
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = -1
-N_HIDDEN_LAYERS = 2
+N_HIDDEN_LAYERS = 3
 #!PROBLEM: when hidden layer > 1 and residual is used
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
@@ -257,7 +257,7 @@ if __name__ == "__main__":
 
             training_steps += 1
             # cp.get_default_memory_pool().free_all_blocks()
-            time.sleep(1)
+            # time.sleep(10)
 
             epoch_metrics = training_steps * TRAIN_BATCH_SIZE / N_TRAIN_SAMPLES
 
