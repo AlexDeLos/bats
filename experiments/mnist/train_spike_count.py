@@ -25,7 +25,7 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Hidden layer
-N_NEURONS_1 = 240 #!800 #? Should I lower it?
+N_NEURONS_1 = 800 #!800 #? Should I lower it?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.2
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -41,7 +41,7 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 #Residual parameters
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = -1
-N_HIDDEN_LAYERS = 3
+N_HIDDEN_LAYERS = 20
 #!PROBLEM: when hidden layer > 1 and residual is used
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
@@ -160,26 +160,26 @@ if __name__ == "__main__":
     # Metrics
         #Weights and biases
     # start a new wandb run to track this script
-    wandb.init(
-        # set the wandb project where this run will be logged
-        project="Residual-SNN",
+    # wandb.init(
+    #     # set the wandb project where this run will be logged
+    #     project="Residual-SNN",
         
-        # track hyperparameters and run metadata4
-        config={
-        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-        "train_batch_size": TRAIN_BATCH_SIZE,
-        "residual_every_n": RESIDUAL_EVERY_N,
-        "use_residual": USE_RESIDUAL,
-        "n_of_train_samples": N_TRAIN_SAMPLES,
-        "n_of_test_samples": N_TEST_SAMPLES,
-        "n_neurons": N_NEURONS_1,
-        "learning_rate": LEARNING_RATE,
-        "architecture": "SNN",
-        "dataset": "MNIST",
-        "epochs": N_TRAINING_EPOCHS,
-        "version": "test",
-        }
-    )
+    #     # track hyperparameters and run metadata4
+    #     config={
+    #     "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
+    #     "train_batch_size": TRAIN_BATCH_SIZE,
+    #     "residual_every_n": RESIDUAL_EVERY_N,
+    #     "use_residual": USE_RESIDUAL,
+    #     "n_of_train_samples": N_TRAIN_SAMPLES,
+    #     "n_of_test_samples": N_TEST_SAMPLES,
+    #     "n_neurons": N_NEURONS_1,
+    #     "learning_rate": LEARNING_RATE,
+    #     "architecture": "SNN",
+    #     "dataset": "MNIST",
+    #     "epochs": N_TRAINING_EPOCHS,
+    #     "version": "test",
+    #     }
+    # )
     training_steps = 0
     train_loss_monitor = LossMonitor(export_path=EXPORT_DIR / "loss_train")
     train_accuracy_monitor = AccuracyMonitor(export_path=EXPORT_DIR / "accuracy_train")
@@ -312,7 +312,7 @@ if __name__ == "__main__":
 
                 acc = records[test_accuracy_monitor]
                 loss_to_save = records[test_loss_monitor]
-                wandb.log({"acc": acc, "loss": loss_to_save, "time_to_output": mean_spikes_for_times.item(), "first_spike": first_spike_for_times.item()})
+                # wandb.log({"acc": acc, "loss": loss_to_save, "time_to_output": mean_spikes_for_times.item(), "first_spike": first_spike_for_times.item()})
 
                 if acc > best_acc:
                     best_acc = acc
@@ -320,5 +320,5 @@ if __name__ == "__main__":
                     # print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks save to: {SAVE_DIR}")
     best_acc_array.append(best_acc)    
         
-    wandb.finish()
+    # wandb.finish()
 
