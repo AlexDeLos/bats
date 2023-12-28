@@ -25,7 +25,7 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Hidden layer
-N_NEURONS_1 = 800 #!800 #? Should I lower it?
+N_NEURONS_1 = 240 #!800 #? Should I lower it?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.2
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -78,6 +78,9 @@ def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
 
 if __name__ == "__main__":
     for c in range(20):
+        if c < 10:
+            USE_RESIDUAL = False
+
         max_int = np.iinfo(np.int32).max
         np_seed = np.random.randint(low=0, high=max_int)
         cp_seed = np.random.randint(low=0, high=max_int)
