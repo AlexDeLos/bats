@@ -72,7 +72,7 @@ best_acc_array = []
 
 # Plot parameters
 EXPORT_METRICS = True
-EXPORT_DIR = Path("./experiments/mnist/output_metrics_REAL"+"-" + str(USE_RESIDUAL)+"-" +str(N_HIDDEN_LAYERS)+"-"+" hidden every " +str(RESIDUAL_EVERY_N) +"th Version 2")
+EXPORT_DIR = Path("./experiments/mnist/output_metrics") #_REAL"+"-" + str(USE_RESIDUAL)+"-" +str(N_HIDDEN_LAYERS)+"-"+" hidden every " +str(RESIDUAL_EVERY_N) +"th Version 2")
 SAVE_DIR = Path("./experiments/mnist/best_model")
 
 
