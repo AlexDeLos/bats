@@ -16,6 +16,12 @@ from bats.Layers import InputLayer, LIFLayer, LIFLayerResidual
 from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *
+from bats.Utils import get_arguments
+
+#parse arguments
+# args = get_arguments()
+
+
 
 # Dataset
 # DATASET_PATH = Path("../../datasets/mnist.npz")
@@ -45,7 +51,7 @@ N_HIDDEN_LAYERS = 5
 #!PROBLEM: when hidden layer > 1 and residual is used
 # Training parameters
 N_TRAINING_EPOCHS = 100 #! used to  be 100
-N_TRAIN_SAMPLES = 6000 #! used to be 60000
+N_TRAIN_SAMPLES = 60000 #! used to be 60000
 N_TEST_SAMPLES = 1000 #! used to be 10000	
 TRAIN_BATCH_SIZE = 50 #! used to be 50
 TEST_BATCH_SIZE = 100

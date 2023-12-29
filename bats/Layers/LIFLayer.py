@@ -65,6 +65,9 @@ class LIFLayer(AbstractLayer):
         #? How is it per neuron? (50, 784, 1)=>shape of spike_times_per_neuron on first stop of debugger
         #? It seems to be the number of spikes per layer, not per neuron, as there where 784 neurons in the input layer
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
+        #! what do the input layer inputs look like?
+        # cp.isinf().any(False)
+
 
         self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
         # END OF PREVIOUS LAYER INPUTS
