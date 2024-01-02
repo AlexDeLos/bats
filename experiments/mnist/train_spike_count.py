@@ -133,6 +133,8 @@ if __name__ == "__main__":
                                     weight_initializer=weight_initializer,
                                     max_n_spike=SPIKE_BUFFER_SIZE_RES,
                                     name="Residual layer " + str(i))
+        # removed the code to add residual layers every n layers, just in case, to simplify the problem
+            
         # elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
         #     hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i - RESIDUAL_EVERY_N], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
         #                             theta=THRESHOLD_HAT_1,

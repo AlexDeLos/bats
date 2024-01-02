@@ -155,27 +155,26 @@ Fuse the inputs of two layers into one input that can be fed to the next layer.
 def fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.ndarray:
     if delay is None:
         #by default the delay is the mean of the residual input,
-        delay = cp.mean(residual_input[np.isfinite(residual_input)])
+        # delay = cp.mean(residual_input[np.isfinite(residual_input)])
+        delay = 0
     batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
     batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
     out = cp.empty(jump_input.shape, dtype=int)
     out[out == 0] = delay
     cp.add(jump_input, out, out = jump_input)
-    #TODO: fix delay
-    # for input in residual_input:
-    #     for spike in input:
-    #             for t in spike:
-    #                  t = t + delay
 
     if batch_size_res != batch_size_jump:
         raise ValueError("Batch size of residual and jump connection must be the same.")
     if max_n_spike < max_n_spike_res or max_n_spike < max_n_spike_jump:
         raise ValueError("Max number of spikes must be greater than the max number of spikes in residual and jump connection.")
 
-    if max_n_spike_res != max_n_spike_jump:
+    if max_n_spike_res != max_n_spike_jump: #need to change this if
+        # We pad the smallest one with inf to make them the same size
+        #! Possible problem here, if inf are not ignored then I am adding a lot more spikes...
         max_n_spike = max(max_n_spike_res, max_n_spike_jump)
         residual_input = np.pad(residual_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_res)),constant_values = np.inf,mode = 'constant')
         jump_input = np.pad(jump_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_jump)), constant_values = np.inf,mode = 'constant')
     
     result = np.append(residual_input, jump_input, axis=1)
+
     return result
