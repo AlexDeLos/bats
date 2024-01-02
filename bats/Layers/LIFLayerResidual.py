@@ -154,7 +154,7 @@ Fuse the inputs of two layers into one input that can be fed to the next layer.
 """
 def fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.ndarray:
     if delay is None:
-        #by default the delay is the mean of the residual input, ignoring the inf values
+        #by default the delay is the mean of the residual input,
         delay = cp.mean(residual_input[np.isfinite(residual_input)])
     batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
     batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape

@@ -30,12 +30,26 @@ DATASET_PATH = Path("./datasets/mnist.npz")
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
+#Residual parameters
+USE_RESIDUAL = True
+RESIDUAL_EVERY_N = -1
+N_HIDDEN_LAYERS = 2
+#!PROBLEM: when hidden layer > 1 and residual is used
+
 # Hidden layer
-N_NEURONS_1 = 400 #!800 #? Should I lower it?
-TAU_S_1 = 0.130
-THRESHOLD_HAT_1 = 0.2
-DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
+N_NEURONS_1 = 800 #!800 #? Should I lower it?
+TAU_S_1 = 0.130 #0.130
+THRESHOLD_HAT_1 = 0.2 # used to be 0.2 -> increasing it to 1.0 makes all silents neurons
+DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1 # 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 30
+
+
+# Residual layer
+N_NEURONS_RES = 800 #!800 #? Should I lower it?
+TAU_S_RES = 0.92 #0.130
+THRESHOLD_HAT_RES = 1 # used to be 0.2 -> increasing it to 1.0 makes all silents neurons
+DELTA_THRESHOLD_RES = 2 * THRESHOLD_HAT_RES # 1 * THRESHOLD_HAT_1
+SPIKE_BUFFER_SIZE_RES = 30
 
 # Output_layer
 N_OUTPUTS = 10
@@ -44,14 +58,9 @@ THRESHOLD_HAT_OUTPUT = 1.3
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
-#Residual parameters
-USE_RESIDUAL = True
-RESIDUAL_EVERY_N = -1
-N_HIDDEN_LAYERS = 3
-#!PROBLEM: when hidden layer > 1 and residual is used
 # Training parameters
 N_TRAINING_EPOCHS = 100 #! used to  be 100
-N_TRAIN_SAMPLES = 60000 #! used to be 60000
+N_TRAIN_SAMPLES = 600 #! used to be 60000
 N_TEST_SAMPLES = 1000 #! used to be 10000	
 TRAIN_BATCH_SIZE = 50 #! used to be 50
 TEST_BATCH_SIZE = 100
@@ -118,11 +127,11 @@ if __name__ == "__main__":
             
         elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL:
             #TODO: FIX PROBLEM WITH: CUDA_ERROR_ILLEGAL_ADDRESS: an illegal memory access was encountered Exception ignored in: 'cupy.cuda.function.Module.__dealloc__'
-            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-                                    theta=THRESHOLD_HAT_1,
-                                    delta_theta=DELTA_THRESHOLD_1,
+            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= input_layer, n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
+                                    theta=THRESHOLD_HAT_RES,
+                                    delta_theta=DELTA_THRESHOLD_RES,
                                     weight_initializer=weight_initializer,
-                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                    max_n_spike=SPIKE_BUFFER_SIZE_RES,
                                     name="Residual layer " + str(i))
         # elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
         #     hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i - RESIDUAL_EVERY_N], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
@@ -273,6 +282,14 @@ if __name__ == "__main__":
                 train_monitors_manager.print(epoch_metrics)
                 train_monitors_manager.export()
                 out_spikes, n_out_spikes = network.output_spike_trains
+                #? when is out_spike a nan?
+                # 
+                #! I get 30 spikes for each neuron...
+                # Let's see what causes this:
+                # Too many layers? YES -> i need to change the weights initialization? 
+                # Too many neurons? NO
+                # The using of residual? Not really
+                # Training samples? NO?
                 mask = np.isinf(out_spikes)
                 out_spikes[mask] = np.nan
                 mean_spikes_for_times = np.nanmean(out_spikes)
