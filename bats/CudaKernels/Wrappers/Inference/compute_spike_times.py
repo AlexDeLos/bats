@@ -28,23 +28,28 @@ def compute_spike_times(spike_times: cp.ndarray,
     x = cp.ndarray(res_shape, dtype=cp.float32)
     post_spike_times = cp.full(res_shape, cp.inf, dtype=cp.float32)
     post_exp_tau = cp.full(res_shape, cp.inf, dtype=cp.float32)
-    if residual:
-        x =1
-    else:
-        x = 2
 
+
+    #exp_tau just keep getting bigger is this normal?
+    #once I get a nan I get a nan for all the rest of the values
     args = (spike_times, exp_tau_s, exp_tau, spike_weights, c, delta_theta_tau, tau,
             max_simulation, max_n_pre_spike, max_n_post_spikes,
             n_spikes, a, x, post_spike_times, post_exp_tau)
     
     __compute_spike_times_kernel(grid_dim, block_dim, args)
-    # if cp.isnan(post_spike_times).any(): #THIS IS FOR DEBUGGING
-    #     # Some spikes are not computed
-    #     # I just could replace the nan values with the max_simulation value
-    #     # But I am not sure if this is the right thing to do
-    #     # I think the problem is in the kernel
-    #     # I am going to do it anyway
-    #     #TODO: check if this is the right thing to do and improve on it -> APPARENTLY NOT NEEDED XD
-    #     post_spike_times= cp.nan_to_num(post_spike_times, nan=cp.inf, posinf=cp.inf)
+    # WHy does adding or removing this if statement change the results and cause a illegal memory access error
+#     if residual:
+#         x =1
+#     else:
+#         x = 2
+    
+    if cp.isnan(post_spike_times).any(): #THIS IS FOR DEBUGGING
+        # Some spikes are not computed
+        # I just could replace the nan values with the max_simulation value
+        # But I am not sure if this is the right thing to do
+        # I think the problem is in the kernel
+        # I am going to do it anyway
+        #TODO: check if this is the right thing to do and improve on it -> APPARENTLY NOT NEEDED XD
+        post_spike_times= cp.nan_to_num(post_spike_times, nan=cp.inf, posinf=cp.inf)
 
     return n_spikes, a, x, post_spike_times, post_exp_tau

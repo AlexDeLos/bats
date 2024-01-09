@@ -153,15 +153,16 @@ class LIFLayerResidual(AbstractLayer):
 Fuse the inputs of two layers into one input that can be fed to the next layer.
 """
 def fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.ndarray:
+    #! Illegal memory error still occurs even without this code
     if delay is None:
         #by default the delay is the mean of the residual input,
-        # delay = cp.mean(residual_input[np.isfinite(residual_input)])
-        delay = 0
-    batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
-    batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
+        delay = cp.mean(residual_input[np.isfinite(residual_input)])
+        # delay = 0
     out = cp.empty(jump_input.shape, dtype=int)
     out[out == 0] = delay
     cp.add(jump_input, out, out = jump_input)
+    batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
+    batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
 
     if batch_size_res != batch_size_jump:
         raise ValueError("Batch size of residual and jump connection must be the same.")

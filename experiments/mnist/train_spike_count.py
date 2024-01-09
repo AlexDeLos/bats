@@ -5,6 +5,8 @@ import os
 import wandb
 import sys
 import time
+import copy
+
 
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -22,18 +24,17 @@ from bats.Utils import get_arguments
 # args = get_arguments()
 
 
-
 # Dataset
 # DATASET_PATH = Path("../../datasets/mnist.npz")
 DATASET_PATH = Path("./datasets/mnist.npz")
 
 N_INPUTS = 28 * 28
-SIMULATION_TIME = 0.2
+SIMULATION_TIME = 0.2 # used to be 0.2
 
 #Residual parameters
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = -1
-N_HIDDEN_LAYERS = 2
+N_HIDDEN_LAYERS = 20
 #!PROBLEM: when hidden layer > 1 and residual is used
 
 # Hidden layer
@@ -60,8 +61,8 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 # Training parameters
 N_TRAINING_EPOCHS = 100 #! used to  be 100
-N_TRAIN_SAMPLES = 600 #! used to be 60000
-N_TEST_SAMPLES = 1000 #! used to be 10000	
+N_TRAIN_SAMPLES = 6000 #! used to be 60000
+N_TEST_SAMPLES = 1000 #! used to be 10000
 TRAIN_BATCH_SIZE = 50 #! used to be 50
 TEST_BATCH_SIZE = 100
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
@@ -284,6 +285,7 @@ if __name__ == "__main__":
                 train_monitors_manager.print(epoch_metrics)
                 train_monitors_manager.export()
                 out_spikes, n_out_spikes = network.output_spike_trains
+                copy = np.copy(out_spikes)
                 #? when is out_spike a nan?
                 # 
                 #! I get 30 spikes for each neuron...
@@ -292,10 +294,14 @@ if __name__ == "__main__":
                 # Too many neurons? NO
                 # The using of residual? Not really
                 # Training samples? NO?
-                mask = np.isinf(out_spikes)
-                out_spikes[mask] = np.nan
-                mean_spikes_for_times = np.nanmean(out_spikes)
-                first_spike_for_times = np.nanmin(out_spikes)
+                mask = np.isinf(copy)
+                copy[mask] = np.nan
+                mean_spikes_for_times = np.nanmean(copy)
+                first_spike_for_times = np.nanmin(copy)
+                if cp.isnan(first_spike_for_times):
+                    first_spike_for_times = 0.0
+                if cp.isnan(mean_spikes_for_times):
+                    mean_spikes_for_times = 0.0
                 print(f'Output layer mean times: {mean_spikes_for_times}')
                 print(f'Output layer first spike: {first_spike_for_times}')
                 # with open('times.txt', 'a') as f:
