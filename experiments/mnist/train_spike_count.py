@@ -34,7 +34,7 @@ SIMULATION_TIME = 0.2 # used to be 0.2
 #Residual parameters
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = -1
-N_HIDDEN_LAYERS = 5
+N_HIDDEN_LAYERS = 1
 #!PROBLEM: when hidden layer > 1 and residual is used
 
 # Hidden layer
@@ -47,9 +47,9 @@ SPIKE_BUFFER_SIZE_1 = 30
 
 # Residual layer
 N_NEURONS_RES = 800 #!800 #? Should I lower it?
-TAU_S_RES = 0.92 #0.130
-THRESHOLD_HAT_RES = 1 # used to be 0.2 -> increasing it to 1.0 makes all silents neurons
-DELTA_THRESHOLD_RES = 2 * THRESHOLD_HAT_RES # 1 * THRESHOLD_HAT_1
+TAU_S_RES = 0.130 #0.130
+THRESHOLD_HAT_RES = 0.2 # used to be 0.2 -> increasing it to 1.0 makes all silents neurons
+DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES # 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_RES = 30
 
 # Output_layer
