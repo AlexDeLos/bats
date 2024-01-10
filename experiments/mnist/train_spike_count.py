@@ -32,9 +32,9 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2 # used to be 0.2
 
 #Residual parameters
-USE_RESIDUAL = True
+USE_RESIDUAL = False
 RESIDUAL_EVERY_N = -1
-N_HIDDEN_LAYERS = 1
+N_HIDDEN_LAYERS = 5
 #!PROBLEM: when hidden layer > 1 and residual is used
 
 # Hidden layer

@@ -38,10 +38,10 @@ def compute_spike_times(spike_times: cp.ndarray,
     
     __compute_spike_times_kernel(grid_dim, block_dim, args)
     # WHy does adding or removing this if statement change the results and cause a illegal memory access error
-    # if residual:
-    #     x =1
-    # else:
-    #     x = 2
+    if residual:
+        x_23423 =1
+    else:
+        x_324 = 2
     
     if cp.isnan(post_spike_times).any(): #THIS IS FOR DEBUGGING
         # Some spikes are not computed
