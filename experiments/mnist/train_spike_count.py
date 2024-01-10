@@ -34,7 +34,7 @@ SIMULATION_TIME = 0.2 # used to be 0.2
 #Residual parameters
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = -1
-N_HIDDEN_LAYERS = 2
+N_HIDDEN_LAYERS = 1
 #!PROBLEM: when hidden layer > 1 and residual is used
 
 # Hidden layer
