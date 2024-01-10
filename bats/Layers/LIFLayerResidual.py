@@ -168,6 +168,7 @@ def fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.nda
         raise ValueError("Batch size of residual and jump connection must be the same.")
     if max_n_spike < max_n_spike_res or max_n_spike < max_n_spike_jump:
         raise ValueError("Max number of spikes must be greater than the max number of spikes in residual and jump connection.")
+    # if max_n_spike_res+ max_n_spike_jump <:
 
     if max_n_spike_res != max_n_spike_jump: #need to change this if
         # We pad the smallest one with inf to make them the same size
