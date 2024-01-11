@@ -61,7 +61,7 @@ MIN_LEARNING_RATE = 0
 TARGET_FALSE = 3
 TARGET_TRUE = 15
 
-best_acc_array = []
+# best_acc_array = []
 
 # for c in range(20):
 #     if c > 9:
@@ -315,7 +315,7 @@ if __name__ == "__main__":
                     best_acc = acc
                     network.store(SAVE_DIR)
                     print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks save to: {SAVE_DIR}")
-    best_acc_array.append(best_acc)    
+    # best_acc_array.append(best_acc)    
         
     # with open('times.txt', 'a') as f:
     #     string =f'End of run: {c}'+ "\n"
