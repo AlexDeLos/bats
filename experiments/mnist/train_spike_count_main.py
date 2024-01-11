@@ -23,6 +23,19 @@ from bats.Utils import get_arguments
 
 #parse arguments
 # args = get_arguments()
+"""
+Check if adding the nan effects the results-> no evidence of that
+Check if the problem is the number of layers -> yes, it is
+Check why there are issues:
+  File "experiments/mnist/train_spike_count_main.py", line 249, in <module>
+    network.forward(spikes, n_spikes, max_simulation=SIMULATION_TIME, training=True)
+  File "/home/nfs/adelossantossu/My_bats/bats/Network.py", line 36, in forward
+    layer.forward(max_simulation, training)
+  File "/home/nfs/adelossantossu/My_bats/bats/Layers/LIFLayer.py", line 77, in forward
+    new_shape, sorted_indices, spike_times_reshaped = get_sorted_spikes_indices(pre_spike_per_neuron,
+  File "/home/nfs/adelossantossu/My_bats/bats/CudaKernels/Wrappers/Inference/get_sorted_spikes_indices.py", line 19, in get_sorted_spikes_indices
+    max_total_spike = int(cp.max(total_spikes))
+"""
 print("Main")
 
 # Dataset
@@ -39,7 +52,7 @@ N_HIDDEN_LAYERS = 5 #fails at 2 in both cases
 #!PROBLEM: when hidden layer > 1 and residual is used
 
 # Hidden layer
-N_NEURONS_1 = 800 #!800 #? Should I lower it?
+N_NEURONS_1 = 240 #!800 #? Should I lower it?
 TAU_S_1 = 0.130 # 0.130 length of a spikes influence on a neuron
 # THRESHOLD_HAT_1 = hight of the neuron activation function
 THRESHOLD_HAT_1 = 0.2 # used to be 0.2 -> increasing it to 1.0 makes all silents neurons
@@ -48,7 +61,7 @@ SPIKE_BUFFER_SIZE_1 = 30 # used to be 30 #! pu it to 1 (or 0) to see if it works
 
 
 # Residual layer
-N_NEURONS_RES = 800 #!800 #? Should I lower it?
+N_NEURONS_RES = 240 #!800 #? Should I lower it?
 TAU_S_RES = 0.130 #0.130
 THRESHOLD_HAT_RES = 0.2 # used to be 0.2 -> increasing it to 1.0 makes all silents neurons
 DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES # 1 * THRESHOLD_HAT_1
@@ -57,13 +70,13 @@ SPIKE_BUFFER_SIZE_RES = 30 # used to be 30 #! pu it to 1 (or 0) to see if it wor
 # Output_layer
 N_OUTPUTS = 10
 TAU_S_OUTPUT = 0.130 # 0.130
-THRESHOLD_HAT_OUTPUT = 5 # 1.3
+THRESHOLD_HAT_OUTPUT = 1.3 #5 # 1.3
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 # Training parameters
-N_TRAINING_EPOCHS = 20 #! used to  be 100
-N_TRAIN_SAMPLES = 6000 #! used to be 60000
+N_TRAINING_EPOCHS = 10 #! used to  be 100
+N_TRAIN_SAMPLES = 60000 #! used to be 60000 -> does this effect the % of silent labels?
 N_TEST_SAMPLES = 1000 #! used to be 10000
 TRAIN_BATCH_SIZE = 50 #! used to be 50
 TEST_BATCH_SIZE = 100
@@ -112,7 +125,7 @@ if __name__ == "__main__":
 
 
     
-    # uilding the network
+    # building the network
     print("Creating network...")
     network = Network()
     input_layer = InputLayer(n_neurons=N_INPUTS, name="Input layer")
@@ -146,14 +159,6 @@ if __name__ == "__main__":
         #                             max_n_spike=SPIKE_BUFFER_SIZE_1,
         #                             name="Residual layer " + str(i))
 
-
-        # elif (i == N_HIDDEN_LAYERS - 1 or i % RESIDUAL_EVERY_N ==0) and N_HIDDEN_LAYERS > 5 and USE_RESIDUAL:
-        #     hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-        #                             theta=THRESHOLD_HAT_1,
-        #                             delta_theta=DELTA_THRESHOLD_1,
-        #                             weight_initializer=weight_initializer,
-        #                             max_n_spike=SPIKE_BUFFER_SIZE_1,
-        #                             name="Residual layer " + str(i))
         else:
             hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                     theta=THRESHOLD_HAT_1,
@@ -296,24 +301,18 @@ if __name__ == "__main__":
                 # The using of residual? Not really
                 # Training samples? NO?
 
-
-                copy = np.copy(out_spikes)
-                mask = np.isinf(copy)
-                copy[mask] = np.nan
-                mean_spikes_for_times = np.nanmean(copy)
-                first_spike_for_times = np.nanmin(copy)
-                if cp.isnan(first_spike_for_times):
-                    first_spike_for_times = 0.0
-                if cp.isnan(mean_spikes_for_times):
-                    mean_spikes_for_times = 0.0
-                print(f'Output layer mean times: {mean_spikes_for_times}')
-                print(f'Output layer first spike: {first_spike_for_times}')
-
-
-
-                # with open('times.txt', 'a') as f:
-                #     string = f'Train Step Number: {training_steps/TRAIN_PRINT_PERIOD_STEP}' + "\n"+ f'Output layer mean times: {mean_spikes_for_times}' + "\n" + f'Output layer first spike: {first_spike_for_times}' + "\n" + "-------------------------------------"+"\n"
-                #     f.write(string)
+                #TODO: re-add this, seems to work, but slows down the code
+                # testing_output = np.copy(out_spikes)
+                # mask = np.isinf(testing_output)
+                # testing_output[mask] = np.nan
+                # mean_spikes_for_times = np.nanmean(testing_output)
+                # first_spike_for_times = np.nanmin(testing_output)
+                # if cp.isnan(first_spike_for_times):
+                #     first_spike_for_times = 0.0
+                # if cp.isnan(mean_spikes_for_times):
+                #     mean_spikes_for_times = 0.0
+                # print(f'Output layer mean times: {mean_spikes_for_times}')
+                # print(f'Output layer first spike: {first_spike_for_times}')
 
             # Test evaluation
             if training_steps % TEST_PERIOD_STEP == 0:
