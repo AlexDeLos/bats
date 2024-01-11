@@ -23,7 +23,7 @@ from bats.Utils import get_arguments
 
 #parse arguments
 # args = get_arguments()
-
+print("Main")
 
 # Dataset
 # DATASET_PATH = Path("../../datasets/mnist.npz")
@@ -33,9 +33,9 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2 # used to be 0.2
 
 #Residual parameters
-USE_RESIDUAL = False
-RESIDUAL_EVERY_N = -1
-N_HIDDEN_LAYERS = 2
+USE_RESIDUAL = True
+RESIDUAL_EVERY_N = 50
+N_HIDDEN_LAYERS = 5 #fails at 2 in both cases
 #!PROBLEM: when hidden layer > 1 and residual is used
 
 # Hidden layer
