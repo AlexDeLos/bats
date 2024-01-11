@@ -265,10 +265,11 @@ if __name__ == "__main__":
                 train_monitors_manager.print(epoch_metrics)
                 train_monitors_manager.export()
                 out_spikes, n_out_spikes = network.output_spike_trains
-                mask = cp.isinf(out_spikes)
-                out_spikes[mask] = cp.nan
-                mean_spikes_for_times = cp.nanmean(out_spikes)
-                first_spike_for_times = cp.nanmin(out_spikes)
+                out_copy = cp.copy(out_spikes)
+                mask = cp.isinf(out_copy)
+                out_copy[mask] = cp.nan
+                mean_spikes_for_times = cp.nanmean(out_copy)
+                first_spike_for_times = cp.nanmin(out_copy)
                 print(f'Output layer mean times: {mean_spikes_for_times}')
                 print(f'Output layer first spike: {first_spike_for_times}')
                 with open('times.txt', 'a') as f:
