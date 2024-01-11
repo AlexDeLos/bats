@@ -7,7 +7,7 @@ from bats.AbstractLayer import AbstractLayer
 from bats.CudaKernels.Wrappers.Inference import *
 from bats.CudaKernels.Wrappers.Backpropagation import *
 
-
+# PROBLEM does not seem to be here
 class LIFLayer(AbstractLayer):
     def __init__(self, previous_layer: AbstractLayer, tau_s: float, theta: float, delta_theta: float,
                  weight_initializer: Callable[[int, int], cp.ndarray] = None, max_n_spike: int = 32, **kwargs):
