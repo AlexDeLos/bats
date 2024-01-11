@@ -117,7 +117,7 @@ for c in range(20):
 
 
         
-        # uilding the network
+        # building the network
         print("Creating network...")
         network = Network()
         input_layer = InputLayer(n_neurons=N_INPUTS, name="Input layer")
