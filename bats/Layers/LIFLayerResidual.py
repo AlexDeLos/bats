@@ -108,6 +108,7 @@ class LIFLayerResidual(AbstractLayer):
                                                       pre_spike_weights, self.__c,
                                                       self.__delta_theta_tau,
                                                       self.__tau, cp.float32(max_simulation), self.__max_n_spike, residual = True)
+            eqweqweqwe= "breakpoint"
             
 
     def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:

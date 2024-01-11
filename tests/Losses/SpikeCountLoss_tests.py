@@ -1,6 +1,10 @@
 import unittest
 import numpy as np
 import cupy as cp
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from bats.Losses import SpikeCountClassLoss
 
 
@@ -8,7 +12,7 @@ class SpikeCOuntLoss_tests(unittest.TestCase):
     def test_compute_loss(self):
         batch_size = 100
         n_neuron = 10
-        max_spike = 15
+        max_spike = 15 #15
         n_spike_per_neuron = np.random.randint(0, max_spike, size=(batch_size, n_neuron))
         n_spike_per_neuron_gpu = cp.array(n_spike_per_neuron, dtype=cp.float32)
         target_true = 10
