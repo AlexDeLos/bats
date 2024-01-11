@@ -18,6 +18,10 @@ from bats.Network import Network
 from bats.Optimizers import *
 
 print("Branch")
+"""
+Notes: this eventially goes to nan output here and not in the other branch
+"""
+
 
 # Dataset
 # DATASET_PATH = Path("../../datasets/mnist.npz")
