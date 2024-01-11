@@ -32,9 +32,9 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2 # used to be 0.2
 
 #Residual parameters
-USE_RESIDUAL = True
+USE_RESIDUAL = False
 RESIDUAL_EVERY_N = -1
-N_HIDDEN_LAYERS = 1
+N_HIDDEN_LAYERS = 2
 #!PROBLEM: when hidden layer > 1 and residual is used
 
 # Hidden layer
@@ -61,7 +61,7 @@ DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 # Training parameters
-N_TRAINING_EPOCHS = 100 #! used to  be 100
+N_TRAINING_EPOCHS = 20 #! used to  be 100
 N_TRAIN_SAMPLES = 6000 #! used to be 60000
 N_TEST_SAMPLES = 1000 #! used to be 10000
 TRAIN_BATCH_SIZE = 50 #! used to be 50
