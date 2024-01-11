@@ -101,8 +101,8 @@ class LIFLayer(AbstractLayer):
                                                       pre_spike_weights, self.__c,
                                                       self.__delta_theta_tau,
                                                       self.__tau, cp.float32(max_simulation), self.__max_n_spike)
-            if self.spike_trains[1] == np.zeros(self.spike_trains[1].shape):
-                breakpoint()
+            # if cp.array_equal(self.spike_trains[1] , cp.zeros(self.spike_trains[1].shape)):
+            #     breakpoint()
             # break point here in order to see if normal layers have any NaN values
             # FOUND: No NaN values in normal layers
     def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
