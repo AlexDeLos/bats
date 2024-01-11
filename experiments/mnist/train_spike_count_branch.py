@@ -17,24 +17,14 @@ from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *
 
+print("Branch")
+
 # Dataset
 # DATASET_PATH = Path("../../datasets/mnist.npz")
 DATASET_PATH = Path("./datasets/mnist.npz")
 
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
-#NOTES
-"""
-Check if adding the nan effects the results
-This one works so much faster than the other one?
-"""
-print("branch")
-
-
-#Residual parameters
-USE_RESIDUAL = True #working with True
-RESIDUAL_EVERY_N = 50
-N_HIDDEN_LAYERS = 5
 
 # Hidden layer
 N_NEURONS_1 = 240 #!800 #? Should I lower it?
@@ -50,7 +40,10 @@ THRESHOLD_HAT_OUTPUT = 1.3
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
-
+#Residual parameters
+USE_RESIDUAL = False
+RESIDUAL_EVERY_N = 50
+N_HIDDEN_LAYERS = 2
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
 N_TRAIN_SAMPLES = 6000 #! used to be 60000
@@ -157,6 +150,14 @@ if __name__ == "__main__":
                                     max_n_spike=SPIKE_BUFFER_SIZE_1,
                                     name="Residual layer " + str(i))
 
+
+        # elif (i == N_HIDDEN_LAYERS - 1 or i % RESIDUAL_EVERY_N ==0) and N_HIDDEN_LAYERS > 5 and USE_RESIDUAL:
+        #     hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+        #                             theta=THRESHOLD_HAT_1,
+        #                             delta_theta=DELTA_THRESHOLD_1,
+        #                             weight_initializer=weight_initializer,
+        #                             max_n_spike=SPIKE_BUFFER_SIZE_1,
+        #                             name="Residual layer " + str(i))
         else:
             hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                     theta=THRESHOLD_HAT_1,
@@ -266,7 +267,6 @@ if __name__ == "__main__":
                 train_monitors_manager.print(epoch_metrics)
                 train_monitors_manager.export()
                 out_spikes, n_out_spikes = network.output_spike_trains
-
                 testing_output = cp.copy(out_spikes)
                 mask = cp.isinf(testing_output)
                 testing_output[mask] = cp.nan
