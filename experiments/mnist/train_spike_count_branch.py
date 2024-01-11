@@ -1,13 +1,10 @@
-# FROM BRANCH
 from pathlib import Path
 import cupy as cp
 import numpy as np
 import os
 import wandb
+import random
 import sys
-import time
-import copy
-
 
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -19,52 +16,36 @@ from bats.Layers import InputLayer, LIFLayer, LIFLayerResidual
 from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *
-from bats.Utils import get_arguments
-
-#parse arguments
-# args = get_arguments()
-
 
 # Dataset
 # DATASET_PATH = Path("../../datasets/mnist.npz")
 DATASET_PATH = Path("./datasets/mnist.npz")
 
 N_INPUTS = 28 * 28
-SIMULATION_TIME = 0.2 # used to be 0.2
-
-#Residual parameters
-USE_RESIDUAL = False
-RESIDUAL_EVERY_N = -1
-N_HIDDEN_LAYERS = 2
-#!PROBLEM: when hidden layer > 1 and residual is used
+SIMULATION_TIME = 0.2
 
 # Hidden layer
-N_NEURONS_1 = 800 #!800 #? Should I lower it?
-TAU_S_1 = 0.130 # 0.130 length of a spikes influence on a neuron
-# THRESHOLD_HAT_1 = hight of the neuron activation function
-THRESHOLD_HAT_1 = 0.2 # used to be 0.2 -> increasing it to 1.0 makes all silents neurons
-DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1 # 1 * THRESHOLD_HAT_1
-SPIKE_BUFFER_SIZE_1 = 30 # used to be 30 #! pu it to 1 (or 0) to see if it works
-
-
-# Residual layer
-N_NEURONS_RES = 800 #!800 #? Should I lower it?
-TAU_S_RES = 0.130 #0.130
-THRESHOLD_HAT_RES = 0.2 # used to be 0.2 -> increasing it to 1.0 makes all silents neurons
-DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES # 1 * THRESHOLD_HAT_1
-SPIKE_BUFFER_SIZE_RES = 30 # used to be 30 #! pu it to 1 (or 0) to see if it works
+N_NEURONS_1 = 240 #!800 #? Should I lower it?
+TAU_S_1 = 0.130
+THRESHOLD_HAT_1 = 0.2
+DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
+SPIKE_BUFFER_SIZE_1 = 30
 
 # Output_layer
 N_OUTPUTS = 10
-TAU_S_OUTPUT = 0.130 # 0.130
-THRESHOLD_HAT_OUTPUT = 5 # 1.3
+TAU_S_OUTPUT = 0.130
+THRESHOLD_HAT_OUTPUT = 1.3
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
+#Residual parameters
+USE_RESIDUAL = True
+RESIDUAL_EVERY_N = 50
+N_HIDDEN_LAYERS = 5
 # Training parameters
-N_TRAINING_EPOCHS = 20 #! used to  be 100
+N_TRAINING_EPOCHS = 10 #! used to  be 100
 N_TRAIN_SAMPLES = 6000 #! used to be 60000
-N_TEST_SAMPLES = 1000 #! used to be 10000
+N_TEST_SAMPLES = 10000 #! used to be 10000	
 TRAIN_BATCH_SIZE = 50 #! used to be 50
 TEST_BATCH_SIZE = 100
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
@@ -80,13 +61,38 @@ MIN_LEARNING_RATE = 0
 TARGET_FALSE = 3
 TARGET_TRUE = 15
 
-best_acc_array = []
+# best_acc_array = []
 
+# for c in range(20):
+#     if c > 9:
+#         USE_RESIDUAL = False
 # Plot parameters
-EXPORT_METRICS = True
-EXPORT_DIR = Path("./experiments/mnist/output_metrics") #_REAL"+"-" + str(USE_RESIDUAL)+"-" +str(N_HIDDEN_LAYERS)+"-"+" hidden every " +str(RESIDUAL_EVERY_N) +"th Version 2")
+EXPORT_METRICS = False
+EXPORT_DIR = Path("./experiments/mnist/output_metrics")#+"-" + str(USE_RESIDUAL)+"-" +str(N_HIDDEN_LAYERS)+"-"+" hidden every " +str(RESIDUAL_EVERY_N) + " "+str(c) +"th Version 2")
 SAVE_DIR = Path("./experiments/mnist/best_model")
 
+#Weights and biases
+# start a new wandb run to track this script
+# wandb.init(
+#     # set the wandb project where this run will be logged
+#     project="Residual-SNN",
+    
+#     # track hyperparameters and run metadata4
+#     config={
+#     "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
+#     "train_batch_size": TRAIN_BATCH_SIZE,
+#     "residual_every_n": RESIDUAL_EVERY_N,
+#     "use_residual": USE_RESIDUAL,
+#     "n_of_train_samples": N_TRAIN_SAMPLES,
+#     "n_of_test_samples": N_TEST_SAMPLES,
+#     "n_neurons": N_NEURONS_1,
+#     "learning_rate": LEARNING_RATE,
+#     "architecture": "SNN",
+#     "dataset": "MNIST",
+#     "epochs": N_TRAINING_EPOCHS,
+#     "version": "testing_old_20_runs",
+#     }
+# )
 
 
 
@@ -95,7 +101,6 @@ def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
 
 
 if __name__ == "__main__":
-
     max_int = np.iinfo(np.int32).max
     np_seed = np.random.randint(low=0, high=max_int)
     cp_seed = np.random.randint(low=0, high=max_int)
@@ -112,7 +117,7 @@ if __name__ == "__main__":
 
 
     
-    # uilding the network
+    # building the network
     print("Creating network...")
     network = Network()
     input_layer = InputLayer(n_neurons=N_INPUTS, name="Input layer")
@@ -129,22 +134,19 @@ if __name__ == "__main__":
                                     name="Hidden layer 0")
             
         elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL:
-            #TODO: FIX PROBLEM WITH: CUDA_ERROR_ILLEGAL_ADDRESS: an illegal memory access was encountered Exception ignored in: 'cupy.cuda.function.Module.__dealloc__'
-            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= input_layer, n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
-                                    theta=THRESHOLD_HAT_RES,
-                                    delta_theta=DELTA_THRESHOLD_RES,
+            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+                                    theta=THRESHOLD_HAT_1,
+                                    delta_theta=DELTA_THRESHOLD_1,
                                     weight_initializer=weight_initializer,
-                                    max_n_spike=SPIKE_BUFFER_SIZE_RES,
+                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
                                     name="Residual layer " + str(i))
-        # removed the code to add residual layers every n layers, just in case, to simplify the problem
-            
-        # elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
-        #     hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i - RESIDUAL_EVERY_N], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-        #                             theta=THRESHOLD_HAT_1,
-        #                             delta_theta=DELTA_THRESHOLD_1,
-        #                             weight_initializer=weight_initializer,
-        #                             max_n_spike=SPIKE_BUFFER_SIZE_1,
-        #                             name="Residual layer " + str(i))
+        elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
+            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i - RESIDUAL_EVERY_N], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+                                    theta=THRESHOLD_HAT_1,
+                                    delta_theta=DELTA_THRESHOLD_1,
+                                    weight_initializer=weight_initializer,
+                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                    name="Residual layer " + str(i))
 
 
         # elif (i == N_HIDDEN_LAYERS - 1 or i % RESIDUAL_EVERY_N ==0) and N_HIDDEN_LAYERS > 5 and USE_RESIDUAL:
@@ -177,28 +179,6 @@ if __name__ == "__main__":
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
 
     # Metrics
-        #Weights and biases
-    # start a new wandb run to track this script
-    # wandb.init(
-    #     # set the wandb project where this run will be logged
-    #     project="Residual-SNN",
-        
-    #     # track hyperparameters and run metadata4
-    #     config={
-    #     "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-    #     "train_batch_size": TRAIN_BATCH_SIZE,
-    #     "residual_every_n": RESIDUAL_EVERY_N,
-    #     "use_residual": USE_RESIDUAL,
-    #     "n_of_train_samples": N_TRAIN_SAMPLES,
-    #     "n_of_test_samples": N_TEST_SAMPLES,
-    #     "n_neurons": N_NEURONS_1,
-    #     "learning_rate": LEARNING_RATE,
-    #     "architecture": "SNN",
-    #     "dataset": "MNIST",
-    #     "epochs": N_TRAINING_EPOCHS,
-    #     "version": "test",
-    #     }
-    # )
     training_steps = 0
     train_loss_monitor = LossMonitor(export_path=EXPORT_DIR / "loss_train")
     train_accuracy_monitor = AccuracyMonitor(export_path=EXPORT_DIR / "accuracy_train")
@@ -275,45 +255,25 @@ if __name__ == "__main__":
             del deltas
 
             training_steps += 1
-            # cp.get_default_memory_pool().free_all_blocks()
-            # time.sleep(10)
-
             epoch_metrics = training_steps * TRAIN_BATCH_SIZE / N_TRAIN_SAMPLES
 
             # Training metrics
             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
                 # Compute metrics
+
                 train_monitors_manager.record(epoch_metrics)
                 train_monitors_manager.print(epoch_metrics)
                 train_monitors_manager.export()
                 out_spikes, n_out_spikes = network.output_spike_trains
-                #? when is out_spike a nan?
-                # 
-                #! I get 30 spikes for each neuron...
-                # Let's see what causes this:
-                # Too many layers? YES -> i need to change the weights initialization? 
-                # Too many neurons? NO
-                # The using of residual? Not really
-                # Training samples? NO?
-
-
-                copy = np.copy(out_spikes)
-                mask = np.isinf(copy)
-                copy[mask] = np.nan
-                mean_spikes_for_times = np.nanmean(copy)
-                first_spike_for_times = np.nanmin(copy)
-                if cp.isnan(first_spike_for_times):
-                    first_spike_for_times = 0.0
-                if cp.isnan(mean_spikes_for_times):
-                    mean_spikes_for_times = 0.0
+                mask = cp.isinf(out_spikes)
+                out_spikes[mask] = cp.nan
+                mean_spikes_for_times = cp.nanmean(out_spikes)
+                first_spike_for_times = cp.nanmin(out_spikes)
                 print(f'Output layer mean times: {mean_spikes_for_times}')
                 print(f'Output layer first spike: {first_spike_for_times}')
-
-
-
-                # with open('times.txt', 'a') as f:
-                #     string = f'Train Step Number: {training_steps/TRAIN_PRINT_PERIOD_STEP}' + "\n"+ f'Output layer mean times: {mean_spikes_for_times}' + "\n" + f'Output layer first spike: {first_spike_for_times}' + "\n" + "-------------------------------------"+"\n"
-                #     f.write(string)
+                with open('times.txt', 'a') as f:
+                    string = f'Train Step Number: {training_steps/TRAIN_PRINT_PERIOD_STEP}' + "\n"+ f'Output layer mean times: {mean_spikes_for_times}' + "\n" + f'Output layer first spike: {first_spike_for_times}' + "\n" + "-------------------------------------"+"\n"
+                    f.write(string)
 
             # Test evaluation
             if training_steps % TEST_PERIOD_STEP == 0:
@@ -349,13 +309,23 @@ if __name__ == "__main__":
 
                 acc = records[test_accuracy_monitor]
                 loss_to_save = records[test_loss_monitor]
-                # wandb.log({"acc": acc, "loss": loss_to_save, "time_to_output": mean_spikes_for_times.item(), "first_spike": first_spike_for_times.item()})
+                # wandb.log({"acc": acc, "loss": loss_to_save})
 
                 if acc > best_acc:
                     best_acc = acc
                     network.store(SAVE_DIR)
-                    # print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks save to: {SAVE_DIR}")
-    best_acc_array.append(best_acc)    
+                    print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks save to: {SAVE_DIR}")
+    # best_acc_array.append(best_acc)    
         
-        # wandb.finish()
+    # with open('times.txt', 'a') as f:
+    #     string =f'End of run: {c}'+ "\n"
+    #     f.write(string)
+    # wandb.finish()
 
+# Write average accuracy to file
+# avg_acc = np.mean(best_acc_array)
+# print("Average accuracy: ", avg_acc)
+# with open('avg_acc.txt', 'a') as f:
+#     string = "With # of hidden layers: "+str(N_HIDDEN_LAYERS)+"\n"+ "Residual: "+str(USE_RESIDUAL)+"\n"+ "Residual every: "+str(RESIDUAL_EVERY_N)+"\n"+"Average accuracy: " +  str(avg_acc) + "\n" + "Accuracies:" + str(best_acc_array)+"\n" +"-------------------------------------"+"\n"
+#     f.write(string)
+print("Done!")
