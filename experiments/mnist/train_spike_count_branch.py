@@ -17,6 +17,7 @@ from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *
 
+#made sure this file is same as in the "working branch"
 print("Branch")
 """
 Notes: this eventially goes to nan output here and not in the other branch
