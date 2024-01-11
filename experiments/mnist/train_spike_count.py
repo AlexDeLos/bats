@@ -56,7 +56,7 @@ SPIKE_BUFFER_SIZE_RES = 30 # used to be 30 #! pu it to 1 (or 0) to see if it wor
 # Output_layer
 N_OUTPUTS = 10
 TAU_S_OUTPUT = 0.130 # 0.130
-THRESHOLD_HAT_OUTPUT = 1.3 # 1.3
+THRESHOLD_HAT_OUTPUT = 5 # 1.3
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
@@ -286,7 +286,6 @@ if __name__ == "__main__":
                 train_monitors_manager.print(epoch_metrics)
                 train_monitors_manager.export()
                 out_spikes, n_out_spikes = network.output_spike_trains
-                copy = np.copy(out_spikes)
                 #? when is out_spike a nan?
                 # 
                 #! I get 30 spikes for each neuron...
@@ -295,6 +294,9 @@ if __name__ == "__main__":
                 # Too many neurons? NO
                 # The using of residual? Not really
                 # Training samples? NO?
+
+
+                copy = np.copy(out_spikes)
                 mask = np.isinf(copy)
                 copy[mask] = np.nan
                 mean_spikes_for_times = np.nanmean(copy)
@@ -305,6 +307,9 @@ if __name__ == "__main__":
                     mean_spikes_for_times = 0.0
                 print(f'Output layer mean times: {mean_spikes_for_times}')
                 print(f'Output layer first spike: {first_spike_for_times}')
+
+
+
                 # with open('times.txt', 'a') as f:
                 #     string = f'Train Step Number: {training_steps/TRAIN_PRINT_PERIOD_STEP}' + "\n"+ f'Output layer mean times: {mean_spikes_for_times}' + "\n" + f'Output layer first spike: {first_spike_for_times}' + "\n" + "-------------------------------------"+"\n"
                 #     f.write(string)
