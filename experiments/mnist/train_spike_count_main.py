@@ -46,9 +46,9 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2 # used to be 0.2
 
 #Residual parameters
-USE_RESIDUAL = True
+USE_RESIDUAL = False
 RESIDUAL_EVERY_N = 50
-N_HIDDEN_LAYERS = 5 #fails at 2 in both cases
+N_HIDDEN_LAYERS = 2 #fails at 2 in both cases
 #!PROBLEM: when hidden layer > 1 and residual is used
 
 # Hidden layer
@@ -76,7 +76,7 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
-N_TRAIN_SAMPLES = 60000 #! used to be 60000 -> does this effect the % of silent labels?
+N_TRAIN_SAMPLES = 600000 #! used to be 60000 -> does this effect the % of silent labels?
 N_TEST_SAMPLES = 1000 #! used to be 10000
 TRAIN_BATCH_SIZE = 50 #! used to be 50
 TEST_BATCH_SIZE = 100
