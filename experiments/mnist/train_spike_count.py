@@ -44,6 +44,8 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = 50
 N_HIDDEN_LAYERS = 2
+
+
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
 N_TRAIN_SAMPLES = 600 #! used to be 60000
@@ -128,32 +130,32 @@ if __name__ == "__main__":
     hidden_layers = []
     for i in range(N_HIDDEN_LAYERS):
         if i == 0:
-            # hidden_layer = LIFLayer(previous_layer=input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-            #                         theta=THRESHOLD_HAT_1,
-            #                         delta_theta=DELTA_THRESHOLD_1,
-            #                         weight_initializer=weight_initializer,
-            #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
-            #                         name="Hidden layer 0")
-            hidden_layer = LIFLayerResidual(previous_layer=input_layer, jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-                                    theta=THRESHOLD_HAT_1,
-                                    delta_theta=DELTA_THRESHOLD_1,
-                                    weight_initializer=weight_initializer,
-                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                    name="Residual layer " + str(i))
-            
-        elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL:
-            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+            hidden_layer = LIFLayer(previous_layer=input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                     theta=THRESHOLD_HAT_1,
                                     delta_theta=DELTA_THRESHOLD_1,
                                     weight_initializer=weight_initializer,
                                     max_n_spike=SPIKE_BUFFER_SIZE_1,
                                     name="Hidden layer 0")
-            # hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+            # hidden_layer = LIFLayerResidual(previous_layer=input_layer, jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
             #                         theta=THRESHOLD_HAT_1,
             #                         delta_theta=DELTA_THRESHOLD_1,
             #                         weight_initializer=weight_initializer,
             #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
             #                         name="Residual layer " + str(i))
+            
+        elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL:
+            # hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+            #                         theta=THRESHOLD_HAT_1,
+            #                         delta_theta=DELTA_THRESHOLD_1,
+            #                         weight_initializer=weight_initializer,
+            #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
+            #                         name="Hidden layer 0")
+            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+                                    theta=THRESHOLD_HAT_1,
+                                    delta_theta=DELTA_THRESHOLD_1,
+                                    weight_initializer=weight_initializer,
+                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                    name="Residual layer " + str(i))
         elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
             hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i - RESIDUAL_EVERY_N], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                     theta=THRESHOLD_HAT_1,
