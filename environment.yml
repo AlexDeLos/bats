@@ -1,4 +1,4 @@
-name: test-env
+name:ClusterEnv
 dependencies:
 - python>=3.9.2
 - anaconda
