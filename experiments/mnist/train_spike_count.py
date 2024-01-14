@@ -2,9 +2,11 @@ from pathlib import Path
 import cupy as cp
 import numpy as np
 import os
-import wandb
-import random
+# import wandb
 import sys
+
+# if it is not working try going back to the pip 3.9 interpreter
+
 
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -39,7 +41,7 @@ DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 #Residual parameters
-USE_RESIDUAL = False
+USE_RESIDUAL = True
 RESIDUAL_EVERY_N = 50
 N_HIDDEN_LAYERS = 5
 # Training parameters
