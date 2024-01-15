@@ -141,6 +141,7 @@ class LIFLayerResidual(AbstractLayer):
         # if self.__previous_layer.trainable:
         # is it when the calculation is done?
         # or when the result is used?
+        # Seems to be when the result is used
         if True:
             pre_errors = propagate_errors_to_pre_spikes(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron,
                                                          #!here we only feed the residual spikes

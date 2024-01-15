@@ -43,6 +43,7 @@ class Network:
             if not layer.trainable:  # Reached input layer
                 gradient.insert(0, None)
                 break
+            #problem here when the previous layer is a residual
             weights_grad, errors = layer.backward(errors)
             gradient.insert(0, weights_grad)
         return gradient
