@@ -136,7 +136,12 @@ class LIFLayerResidual(AbstractLayer):
         # Propagate errors
         #Here maybe I shouldn't propagate the errors to the jump connection, since the jump connection might not be trainable
         # For now I will hard code it to not propagate the errors to the jump connection
-        if self.__previous_layer.trainable:
+
+        #! VERY LIKELY THE PROBLEM IS HERE (14/01/2024)
+        # if self.__previous_layer.trainable:
+        # is it when the calculation is done?
+        # or when the result is used?
+        if True:
             pre_errors = propagate_errors_to_pre_spikes(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron,
                                                          #!here we only feed the residual spikes
                                                         self.__pre_exp_tau_s, self.__pre_exp_tau, self.__weights,
