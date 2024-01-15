@@ -12,6 +12,7 @@ class LIFLayerResidual(AbstractLayer):
     def __init__(self, previous_layer: AbstractLayer, jump_layer: AbstractLayer, tau_s: float, theta: float, delta_theta: float,
                  weight_initializer: Callable[[int, int], cp.ndarray] = None, max_n_spike: int = 32, **kwargs):
         super().__init__(**kwargs)
+        self._is_residual = True
         self.__previous_layer: AbstractLayer = previous_layer
         self.__previous_layer_residual: AbstractLayer = jump_layer
         self.__tau_s: cp.float32 = cp.float32(tau_s)
@@ -142,7 +143,7 @@ class LIFLayerResidual(AbstractLayer):
         # is it when the calculation is done?
         # or when the result is used?
         # Seems to be when the result is used
-        if True:
+        if self.__previous_layer.trainable:
             pre_errors = propagate_errors_to_pre_spikes(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron,
                                                          #!here we only feed the residual spikes
                                                         self.__pre_exp_tau_s, self.__pre_exp_tau, self.__weights,

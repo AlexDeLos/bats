@@ -12,6 +12,7 @@ class AbstractLayer(ABC):
     def __init__(self, n_neurons: int, name: str = ""):
         self._n_neurons: int = n_neurons
         self._name: str = name
+        self._is_residual: bool = False
 
     @property
     def n_neurons(self) -> int:

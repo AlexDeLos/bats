@@ -43,7 +43,7 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 #Residual parameters
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = 50
-N_HIDDEN_LAYERS = 2
+N_HIDDEN_LAYERS = 3
 
 
 # Training parameters
@@ -150,7 +150,7 @@ if __name__ == "__main__":
             #                         weight_initializer=weight_initializer,
             #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
             #                         name="Hidden layer 0")
-            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                     theta=THRESHOLD_HAT_1,
                                     delta_theta=DELTA_THRESHOLD_1,
                                     weight_initializer=weight_initializer,
