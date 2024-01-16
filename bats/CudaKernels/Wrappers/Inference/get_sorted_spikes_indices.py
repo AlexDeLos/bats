@@ -18,5 +18,6 @@ def get_sorted_spikes_indices(spike_times_per_neuron, n_spike_per_neuron):
     """sorted_indices = cp.argsort(spike_times_reshaped, axis=1)[:, :max_total_spike]"""
     # creates keys? (was orriginally just called n)
     keys = np.arange(max_total_spike)
+    # keys produces: ValueError: kth(=7200) out of bounds 7200
     sorted_indices = cp.argpartition(spike_times_reshaped, keys, axis=1)[:, :max_total_spike]
     return new_shape, sorted_indices, spike_times_reshaped
