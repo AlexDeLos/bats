@@ -5,6 +5,8 @@ import os
 # import wandb
 import sys
 
+from sympy import Trace
+
 # if it is not working try going back to the pip 3.9 interpreter
 
 
@@ -41,7 +43,7 @@ DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 #Residual parameters
-USE_RESIDUAL = False
+USE_RESIDUAL = True
 RESIDUAL_EVERY_N = 50
 N_HIDDEN_LAYERS = 20
 
