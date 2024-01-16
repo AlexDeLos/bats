@@ -13,6 +13,7 @@ def get_sorted_spikes_indices(spike_times_per_neuron, n_spike_per_neuron):
     # total_spikes => number of spikes per neuron
     total_spikes = cp.sum(n_spike_per_neuron, axis=1)
     #max spikes a neuron got
+    #memory error here
     max_total_spike = int(cp.max(total_spikes))
     """sorted_indices = cp.argsort(spike_times_reshaped, axis=1)[:, :max_total_spike]"""
     # creates keys? (was orriginally just called n)
