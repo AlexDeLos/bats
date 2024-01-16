@@ -41,9 +41,9 @@ DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 #Residual parameters
-USE_RESIDUAL = True
+USE_RESIDUAL = False
 RESIDUAL_EVERY_N = 50
-N_HIDDEN_LAYERS = 5
+N_HIDDEN_LAYERS = 20
 
 
 # Training parameters
@@ -173,6 +173,12 @@ if __name__ == "__main__":
         #                             max_n_spike=SPIKE_BUFFER_SIZE_1,
         #                             name="Residual layer " + str(i))
         else:
+            # hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i-2], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+            #                         theta=THRESHOLD_HAT_1,
+            #                         delta_theta=DELTA_THRESHOLD_1,
+            #                         weight_initializer=weight_initializer,
+            #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
+            #                         name="Residual layer " + str(i))
             hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                     theta=THRESHOLD_HAT_1,
                                     delta_theta=DELTA_THRESHOLD_1,
