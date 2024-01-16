@@ -46,8 +46,13 @@ class Network:
             if layer._is_residual:
                 weights_grad, errors = layer.backward(errors)
             #problem here when the previous layer is a residual
+            # errors.shape = (batch_size, n_neurons, max_n_spikes)
+            # weights_grad.shape = (batch_size, pre_num_neurons , n_neurons)
+            #BINGO: the problem is that when the layer is residual the pre_num_neurons is fucked up
+            # when residual is used it should look like
             weights_grad, errors = layer.backward(errors)
             gradient.insert(0, weights_grad)
+            #gradient can have different shapes
         return gradient
 
     def apply_deltas(self, deltas: List[cp.array]) -> None:
