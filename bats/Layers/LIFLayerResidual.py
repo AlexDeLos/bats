@@ -1,3 +1,4 @@
+import re
 from typing import Callable, Tuple
 from typing import Optional
 import cupy as cp
@@ -21,9 +22,10 @@ class LIFLayerResidual(AbstractLayer):
         self.__delta_theta_tau: cp.float32 = cp.float32(delta_theta / self.__tau)
         #TODO: Change the initial state of the weights
         if weight_initializer is None:
-            self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons), dtype=cp.float32)
+            # self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons), dtype=cp.float32)
+            self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons), dtype=cp.float32)
         else:
-            self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons)
+            self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons)
         self.__max_n_spike: cp.int32 = cp.int32(max_n_spike)
 
         self.__n_spike_per_neuron: Optional[cp.ndarray] = None
@@ -163,6 +165,12 @@ Fuse the inputs of two layers into one input that can be fed to the next layer.
 """
 def fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.ndarray:
     #! Illegal memory error still occurs even without this code
+
+    #! how does it handle the spikes when there are too many?
+    #! buffer should check all the spikes and if too many it crashes
+    # HOW DOES THE spike buffer break?
+    # make it break and see what happens
+
     # if delay is None:
     #     #by default the delay is the mean of the residual input,
     #     delay = cp.mean(residual_input[np.isfinite(residual_input)])
@@ -172,20 +180,16 @@ def fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.nda
     # cp.add(jump_input, out, out = jump_input)
     batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
     batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
-
-    if batch_size_res != batch_size_jump:
-        raise ValueError("Batch size of residual and jump connection must be the same.")
-    if max_n_spike < max_n_spike_res or max_n_spike < max_n_spike_jump:
-        raise ValueError("Max number of spikes must be greater than the max number of spikes in residual and jump connection.")
-    # if max_n_spike_res+ max_n_spike_jump <:
-
-    if max_n_spike_res != max_n_spike_jump: #need to change this if
-        # We pad the smallest one with inf to make them the same size
-        #! Possible problem here, if inf are not ignored then I am adding a lot more spikes...
-        max_n_spike = max(max_n_spike_res, max_n_spike_jump)
-        residual_input = np.pad(residual_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_res)),constant_values = np.inf,mode = 'constant')
-        jump_input = np.pad(jump_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_jump)), constant_values = np.inf,mode = 'constant')
     
-    result = np.append(residual_input, jump_input, axis=1)
+    # we make the average of both inputs
+    if batch_size_res != batch_size_jump:
+        raise ValueError("The batch size of the residual and jump input must be the same")
+    if n_of_neurons_res != n_of_neurons_jump:
+        raise ValueError("The number of neurons of the residual and jump input must be the same")
+    if max_n_spike_res != max_n_spike_jump:
+        raise ValueError("The max number of spikes of the residual and jump input must be the same")
+    # return residual_input
+    result = cp.mean(cp.array([ residual_input, residual_input ]), axis=0 )
+
 
     return result
