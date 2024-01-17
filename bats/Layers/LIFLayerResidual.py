@@ -22,10 +22,10 @@ class LIFLayerResidual(AbstractLayer):
         self.__delta_theta_tau: cp.float32 = cp.float32(delta_theta / self.__tau)
         #TODO: Change the initial state of the weights
         if weight_initializer is None:
-            # self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons), dtype=cp.float32)
-            self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons), dtype=cp.float32)
+            self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons), dtype=cp.float32)
+            # self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons), dtype=cp.float32)
         else:
-            self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons)
+            self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons)
         self.__max_n_spike: cp.int32 = cp.int32(max_n_spike)
 
         self.__n_spike_per_neuron: Optional[cp.ndarray] = None
@@ -76,7 +76,7 @@ class LIFLayerResidual(AbstractLayer):
 
         #> pre_spike_per_neuron is a vector with the spike times of the previous layer
 
-        pre_spike_per_neuron = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, self.__max_n_spike)
+        pre_spike_per_neuron = old_fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, self.__max_n_spike)
         pre_n_spike_per_neuron = np.append(pre_n_spike_per_neuron_residual, jump_connection_spike_count, axis=1)
 
         self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
@@ -126,7 +126,7 @@ class LIFLayerResidual(AbstractLayer):
 
         #> pre_spike_per_neuron is a vector with the spike times of the previous layer
 
-        pre_spike_per_neuron = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, self.__max_n_spike)
+        pre_spike_per_neuron = old_fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, self.__max_n_spike)
 
 
         propagate_recurrent_errors(self.__x, self.__post_exp_tau, errors, self.__delta_theta_tau, residual = True)
@@ -160,7 +160,29 @@ class LIFLayerResidual(AbstractLayer):
         #!Why are the last two or three entries of delta_weights nan?
         self.__weights += delta_weights
 
-    """
+def old_fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.ndarray:
+    batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
+    batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
+
+    if batch_size_res != batch_size_jump:
+        raise ValueError("Batch size of residual and jump connection must be the same.")
+    if max_n_spike < max_n_spike_res or max_n_spike < max_n_spike_jump:
+        raise ValueError("Max number of spikes must be greater than the max number of spikes in residual and jump connection.")
+    # if max_n_spike_res+ max_n_spike_jump <:
+
+    if max_n_spike_res != max_n_spike_jump: #need to change this if
+        # We pad the smallest one with inf to make them the same size
+        #! Possible problem here, if inf are not ignored then I am adding a lot more spikes...
+        max_n_spike = max(max_n_spike_res, max_n_spike_jump)
+        residual_input = np.pad(residual_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_res)),constant_values = np.inf,mode = 'constant')
+        jump_input = np.pad(jump_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_jump)), constant_values = np.inf,mode = 'constant')
+    
+    result = np.append(residual_input, jump_input, axis=1)
+    if result.shape != (batch_size_res, n_of_neurons_res + n_of_neurons_jump, max_n_spike):
+        raise ValueError("The shape of the fused is not correct.")
+    return result
+
+"""
 Fuse the inputs of two layers into one input that can be fed to the next layer.
 """
 def fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.ndarray:
@@ -180,6 +202,14 @@ def fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.nda
     # cp.add(jump_input, out, out = jump_input)
     batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
     batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
+
+    not_inf_mask_res = cp.logical_not(cp.isinf(residual_input))
+    not_inf_mask_jump = cp.logical_not(cp.isinf(jump_input))
+
+    or_combined_mask = cp.logical_or(not_inf_mask_res, not_inf_mask_jump)
+
+    #if true in mask then take the value, else take average
+    # result = cp.where(or_combined_mask, residual_input, jump_input)
     
     # we make the average of both inputs
     if batch_size_res != batch_size_jump:
