@@ -1,4 +1,4 @@
-import re
+from operator import and_, or_
 from typing import Callable, Tuple
 from typing import Optional
 import cupy as cp
@@ -22,10 +22,11 @@ class LIFLayerResidual(AbstractLayer):
         self.__delta_theta_tau: cp.float32 = cp.float32(delta_theta / self.__tau)
         #TODO: Change the initial state of the weights
         if weight_initializer is None:
-            self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons), dtype=cp.float32)
-            # self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons), dtype=cp.float32)
+            # self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons), dtype=cp.float32)
+            self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons), dtype=cp.float32)
         else:
-            self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons)
+            # self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons)
+            self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons)
         self.__max_n_spike: cp.int32 = cp.int32(max_n_spike)
 
         self.__n_spike_per_neuron: Optional[cp.ndarray] = None
@@ -76,7 +77,7 @@ class LIFLayerResidual(AbstractLayer):
 
         #> pre_spike_per_neuron is a vector with the spike times of the previous layer
 
-        pre_spike_per_neuron = old_fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, self.__max_n_spike)
+        pre_spike_per_neuron = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, self.__max_n_spike)
         pre_n_spike_per_neuron = np.append(pre_n_spike_per_neuron_residual, jump_connection_spike_count, axis=1)
 
         self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
@@ -126,7 +127,7 @@ class LIFLayerResidual(AbstractLayer):
 
         #> pre_spike_per_neuron is a vector with the spike times of the previous layer
 
-        pre_spike_per_neuron = old_fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, self.__max_n_spike)
+        pre_spike_per_neuron = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, self.__max_n_spike)
 
 
         propagate_recurrent_errors(self.__x, self.__post_exp_tau, errors, self.__delta_theta_tau, residual = True)
@@ -206,7 +207,17 @@ def fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.nda
     not_inf_mask_res = cp.logical_not(cp.isinf(residual_input))
     not_inf_mask_jump = cp.logical_not(cp.isinf(jump_input))
 
+    inf_mask_res = cp.isinf(residual_input)
+    inf_mask_jump = cp.isinf(jump_input)
+
+    xor_combined_mask = cp.logical_xor(not_inf_mask_res, not_inf_mask_jump)
     or_combined_mask = cp.logical_or(not_inf_mask_res, not_inf_mask_jump)
+    and_combined_mask = cp.logical_and(not_inf_mask_res, not_inf_mask_jump)
+
+    #! for now if both are inf we take residual, we should take whichever is not inf
+    get_non_infinite = cp.where(inf_mask_res, jump_input, residual_input)
+    get_non_infinite = cp.where(inf_mask_jump, residual_input, get_non_infinite)
+    result = cp.where(or_combined_mask, jump_input, residual_input)
 
     #if true in mask then take the value, else take average
     # result = cp.where(or_combined_mask, residual_input, jump_input)
@@ -219,7 +230,10 @@ def fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.nda
     if max_n_spike_res != max_n_spike_jump:
         raise ValueError("The max number of spikes of the residual and jump input must be the same")
     # return residual_input
-    result = cp.mean(cp.array([ residual_input, residual_input ]), axis=0 )
+    result = cp.where(xor_combined_mask,
+                        get_non_infinite,
+                      cp.mean(cp.array([ residual_input, residual_input ]), axis=0)
+                      )
 
 
     return result
