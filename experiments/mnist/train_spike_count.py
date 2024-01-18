@@ -28,7 +28,7 @@ DATASET_PATH = Path("./datasets/mnist.npz")
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
-NUMBER_OF_RUNS = 10
+NUMBER_OF_RUNS = 20
 
 # Hidden layer
 N_NEURONS_1 = 240 #!800 #? Should I lower it?
@@ -81,7 +81,17 @@ SAVE_DIR = Path("./experiments/mnist/best_model")
 
 #Weights and biases
 # start a new wandb run to track this script
-wandb.init(
+
+
+
+
+def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
+    return cp.random.uniform(-1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
+
+
+for run in range(NUMBER_OF_RUNS):
+
+    wandb.init(
     # set the wandb project where this run will be logged
     project="Residual-SNN",
     
@@ -100,16 +110,10 @@ wandb.init(
     "epochs": N_TRAINING_EPOCHS,
     "version": "2.0.1_" + str(NUMBER_OF_RUNS),
     }
-)
+    )
 
 
-
-def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
-    return cp.random.uniform(-1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
-
-
-for run in range(NUMBER_OF_RUNS):
-    if run == NUMBER_OF_RUNS/2:
+    if run >= NUMBER_OF_RUNS/2:
         USE_RESIDUAL = False
     
     max_int = np.iinfo(np.int32).max
@@ -366,7 +370,7 @@ for run in range(NUMBER_OF_RUNS):
     wandb.finish()
 
 
-wandb.finish()
+# wandb.finish()
 
 # Write average accuracy to file
 # avg_acc = np.mean(best_acc_array)
