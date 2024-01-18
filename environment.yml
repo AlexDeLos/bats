@@ -14,7 +14,7 @@ dependencies:
     - colorama==0.4.6
     - contourpy==1.2.0
     - cuda-python==12.3.0
-    - cupy==12.2.0
+    - cupy==12.3.0
     - cycler==0.12.1
     - Cython==3.0.8
     - debugpy==1.8.0
