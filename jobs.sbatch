@@ -2,7 +2,7 @@
 
 #SBATCH --partition=general
 #SBATCH --qos=short
-# SBATCH --time=8:00:00
+# SBATCH --time=4:00:00
 # SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=6144
@@ -15,4 +15,4 @@ module load miniconda/3.9
 module load cuda/12.3
 conda activate /home/nfs/adelossantossu/.conda/envs/computerEnv
 
-srun python experiments/mnist/train_spike_count.py --gres=gpu --mail-type=END
+srun python experiments/mnist/train_spike_count.py
