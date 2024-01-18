@@ -13,7 +13,9 @@
 module use /opt/insy/modulefiles
 module load miniconda/3.9
 module load cuda/12.3
-echo "nvcc version: " `nvcc --version`
 conda activate /home/nfs/adelossantossu/.conda/envs/computerEnv
+echo "nvcc version: " `nvcc --version`
+echo "python version: " `python --version`
+echo "cupy version: " `python -c "import cupy; print(cupy.__version__)"`
 
 srun python experiments/mnist/train_spike_count.py
