@@ -22,7 +22,7 @@ echo "conda list: " `conda list`
 echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
 
 # Set CUDA library path
-export LD_LIBRARY_PATH=/opt/insy/cuda/12.3/bin/nvcc/lib64:$LD_LIBRARY_PATH
+# export LD_LIBRARY_PATH=/opt/insy/cuda/12.3/bin/nvcc/lib64:$LD_LIBRARY_PATH
 
 # Rest of your script remains unchanged
 srun python3 experiments/mnist/train_spike_count.py
