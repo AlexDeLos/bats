@@ -98,7 +98,7 @@ wandb.init(
     "architecture": "SNN",
     "dataset": "MNIST",
     "epochs": N_TRAINING_EPOCHS,
-    "version": "2.0.0_" + str(NUMBER_OF_RUNS),
+    "version": "2.0.1_" + str(NUMBER_OF_RUNS),
     }
 )
 
@@ -313,6 +313,7 @@ for run in range(NUMBER_OF_RUNS):
                 first_spike_for_times = cp.nanmin(out_copy)
                 print(f'Output layer mean times: {mean_spikes_for_times}')
                 print(f'Output layer first spike: {first_spike_for_times}')
+                wandb.log({"mean_spikes_for_times": float(mean_spikes_for_times), "first_spike_for_times": float(first_spike_for_times)})
                 with open('times.txt', 'a') as f:
                     string = f'Train Step Number: {training_steps/TRAIN_PRINT_PERIOD_STEP}' + "\n"+ f'Output layer mean times: {mean_spikes_for_times}' + "\n" + f'Output layer first spike: {first_spike_for_times}' + "\n" + "-------------------------------------"+"\n"
                     f.write(string)
@@ -362,7 +363,7 @@ for run in range(NUMBER_OF_RUNS):
     # with open('times.txt', 'a') as f:
     #     string =f'End of run: {c}'+ "\n"
     #     f.write(string)
-    wandb.save("weights.npy")
+    wandb.finish()
 
 
 wandb.finish()
