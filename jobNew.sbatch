@@ -13,7 +13,7 @@
 module use /opt/insy/modulefiles
 module load miniconda/3.9
 module load cuda/12.3
-conda activate /home/nfs/adelossantossu/.conda/envs/ame
+conda activate /home/nfs/adelossantossu/.conda/envs/test
 echo "conda env list: " `conda env list`
 echo "nvcc version: " `nvcc --version`
 echo "python version: " `python --version`
