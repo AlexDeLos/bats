@@ -22,6 +22,7 @@ echo "conda env list: " `conda env list`
 echo "nvcc version: " `nvcc --version`
 echo "python version: " `python --version`
 echo "pip list: " `pip list`
+echo "conda list: " `conda list`
 echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
 
 srun python3 experiments/mnist/train_spike_count.py
