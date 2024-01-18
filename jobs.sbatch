@@ -13,7 +13,8 @@
 module use /opt/insy/modulefiles
 module load miniconda/3.9
 module load cuda/12.3
-conda activate /home/nfs/adelossantossu/.conda/envs/computerEnv
+conda activate /home/nfs/adelossantossu/.conda/envs/pytorch
+
 echo "nvcc version: " `nvcc --version`
 echo "python version: " `python --version`
 echo "pip list: " `pip list`
