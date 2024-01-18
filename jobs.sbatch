@@ -16,6 +16,7 @@ module load cuda/12.3
 conda activate /home/nfs/adelossantossu/.conda/envs/computerEnv
 echo "nvcc version: " `nvcc --version`
 echo "python version: " `python --version`
+echo "pip list: " `pip list`
 echo "cupy version: " `python -c "import cupy; print(cupy.__version__)"`
 
 srun python experiments/mnist/train_spike_count.py
