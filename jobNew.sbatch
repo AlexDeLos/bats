@@ -12,22 +12,21 @@
 
 module use /opt/insy/modulefiles
 module load miniconda/3.9
-module load cuda/12.3
-conda activate /home/nfs/adelossantossu/.conda/envs/ame
+module load cuda/10.4
+conda activate /home/nfs/adelossantossu/.conda/envs/pytorch
 
 # Find CUDA path
-CUDA_PATH=$(dirname $(dirname $(which nvcc)))
+# CUDA_PATH=$(dirname $(dirname $(which nvcc)))
 
-# echo "nvcc version: " `nvcc --version`
-echo "python version: " `python --version`
-echo "pip list: " `pip list`
-echo "conda list: " `conda list`
-echo "CUDA_PATH: " $CUDA_PATH
+# # echo "nvcc version: " `nvcc --version`
+# echo "python version: " `python --version`
+# echo "pip list: " `pip list`
+# echo "conda list: " `conda list`
+# echo "CUDA_PATH: " $CUDA_PATH
 
-# Set LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$CUDA_PATH/lib64:$LD_LIBRARY_PATH
+# # Set LD_LIBRARY_PATH
+# export LD_LIBRARY_PATH=$CUDA_PATH/lib64:$LD_LIBRARY_PATH
 
-echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
+# echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
 
-# Rest of your script remains unchanged
-# srun python3 experiments/mnist/train_spike_count.py
+srun python3 experiments/mnist/train_spike_count.py
