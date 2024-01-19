@@ -16,6 +16,7 @@ module load miniconda/3.9
 module load cuda/10.1
 echo "nvcc version: " `nvcc --version`
 conda activate /home/nfs/adelossantossu/.conda/envs/newPytorch #this env causes circular import error
+echo "python version: " `python --version`
 # CONDA_ENV=$(conda info --envs | awk '$1=="*" {print $2}')
 # echo "Currently activated Conda environment: $CONDA_ENV"
 
@@ -23,7 +24,6 @@ echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
 
 # echo "conda env list: " `conda env list`
 # echo "nvcc version: " `nvcc --version`
-# echo "python version: " `python --version`
 # echo "pip list: " `pip list`
 # echo "conda list: " `conda list`
 
