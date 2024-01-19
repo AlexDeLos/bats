@@ -14,7 +14,8 @@ module use /opt/insy/modulefiles
 module load miniconda/3.9
 # module load cuda/12.0
 module use cuda/12.2
-conda activate /home/nfs/adelossantossu/.conda/envs/ema
+echo "nvcc version: " `nvcc --version`
+conda activate /home/nfs/adelossantossu/.conda/envs/ema #this env causes circular import error
 # CONDA_ENV=$(conda info --envs | awk '$1=="*" {print $2}')
 
 # echo "Currently activated Conda environment: $CONDA_ENV"
