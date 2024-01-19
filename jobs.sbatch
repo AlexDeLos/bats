@@ -26,7 +26,6 @@ echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
 # echo "python version: " `python --version`
 # echo "pip list: " `pip list`
 # echo "conda list: " `conda list`
-echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
 
 # cuda path = /opt/insy/cuda/12.3/bin/nvcc
 # echo %CUDA_PATH%
