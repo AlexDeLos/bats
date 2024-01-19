@@ -31,4 +31,4 @@ echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
 # cuda path = /opt/insy/cuda/12.3/bin/nvcc
 # echo %CUDA_PATH%
 
-srun python3 experiments/mnist/train_spike_count.py
+# srun python3 experiments/mnist/train_spike_count.py
