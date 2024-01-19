@@ -13,8 +13,8 @@
 module use /opt/insy/modulefiles
 module load miniconda/3.9
 # module load cuda/12.0
-module use cuda/10.1
-conda activate /home/nfs/adelossantossu/.conda/envs/newPytorch
+module use cuda/12.2
+conda activate /home/nfs/adelossantossu/.conda/envs/ema
 # CONDA_ENV=$(conda info --envs | awk '$1=="*" {print $2}')
 
 # echo "Currently activated Conda environment: $CONDA_ENV"
