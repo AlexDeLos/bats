@@ -2,7 +2,7 @@
 
 # SBATCH --partition=general
 # SBATCH --qos=short
-SBATCH --time=0:02:00
+# SBATCH --time=0:02:00
 # SBATCH --ntasks=1
 # SBATCH --cpus-per-task=4
 # SBATCH --mem=6144
@@ -18,10 +18,6 @@ echo "nvcc version: " `nvcc --version`
 conda activate /home/nfs/adelossantossu/.conda/envs/ame #this env causes circular import error
 # CONDA_ENV=$(conda info --envs | awk '$1=="*" {print $2}')
 # echo "Currently activated Conda environment: $CONDA_ENV"
-
-CUDA_PATH=$(dirname $(dirname $(which nvcc)))
-# Set LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$CUDA_PATH/lib64:$LD_LIBRARY_PATH
 
 echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
 
