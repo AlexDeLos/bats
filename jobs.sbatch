@@ -15,7 +15,7 @@ module load miniconda/3.9
 # module load cuda/12.0
 module use cuda/12.2
 echo "nvcc version: " `nvcc --version`
-conda activate /home/nfs/adelossantossu/.conda/envs/ema #this env causes circular import error
+conda activate /home/nfs/adelossantossu/.conda/envs/ame #this env causes circular import error
 # CONDA_ENV=$(conda info --envs | awk '$1=="*" {print $2}')
 
 # echo "Currently activated Conda environment: $CONDA_ENV"
@@ -25,7 +25,7 @@ conda activate /home/nfs/adelossantossu/.conda/envs/ema #this env causes circula
 # echo "python version: " `python --version`
 # echo "pip list: " `pip list`
 # echo "conda list: " `conda list`
-# echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
+echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
 
 # cuda path = /opt/insy/cuda/12.3/bin/nvcc
 # echo %CUDA_PATH%
