@@ -13,7 +13,8 @@
 module use /opt/insy/modulefiles
 module load miniconda/3.9
 # module load cuda/12.2
-module load cuda/11.8 #!use this because for some reason the default
+module load cuda/11.8
+#!use this because for some reason the default
 echo "nvcc version: " `nvcc --version`
 conda activate /home/nfs/adelossantossu/.conda/envs/newPytorch #this env causes circular import error
 echo "python version: " `python --version`
