@@ -4,6 +4,7 @@ import numpy as np
 import os
 import wandb
 import sys
+import cuda
 
 from sympy import Trace
 
@@ -82,7 +83,9 @@ SAVE_DIR = Path("./experiments/mnist/best_model")
 #Weights and biases
 # start a new wandb run to track this script
 
-
+# Get the CUDA driver version
+driver_version = cuda.driver.get_version()
+print("CUDA driver version: ", driver_version)
 
 
 def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
