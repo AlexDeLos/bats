@@ -19,6 +19,7 @@ conda activate /home/nfs/adelossantossu/.conda/envs/ame #this env causes circula
 # CONDA_ENV=$(conda info --envs | awk '$1=="*" {print $2}')
 # echo "Currently activated Conda environment: $CONDA_ENV"
 
+CUDA_PATH=$(dirname $(dirname $(which nvcc)))
 # Set LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=$CUDA_PATH/lib64:$LD_LIBRARY_PATH
 
