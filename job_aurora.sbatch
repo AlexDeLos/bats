@@ -16,7 +16,7 @@
 
 #SBATCH --gres=gpu:v100
 
-source ~/.bashrc
+# source ~/.bashrc
 
 module use /opt/insy/modulefiles
 module load miniconda/3.9
