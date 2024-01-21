@@ -28,10 +28,10 @@ echo "test ran"
 # Find CUDA path
 # CUDA_PATH=$(dirname $(dirname $(which nvcc)))
 
-# # echo "nvcc version: " `nvcc --version`
+echo "nvcc version: " `nvcc --version`
 # echo "python version: " `python --version`
-# echo "pip list: " `pip list`
-# echo "conda list: " `conda list`
+echo "pip list: " `pip list`
+echo "conda list: " `conda list`
 # echo "CUDA_PATH: " $CUDA_PATH
 
 # # Set LD_LIBRARY_PATH
