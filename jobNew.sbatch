@@ -33,6 +33,6 @@ conda activate /home/nfs/adelossantossu/.conda/envs/pytorch
 # # Set LD_LIBRARY_PATH
 # export LD_LIBRARY_PATH=$CUDA_PATH/lib64:$LD_LIBRARY_PATH
 
-echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
+# echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
 
-# srun python3 experiments/mnist/train_spike_count.py
+srun python3 experiments/mnist/train_spike_count.py
