@@ -12,15 +12,16 @@ echo "start"
 
 # source ~/.bashrc
 
-module use /opt/insy/modulefiles
-module load miniconda/3.9
+# module use /opt/insy/modulefiles
+# module load miniconda/3.9
 echo "loaded"
 # module load cuda/11.1
 # module load cuda/10.1
 #! I wanna work with cuda 11.2
 # module load cuda/11.2 -> not use this
 #assume we are using cuda 11.8 as it is the output of torch.version.cuda
-conda activate /home/nfs/adelossantossu/.conda/envs/freshPytorch
+# conda activate /home/nfs/adelossantossu/.conda/envs/freshPytorch
+
 echo "loeaded env"
 echo "nvcc version: " `nvcc --version`
 module load cuda/11.8
@@ -43,6 +44,6 @@ echo "conda list: " `conda list`
 # # Set LD_LIBRARY_PATH
 # export LD_LIBRARY_PATH=$CUDA_PATH/lib64:$LD_LIBRARY_PATH
 
-echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
+# echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
 
 # srun python3 experiments/mnist/train_spike_count.py
