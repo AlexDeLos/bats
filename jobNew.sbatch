@@ -15,8 +15,11 @@ source ~/.bashrc
 module use /opt/insy/modulefiles
 module load miniconda/3.9
 # module load cuda/11.1
-module load cuda/10.1
+# module load cuda/10.1
+#! I wanna work with cuda 12.2
+module load cuda/12.2
 conda activate /home/nfs/adelossantossu/.conda/envs/pytorch
+# cuda 12.3
 
 # Find CUDA path
 # CUDA_PATH=$(dirname $(dirname $(which nvcc)))

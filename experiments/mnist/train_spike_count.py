@@ -4,6 +4,7 @@ import numpy as np
 import os
 import wandb
 import sys
+import subprocess
 # import cuda
 
 from sympy import Trace
@@ -21,6 +22,28 @@ from bats.Layers import InputLayer, LIFLayer, LIFLayerResidual
 from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *
+
+
+def get_cuda_version():
+    try:
+        result = subprocess.run(['nvcc', '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        output = result.stdout + result.stderr
+        version_line = [line for line in output.split('\n') if 'release' in line.lower()][0]
+        cuda_version = version_line.split(',')[2].strip()
+        return cuda_version
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+
+# Example usage
+cuda_version = get_cuda_version()
+if cuda_version:
+    print(f"CUDA Version: {cuda_version}")
+else:
+    print("Failed to retrieve CUDA version.")
+
+print("start:")
+get_cuda_version()
 
 # Dataset
 # DATASET_PATH = Path("../../datasets/mnist.npz")
