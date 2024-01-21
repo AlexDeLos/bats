@@ -23,10 +23,10 @@ echo "loaded"
 # conda activate /home/nfs/adelossantossu/.conda/envs/freshPytorch
 
 echo "loeaded env"
-echo "nvcc version: " `nvcc --version`
-module load cuda/11.8
+# echo "nvcc version: " `nvcc --version`
+# module load cuda/11.8
 echo "loaded cuda"
-echo "nvcc version: " `nvcc --version`
+# echo "nvcc version: " `nvcc --version`
 # cuda 12.3
 echo "cuda version (from torch): " `python3 -c "import torch; print(torch.version.cuda)"` #11.8
 # echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
