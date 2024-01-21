@@ -21,12 +21,11 @@ echo "loaded"
 # module load cuda/11.2 -> not use this
 #assume we are using cuda 11.8 as it is the output of torch.version.cuda
 # conda activate /home/nfs/adelossantossu/.conda/envs/freshPytorch
-conda activate /tudelft.net/staff-bulk/ewi/insy/VisionLab/amicheli/envs/pytorch
 
 
 echo "loeaded env"
 # echo "nvcc version: " `nvcc --version`
-module load cuda/11.8
+conda activate myclone
 echo "loaded cuda"
 # echo "nvcc version: " `nvcc --version`
 # cuda 12.3

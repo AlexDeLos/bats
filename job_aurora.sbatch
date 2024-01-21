@@ -20,7 +20,7 @@
 
 module use /opt/insy/modulefiles
 module load miniconda/3.9
-conda activate /tudelft.net/staff-bulk/ewi/insy/VisionLab/amicheli/envs/pytorch
+conda activate myclone
 echo "cuda version (from torch): " `python3 -c "import torch; print(torch.version.cuda)"`
 echo "cuda version: " `python3 -c "import cupy; print(cupy.cuda.runtime.runtimeGetVersion())"`
 
