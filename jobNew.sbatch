@@ -21,11 +21,12 @@ echo "loaded"
 # module load cuda/11.2 -> not use this
 #assume we are using cuda 11.8 as it is the output of torch.version.cuda
 # conda activate /home/nfs/adelossantossu/.conda/envs/freshPytorch
-srun conda activate freshPytorch && python 3 -c "import cupy; print(cupy.cuda.runtime.runtimeGetVersion())"
+conda activate /tudelft.net/staff-bulk/ewi/insy/VisionLab/amicheli/envs/pytorch
+
 
 echo "loeaded env"
 # echo "nvcc version: " `nvcc --version`
-# module load cuda/11.8
+module load cuda/11.8
 echo "loaded cuda"
 # echo "nvcc version: " `nvcc --version`
 # cuda 12.3
@@ -35,16 +36,13 @@ echo "cuda version: " `python3 -c "import cupy; print(cupy.cuda.runtime.runtimeG
 echo "test ran"
 
 # Find CUDA path
-# CUDA_PATH=$(dirname $(dirname $(which nvcc)))
+CUDA_PATH=$(dirname $(dirname $(which nvcc)))
 
-# echo "python version: " `python --version`
-echo "pip list: " `pip list`
-echo "conda list: " `conda list`
-# echo "CUDA_PATH: " $CUDA_PATH
+echo "CUDA_PATH: " $CUDA_PATH
 
 # # Set LD_LIBRARY_PATH
-# export LD_LIBRARY_PATH=$CUDA_PATH/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$CUDA_PATH/lib64:$LD_LIBRARY_PATH
 
-# echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
+echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
 
 # srun python3 experiments/mnist/train_spike_count.py
