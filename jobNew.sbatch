@@ -8,11 +8,14 @@
 #SBATCH --mem=6144
 # SBATCH --mail-type=END
 # SBATCH --gres=gpu
-# source ~/.bashrc
+
+
+source ~/.bashrc
 
 module use /opt/insy/modulefiles
 module load miniconda/3.9
-module load cuda/10.4
+# module load cuda/11.1
+module load cuda/10.1
 conda activate /home/nfs/adelossantossu/.conda/envs/pytorch
 
 # Find CUDA path
