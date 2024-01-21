@@ -8,7 +8,7 @@
 #SBATCH --mem=6144
 # SBATCH --mail-type=END
 # SBATCH --gres=gpu
-
+echo "start"
 
 source ~/.bashrc
 
