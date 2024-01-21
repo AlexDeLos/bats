@@ -22,6 +22,7 @@ from bats.Network import Network
 from bats.Optimizers import *
 
 print("cuda version: ", cp.cuda.runtime.runtimeGetVersion())
+print("cupy version: ", cp.__version__)
 
 
 # Dataset
