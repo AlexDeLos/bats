@@ -21,6 +21,7 @@ echo "loaded"
 # module load cuda/11.2 -> not use this
 #assume we are using cuda 11.8 as it is the output of torch.version.cuda
 # conda activate /home/nfs/adelossantossu/.conda/envs/freshPytorch
+srun conda activate freshPytorch && python 3 -c "import cupy; print(cupy.cuda.runtime.runtimeGetVersion())"
 
 echo "loeaded env"
 # echo "nvcc version: " `nvcc --version`
