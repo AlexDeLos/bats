@@ -19,7 +19,7 @@ echo "loaded"
 # module load cuda/10.1
 #! I wanna work with cuda 11.2
 # module load cuda/11.2
-conda activate /home/nfs/adelossantossu/.conda/envs/pytorch
+conda activate /home/nfs/adelossantossu/.conda/envs/freshPytorch
 echo "loeaded env"
 # cuda 12.3
 echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
