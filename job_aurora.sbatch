@@ -22,4 +22,4 @@ module use /opt/insy/modulefiles
 module load miniconda/3.9
 conda activate /tudelft.net/staff-bulk/ewi/insy/VisionLab/amicheli/envs/pytorch
 
-srun python3 train_spike_count.py
+srun python3 experiments/mnist/train_spike_count.py
