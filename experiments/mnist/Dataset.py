@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Tuple
 # from elasticdeform import deform_random_grid
 import warnings
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter, map_coordinates
 
 warnings.filterwarnings("ignore")
