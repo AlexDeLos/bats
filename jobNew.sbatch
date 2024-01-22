@@ -35,12 +35,6 @@ echo "cuda version: " `python3 -c "import cupy; print(cupy.cuda.runtime.runtimeG
 echo "test ran"
 
 # Find CUDA path
-CUDA_PATH=$(dirname $(dirname $(which nvcc)))
-
-echo "CUDA_PATH: " $CUDA_PATH
-
-# # Set LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$CUDA_PATH/lib64:$LD_LIBRARY_PATH
 
 echo "cupy version: " `python3 -c "import cupy; print(cupy.__version__)"`
 
