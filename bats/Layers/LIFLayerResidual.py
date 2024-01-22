@@ -1,6 +1,7 @@
 from operator import and_, or_
 from typing import Callable, Tuple
 from typing import Optional
+from unittest import result
 import cupy as cp
 import numpy as np
 
@@ -77,8 +78,9 @@ class LIFLayerResidual(AbstractLayer):
 
         #> pre_spike_per_neuron is a vector with the spike times of the previous layer
 
-        pre_spike_per_neuron = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, self.__max_n_spike)
-        pre_n_spike_per_neuron = np.append(pre_n_spike_per_neuron_residual, jump_connection_spike_count, axis=1)
+        pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, pre_n_spike_per_neuron_residual, jump_connection_spike_count, self.__max_n_spike)
+        # join them together in a good way
+        # pre_n_spike_per_neuron = np.append(pre_n_spike_per_neuron_residual, jump_connection_spike_count, axis=1)
 
         self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
         # self.__pre_exp_tau_s_residual, self.__pre_exp_tau_residual = compute_pre_exps(pre_spike_per_neuron_residual, self.__tau_s, self.__tau)
@@ -120,14 +122,14 @@ class LIFLayerResidual(AbstractLayer):
         # Compute gradient
         # pre_spike_per_neuron, _ = self.__previous_layer.spike_trains
 
-        pre_spike_per_neuron_residual, _ = self.__previous_layer.spike_trains
+        pre_spike_per_neuron_residual, pre_n_spike_per_neuron_residual = self.__previous_layer.spike_trains
 
         #We will try just adding them together
-        jump_connection_spikes, _ = self.__previous_layer_residual.spike_trains
+        jump_connection_spikes, jump_connection_spike_count = self.__previous_layer_residual.spike_trains
 
         #> pre_spike_per_neuron is a vector with the spike times of the previous layer
 
-        pre_spike_per_neuron = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, self.__max_n_spike)
+        pre_spike_per_neuron,_ = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, pre_n_spike_per_neuron_residual, jump_connection_spike_count, self.__max_n_spike)
 
 
         propagate_recurrent_errors(self.__x, self.__post_exp_tau, errors, self.__delta_theta_tau, residual = True)
@@ -186,7 +188,7 @@ def old_fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp
 """
 Fuse the inputs of two layers into one input that can be fed to the next layer.
 """
-def fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.ndarray:
+def fuse_inputs(residual_input, jump_input, pre_n_spike_per_neuron_residual, jump_connection_spike_count, max_n_spike, delay = None) -> cp.ndarray:
     #! Illegal memory error still occurs even without this code
 
     #! how does it handle the spikes when there are too many?
@@ -201,6 +203,8 @@ def fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.nda
     # out = cp.empty(jump_input.shape, dtype=int)
     # out[out == 0] = delay
     # cp.add(jump_input, out, out = jump_input)
+    result_count = cp.maximum(pre_n_spike_per_neuron_residual, jump_connection_spike_count)
+
     batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
     batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
 
@@ -217,7 +221,7 @@ def fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.nda
     #! for now if both are inf we take residual, we should take whichever is not inf
     get_non_infinite = cp.where(inf_mask_res, jump_input, residual_input)
     get_non_infinite = cp.where(inf_mask_jump, residual_input, get_non_infinite)
-    result = cp.where(or_combined_mask, jump_input, residual_input)
+    result_times = cp.where(or_combined_mask, jump_input, residual_input)
 
     #if true in mask then take the value, else take average
     # result = cp.where(or_combined_mask, residual_input, jump_input)
@@ -230,10 +234,10 @@ def fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.nda
     if max_n_spike_res != max_n_spike_jump:
         raise ValueError("The max number of spikes of the residual and jump input must be the same")
     # return residual_input
-    result = cp.where(xor_combined_mask,
+    result_times = cp.where(xor_combined_mask,
                         get_non_infinite,
                       cp.mean(cp.array([ residual_input, residual_input ]), axis=0)
                       )
 
 
-    return result
+    return result_times, result_count

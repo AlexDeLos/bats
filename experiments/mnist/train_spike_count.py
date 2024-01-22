@@ -21,9 +21,6 @@ from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *
 
-print("cuda version: ", cp.cuda.runtime.runtimeGetVersion())
-print("cupy version: ", cp.__version__)
-
 
 # Dataset
 # DATASET_PATH = Path("../../datasets/mnist.npz")
@@ -111,7 +108,7 @@ for run in range(NUMBER_OF_RUNS):
     "architecture": "SNN",
     "dataset": "MNIST",
     "epochs": N_TRAINING_EPOCHS,
-    "version": "2.1.1_" + str(NUMBER_OF_RUNS),
+    "version": "2.2.1_" + str(NUMBER_OF_RUNS),
     }
     )
 
@@ -313,17 +310,6 @@ for run in range(NUMBER_OF_RUNS):
                 train_monitors_manager.print(epoch_metrics)
                 train_monitors_manager.export()
                 out_spikes, n_out_spikes = network.output_spike_trains
-                out_copy = cp.copy(out_spikes)
-                mask = cp.isinf(out_copy)
-                out_copy[mask] = cp.nan
-                mean_spikes_for_times = cp.nanmean(out_copy)
-                first_spike_for_times = cp.nanmin(out_copy)
-                print(f'Output layer mean times: {mean_spikes_for_times}')
-                print(f'Output layer first spike: {first_spike_for_times}')
-                wandb.log({"mean_spikes_for_times": float(mean_spikes_for_times), "first_spike_for_times": float(first_spike_for_times)})
-                with open('times.txt', 'a') as f:
-                    string = f'Train Step Number: {training_steps/TRAIN_PRINT_PERIOD_STEP}' + "\n"+ f'Output layer mean times: {mean_spikes_for_times}' + "\n" + f'Output layer first spike: {first_spike_for_times}' + "\n" + "-------------------------------------"+"\n"
-                    f.write(string)
 
             # Test evaluation
             if training_steps % TEST_PERIOD_STEP == 0:
@@ -333,6 +319,19 @@ for run in range(NUMBER_OF_RUNS):
                     network.reset()
                     network.forward(spikes, n_spikes, max_simulation=SIMULATION_TIME)
                     out_spikes, n_out_spikes = network.output_spike_trains
+
+                    
+                    out_copy = cp.copy(out_spikes)
+                    mask = cp.isinf(out_copy)
+                    out_copy[mask] = cp.nan
+                    mean_spikes_for_times = cp.nanmean(out_copy)
+                    first_spike_for_times = cp.nanmin(out_copy)
+                    print(f'Output layer mean times: {mean_spikes_for_times}')
+                    print(f'Output layer first spike: {first_spike_for_times}')
+                    wandb.log({"mean_spikes_for_times": float(mean_spikes_for_times), "first_spike_for_times": float(first_spike_for_times)})
+                    with open('times.txt', 'a') as f:
+                        string = f'Train Step Number: {training_steps/TRAIN_PRINT_PERIOD_STEP}' + "\n"+ f'Output layer mean times: {mean_spikes_for_times}' + "\n" + f'Output layer first spike: {first_spike_for_times}' + "\n" + "-------------------------------------"+"\n"
+                        f.write(string)
 
                     pred = loss_fct.predict(out_spikes, n_out_spikes)
                     loss = loss_fct.compute_loss(out_spikes, n_out_spikes, labels)
