@@ -25,7 +25,7 @@ echo "loaded"
 
 echo "loeaded env"
 # echo "nvcc version: " `nvcc --version`
-conda activate myclone
+# conda activate myclone
 echo "loaded cuda"
 # echo "nvcc version: " `nvcc --version`
 # cuda 12.3
