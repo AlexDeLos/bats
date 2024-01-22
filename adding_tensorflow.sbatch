@@ -4,7 +4,7 @@
 
 #SBATCH --qos=medium
 
-#SBATCH --time= 5:00:00
+#SBATCH --time=5:00:00
 
 #SBATCH --ntasks=1
 
