@@ -19,8 +19,8 @@
 # source ~/.bashrc
 
 module use /opt/insy/modulefiles
-# module load miniconda/3.9
-# conda activate myclone
+module load miniconda/3.9
+conda activate myHomeEnv
 
 # conda activate /home/nfs/adelossantossu/.conda/envs/freshPytorch
 echo "cuda version (from torch): " `python3 -c "import torch; print(torch.version.cuda)"`
