@@ -379,6 +379,7 @@ for run in range(NUMBER_OF_RUNS):
     #     string =f'End of run: {c}'+ "\n"
     #     f.write(string)
     wandb.finish()
+    print("Done!: ", run)
 
 
 # wandb.finish()
