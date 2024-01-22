@@ -53,8 +53,8 @@ N_HIDDEN_LAYERS = 5
 
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
-N_TRAIN_SAMPLES = 60000 #! used to be 60000
-N_TEST_SAMPLES = 10000 #! used to be 10000	
+N_TRAIN_SAMPLES = 600 #! used to be 60000
+N_TEST_SAMPLES = 100 #! used to be 10000	
 TRAIN_BATCH_SIZE = 50 #! used to be 50
 TEST_BATCH_SIZE = 100
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
@@ -314,24 +314,24 @@ for run in range(NUMBER_OF_RUNS):
             # Test evaluation
             if training_steps % TEST_PERIOD_STEP == 0:
                 test_time_monitor.start()
+
+                mean_spikes_for_times = []
+                first_spike_for_times = []
+
                 for batch_idx in range(N_TEST_BATCH):
                     spikes, n_spikes, labels = dataset.get_test_batch(batch_idx, TEST_BATCH_SIZE)
                     network.reset()
                     network.forward(spikes, n_spikes, max_simulation=SIMULATION_TIME)
                     out_spikes, n_out_spikes = network.output_spike_trains
 
-                    
+                                        
                     out_copy = cp.copy(out_spikes)
                     mask = cp.isinf(out_copy)
                     out_copy[mask] = cp.nan
-                    mean_spikes_for_times = cp.nanmean(out_copy)
-                    first_spike_for_times = cp.nanmin(out_copy)
-                    print(f'Output layer mean times: {mean_spikes_for_times}')
-                    print(f'Output layer first spike: {first_spike_for_times}')
-                    wandb.log({"mean_spikes_for_times": float(mean_spikes_for_times), "first_spike_for_times": float(first_spike_for_times)})
-                    with open('times.txt', 'a') as f:
-                        string = f'Train Step Number: {training_steps/TRAIN_PRINT_PERIOD_STEP}' + "\n"+ f'Output layer mean times: {mean_spikes_for_times}' + "\n" + f'Output layer first spike: {first_spike_for_times}' + "\n" + "-------------------------------------"+"\n"
-                        f.write(string)
+                    mean_spikes_for_times.append(cp.nanmean(out_copy))
+
+                    first_spike_for_times.append(cp.nanmin(out_copy))
+                    
 
                     pred = loss_fct.predict(out_spikes, n_out_spikes)
                     loss = loss_fct.compute_loss(out_spikes, n_out_spikes, labels)
@@ -358,6 +358,15 @@ for run in range(NUMBER_OF_RUNS):
 
                 acc = records[test_accuracy_monitor]
                 loss_to_save = records[test_loss_monitor]
+
+
+                mean_res = cp.mean(cp.array(mean_spikes_for_times))
+                mean_first = cp.mean(cp.array(first_spike_for_times))
+                print(f'Output layer mean times: {mean_res}')
+                print(f'Output layer first spike: {mean_first}')
+                wandb.log({"mean_spikes_for_times": float(mean_res), "first_spike_for_times": float(mean_first)})
+
+
                 wandb.log({"acc": acc, "loss": loss_to_save})
 
                 if acc > best_acc:
