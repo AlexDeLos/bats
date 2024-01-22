@@ -2,7 +2,7 @@ from pathlib import Path
 import cupy as cp
 import numpy as np
 import os
-# import wandb
+import wandb
 import sys
 
 from sympy import Trace
@@ -56,7 +56,7 @@ N_HIDDEN_LAYERS = 5
 
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
-N_TRAIN_SAMPLES = 600 #! used to be 60000
+N_TRAIN_SAMPLES = 60000 #! used to be 60000
 N_TEST_SAMPLES = 10000 #! used to be 10000	
 TRAIN_BATCH_SIZE = 50 #! used to be 50
 TEST_BATCH_SIZE = 100
@@ -94,26 +94,26 @@ def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
 
 for run in range(NUMBER_OF_RUNS):
 
-    # wandb.init(
-    # # set the wandb project where this run will be logged
-    # project="Residual-SNN",
+    wandb.init(
+    # set the wandb project where this run will be logged
+    project="Residual-SNN",
     
-    # # track hyperparameters and run metadata4
-    # config={
-    # "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-    # "train_batch_size": TRAIN_BATCH_SIZE,
-    # "residual_every_n": RESIDUAL_EVERY_N,
-    # "use_residual": USE_RESIDUAL,
-    # "n_of_train_samples": N_TRAIN_SAMPLES,
-    # "n_of_test_samples": N_TEST_SAMPLES,
-    # "n_neurons": N_NEURONS_1,
-    # "learning_rate": LEARNING_RATE,
-    # "architecture": "SNN",
-    # "dataset": "MNIST",
-    # "epochs": N_TRAINING_EPOCHS,
-    # "version": "2.0.1_" + str(NUMBER_OF_RUNS),
-    # }
-    # )
+    # track hyperparameters and run metadata4
+    config={
+    "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
+    "train_batch_size": TRAIN_BATCH_SIZE,
+    "residual_every_n": RESIDUAL_EVERY_N,
+    "use_residual": USE_RESIDUAL,
+    "n_of_train_samples": N_TRAIN_SAMPLES,
+    "n_of_test_samples": N_TEST_SAMPLES,
+    "n_neurons": N_NEURONS_1,
+    "learning_rate": LEARNING_RATE,
+    "architecture": "SNN",
+    "dataset": "MNIST",
+    "epochs": N_TRAINING_EPOCHS,
+    "version": "2.1.1_" + str(NUMBER_OF_RUNS),
+    }
+    )
 
 
     if run >= NUMBER_OF_RUNS/2:
@@ -320,7 +320,7 @@ for run in range(NUMBER_OF_RUNS):
                 first_spike_for_times = cp.nanmin(out_copy)
                 print(f'Output layer mean times: {mean_spikes_for_times}')
                 print(f'Output layer first spike: {first_spike_for_times}')
-                # wandb.log({"mean_spikes_for_times": float(mean_spikes_for_times), "first_spike_for_times": float(first_spike_for_times)})
+                wandb.log({"mean_spikes_for_times": float(mean_spikes_for_times), "first_spike_for_times": float(first_spike_for_times)})
                 with open('times.txt', 'a') as f:
                     string = f'Train Step Number: {training_steps/TRAIN_PRINT_PERIOD_STEP}' + "\n"+ f'Output layer mean times: {mean_spikes_for_times}' + "\n" + f'Output layer first spike: {first_spike_for_times}' + "\n" + "-------------------------------------"+"\n"
                     f.write(string)
@@ -359,7 +359,7 @@ for run in range(NUMBER_OF_RUNS):
 
                 acc = records[test_accuracy_monitor]
                 loss_to_save = records[test_loss_monitor]
-                # wandb.log({"acc": acc, "loss": loss_to_save})
+                wandb.log({"acc": acc, "loss": loss_to_save})
 
                 if acc > best_acc:
                     best_acc = acc
@@ -370,7 +370,7 @@ for run in range(NUMBER_OF_RUNS):
     # with open('times.txt', 'a') as f:
     #     string =f'End of run: {c}'+ "\n"
     #     f.write(string)
-    # wandb.finish()
+    wandb.finish()
 
 
 # wandb.finish()
