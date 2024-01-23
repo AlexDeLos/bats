@@ -32,7 +32,7 @@ SIMULATION_TIME = 0.2
 NUMBER_OF_RUNS = 20
 
 # Hidden layer
-N_NEURONS_1 = 800 #!800 #? Should I lower it?
+N_NEURONS_1 = 400 #!800 #? Should I lower it?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.2
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -52,9 +52,9 @@ N_HIDDEN_LAYERS = 5
 
 
 # Training parameters
-N_TRAINING_EPOCHS = 100 #! used to  be 100
-N_TRAIN_SAMPLES = 600 #! used to be 60000
-N_TEST_SAMPLES = 100 #! used to be 10000	
+N_TRAINING_EPOCHS = 50 #! used to  be 100
+N_TRAIN_SAMPLES = 60000 #! used to be 60000
+N_TEST_SAMPLES = 10000 #! used to be 10000	
 TRAIN_BATCH_SIZE = 50 #! used to be 50
 TEST_BATCH_SIZE = 100
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
@@ -108,7 +108,7 @@ for run in range(NUMBER_OF_RUNS):
     "architecture": "SNN",
     "dataset": "MNIST",
     "epochs": N_TRAINING_EPOCHS,
-    "version": "2.4.1_" + str(NUMBER_OF_RUNS),
+    "version": "2.5.1_" + str(NUMBER_OF_RUNS),
     }
     )
 
