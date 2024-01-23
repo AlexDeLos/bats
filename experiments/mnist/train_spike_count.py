@@ -91,6 +91,8 @@ def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
 
 for run in range(NUMBER_OF_RUNS):
 
+    if run >= NUMBER_OF_RUNS/2:
+        USE_RESIDUAL = False
     wandb.init(
     # set the wandb project where this run will be logged
     project="Residual-SNN",
@@ -108,13 +110,11 @@ for run in range(NUMBER_OF_RUNS):
     "architecture": "SNN",
     "dataset": "MNIST",
     "epochs": N_TRAINING_EPOCHS,
-    "version": "2.5.1_" + str(NUMBER_OF_RUNS),
+    "version": "2.5.2_" + str(NUMBER_OF_RUNS),
     }
     )
 
 
-    if run >= NUMBER_OF_RUNS/2:
-        USE_RESIDUAL = False
     
     max_int = np.iinfo(np.int32).max
     np_seed = np.random.randint(low=0, high=max_int)
