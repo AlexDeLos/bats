@@ -93,6 +93,8 @@ for run in range(NUMBER_OF_RUNS):
 
     if run%2 == 0:
         USE_RESIDUAL = False
+    else:
+        USE_RESIDUAL = True
     wandb.init(
     # set the wandb project where this run will be logged
     project="Residual-SNN",
