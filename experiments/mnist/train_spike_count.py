@@ -107,7 +107,7 @@ for run in range(NUMBER_OF_RUNS):
     "architecture": "SNN",
     "dataset": "MNIST",
     "epochs": N_TRAINING_EPOCHS,
-    "version": "3.6.2_APPENDING__cluster",
+    "version": "3.6.2_APPENDING__cluster_" + str(NUMBER_OF_RUNS),
     }
     )
 
