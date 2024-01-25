@@ -48,7 +48,7 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 #Residual parameters
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = 50
-N_HIDDEN_LAYERS = 20
+N_HIDDEN_LAYERS = 5
 
 
 # Training parameters
@@ -70,11 +70,6 @@ MIN_LEARNING_RATE = 0
 TARGET_FALSE = 3
 TARGET_TRUE = 15
 
-# best_acc_array = []
-
-# for c in range(20):
-#     if c > 9:
-#         USE_RESIDUAL = False
 # Plot parameters
 EXPORT_METRICS = False
 EXPORT_DIR = Path("./experiments/mnist/output_metrics")#+"-" + str(USE_RESIDUAL)+"-" +str(N_HIDDEN_LAYERS)+"-"+" hidden every " +str(RESIDUAL_EVERY_N) + " "+str(c) +"th Version 2")
@@ -112,7 +107,7 @@ for run in range(NUMBER_OF_RUNS):
     "architecture": "SNN",
     "dataset": "MNIST",
     "epochs": N_TRAINING_EPOCHS,
-    "version": "3.6.2_APPENDING_" + str(NUMBER_OF_RUNS),
+    "version": "3.6.2_APPENDING__cluster_" + str(NUMBER_OF_RUNS),
     }
     )
 
