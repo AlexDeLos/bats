@@ -191,7 +191,7 @@ def fuse_inputs_append(residual_input, jump_input, count_residual, count_jump, m
 
     result_count =cp.append(count_residual, count_jump, axis=1)
     result_spikes = np.append(residual_input, jump_input, axis=1)
-    if cp.any(result_count>= max_n_spike):
+    if cp.any(result_count> max_n_spike):
         raise ValueError("The count of spikes is greater than the max number of spikes")
     # result_count = count_residual
     # result_spikes = residual_input
