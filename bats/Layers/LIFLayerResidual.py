@@ -190,7 +190,8 @@ def fuse_inputs_append(residual_input, jump_input, count_residual, count_jump, m
     batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
 
     result_count =cp.append(count_residual, count_jump, axis=1)
-    result_count = count_residual
+    # this changes the effect
+    # result_count = count_residual
     # result_count = cp.zeros((residual_input.shape))
     result_spikes = np.append(residual_input, jump_input, axis=1)
     if cp.any(result_count > max_n_spike):
