@@ -23,11 +23,11 @@ class LIFLayerResidual(AbstractLayer):
         self.__delta_theta_tau: cp.float32 = cp.float32(delta_theta / self.__tau)
         #TODO: Change the initial state of the weights
         if weight_initializer is None:
-            # self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons), dtype=cp.float32)
-            self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons), dtype=cp.float32)
+            self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons), dtype=cp.float32)
+            # self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons), dtype=cp.float32)
         else:
-            # self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons)
-            self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons)
+            self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons)
+            # self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons)
         self.__max_n_spike: cp.int32 = cp.int32(max_n_spike)
 
         self.__n_spike_per_neuron: Optional[cp.ndarray] = None
@@ -78,7 +78,7 @@ class LIFLayerResidual(AbstractLayer):
 
         #> pre_spike_per_neuron is a vector with the spike times of the previous layer
 
-        pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, pre_n_spike_per_neuron_residual, jump_connection_spike_count, self.__max_n_spike)
+        pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs_append(pre_spike_per_neuron_residual, jump_connection_spikes, pre_n_spike_per_neuron_residual, jump_connection_spike_count, self.__max_n_spike)
         # join them together in a good way
         # pre_n_spike_per_neuron = np.append(pre_n_spike_per_neuron_residual, jump_connection_spike_count, axis=1)
 
@@ -171,7 +171,7 @@ def old_fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp
         raise ValueError("Batch size of residual and jump connection must be the same.")
     if max_n_spike < max_n_spike_res or max_n_spike < max_n_spike_jump:
         raise ValueError("Max number of spikes must be greater than the max number of spikes in residual and jump connection.")
-    # if max_n_spike_res+ max_n_spike_jump <:
+
 
     if max_n_spike_res != max_n_spike_jump: #need to change this if
         # We pad the smallest one with inf to make them the same size
@@ -185,17 +185,28 @@ def old_fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp
         raise ValueError("The shape of the fused is not correct.")
     return result
 
-"""
-Fuse the inputs of two layers into one input that can be fed to the next layer.
-"""
-def fuse_inputs(residual_input, jump_input, pre_n_spike_per_neuron_residual, jump_connection_spike_count, max_n_spike, delay = None) -> cp.ndarray:
+def fuse_inputs_append(residual_input, jump_input, count_residual, count_jump, max_n_spike, delay = None) -> Tuple[cp.ndarray, cp.ndarray]:
+    batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
+    batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
+
+    result_count =cp.append(count_residual, count_jump, axis=1)
+    result_spikes = np.append(residual_input, jump_input, axis=1)
+    if cp.any(result_count>= max_n_spike):
+        raise ValueError("The count of spikes is greater than the max number of spikes")
+    # result_count = count_residual
+    # result_spikes = residual_input
+    return result_spikes, result_count
+    # We n
+
+
+def fuse_inputs(residual_input, jump_input, count_residual, count_jump, max_n_spike, delay = None) -> Tuple[cp.ndarray, cp.ndarray]:
     #! Illegal memory error still occurs even without this code
 
     #! how does it handle the spikes when there are too many?
     #! buffer should check all the spikes and if too many it crashes
     # HOW DOES THE spike buffer break?
     # make it break and see what happens
-
+    
     # if delay is None:
     #     #by default the delay is the mean of the residual input,
     #     delay = cp.mean(residual_input[np.isfinite(residual_input)])
@@ -203,7 +214,7 @@ def fuse_inputs(residual_input, jump_input, pre_n_spike_per_neuron_residual, jum
     # out = cp.empty(jump_input.shape, dtype=int)
     # out[out == 0] = delay
     # cp.add(jump_input, out, out = jump_input)
-    result_count = cp.maximum(pre_n_spike_per_neuron_residual, jump_connection_spike_count)
+    result_count = cp.maximum(count_residual, count_jump)
 
     batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
     batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape

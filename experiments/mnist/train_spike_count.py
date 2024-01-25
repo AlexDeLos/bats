@@ -48,11 +48,11 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 #Residual parameters
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = 50
-N_HIDDEN_LAYERS = 5
+N_HIDDEN_LAYERS = 20
 
 
 # Training parameters
-N_TRAINING_EPOCHS = 20 #! used to  be 100
+N_TRAINING_EPOCHS = 10 #! used to  be 100
 N_TRAIN_SAMPLES = 60000 #! used to be 60000
 N_TEST_SAMPLES = 10000 #! used to be 10000	
 TRAIN_BATCH_SIZE = 50 #! used to be 50
@@ -92,9 +92,9 @@ def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
 for run in range(NUMBER_OF_RUNS):
 
     if run%2 == 0:
-        USE_RESIDUAL = False
-    else:
         USE_RESIDUAL = True
+    else:
+        USE_RESIDUAL = False
     wandb.init(
     # set the wandb project where this run will be logged
     project="Residual-SNN",
@@ -112,7 +112,7 @@ for run in range(NUMBER_OF_RUNS):
     "architecture": "SNN",
     "dataset": "MNIST",
     "epochs": N_TRAINING_EPOCHS,
-    "version": "2.6.2_" + str(NUMBER_OF_RUNS),
+    "version": "2.6.2_TEST_" + str(NUMBER_OF_RUNS),
     }
     )
 
