@@ -16,6 +16,7 @@ def propagate_errors_to_pre_spikes(f1: cp.ndarray, f2: cp.ndarray,
     batch_size, n_post_neurons, max_n_post_spike = f1.shape
     _, n_pre_neurons, max_n_pre_spike = pre_exp_tau_s.shape
 
+    #this array seems to big
     pre_errors = cp.zeros((batch_size, n_pre_neurons, max_n_pre_spike, n_post_neurons), dtype=cp.float32)
     block_dim = (batch_size, 1, 1)
     grid_dim = (n_pre_neurons, max_n_pre_spike, n_post_neurons)
