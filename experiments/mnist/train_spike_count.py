@@ -55,7 +55,7 @@ N_HIDDEN_LAYERS = 5
 N_TRAINING_EPOCHS = 20 #! used to  be 100
 N_TRAIN_SAMPLES = 60000 #! used to be 60000
 N_TEST_SAMPLES = 10000 #! used to be 10000	
-TRAIN_BATCH_SIZE = 50 #! used to be 50
+TRAIN_BATCH_SIZE = 20 #! used to be 50
 TEST_BATCH_SIZE = 100
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
@@ -107,7 +107,7 @@ for run in range(NUMBER_OF_RUNS):
     "architecture": "SNN",
     "dataset": "MNIST",
     "epochs": N_TRAINING_EPOCHS,
-    "version": "3.6.2_APPENDING__cluster_" + str(NUMBER_OF_RUNS),
+    "version": "3.6.2_APPENDING_TEST_cluster_" + str(NUMBER_OF_RUNS),
     }
     )
 
