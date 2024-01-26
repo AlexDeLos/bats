@@ -44,7 +44,11 @@ class Network:
                 gradient.insert(0, None)
                 break
             if layer._is_residual:
+                # check for nans
+                # check the shapes
                 weights_grad, errors = layer.backward(errors)
+                qweqwe = 0
+                asdas= 1
             #problem here when the previous layer is a residual
             # errors.shape = (batch_size, n_neurons, max_n_spikes)
             # weights_grad.shape = (batch_size, pre_num_neurons , n_neurons)
@@ -52,6 +56,8 @@ class Network:
             # when residual is used it should look like
             else:
                 weights_grad, errors = layer.backward(errors)
+                qweqwe = 0
+                asdas= 1
             gradient.insert(0, weights_grad)
             #gradient can have different shapes
         return gradient
