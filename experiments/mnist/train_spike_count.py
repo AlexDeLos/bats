@@ -186,7 +186,7 @@ for run in range(NUMBER_OF_RUNS):
             #                         weight_initializer=weight_initializer,
             #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
             #                         name="Residual layer " + str(i))
-            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1*2, tau_s=TAU_S_1,
+            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                     theta=THRESHOLD_HAT_1,
                                     delta_theta=DELTA_THRESHOLD_1,
                                     weight_initializer=weight_initializer,
