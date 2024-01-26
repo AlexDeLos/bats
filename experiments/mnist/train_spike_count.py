@@ -29,7 +29,7 @@ DATASET_PATH = Path("./datasets/mnist.npz")
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
-NUMBER_OF_RUNS = 20
+NUMBER_OF_RUNS = 1
 
 # Hidden layer
 N_NEURONS_1 = 400 #!800 #? Should I lower it?
@@ -46,7 +46,7 @@ DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 #Residual parameters
-USE_RESIDUAL = True
+USE_RESIDUAL = False
 RESIDUAL_EVERY_N = 50
 N_HIDDEN_LAYERS = 2
 
@@ -86,7 +86,7 @@ def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
 
 for run in range(NUMBER_OF_RUNS):
 
-    USE_RESIDUAL = run%2 == 0
+    # USE_RESIDUAL = run%2 == 0
 
     wandb.init(
     # set the wandb project where this run will be logged
@@ -186,7 +186,7 @@ for run in range(NUMBER_OF_RUNS):
             #                         weight_initializer=weight_initializer,
             #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
             #                         name="Residual layer " + str(i))
-            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1*2, tau_s=TAU_S_1,
                                     theta=THRESHOLD_HAT_1,
                                     delta_theta=DELTA_THRESHOLD_1,
                                     weight_initializer=weight_initializer,
