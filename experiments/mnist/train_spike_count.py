@@ -30,7 +30,7 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Change from small test on computer to big test on cluster
-CLUSTER = False
+CLUSTER = True
 ALTERNATE = False
 FUSE_FUNCTION = "Append"
 
@@ -46,7 +46,7 @@ else:
 
 # Hidden layer
 if CLUSTER:
-    N_NEURONS_1 = 400 #!800 #? Should I lower it?
+    N_NEURONS_1 = 240 #!800 #? Should I lower it?
 else:
     N_NEURONS_1 = 240
 TAU_S_1 = 0.130
@@ -56,7 +56,7 @@ SPIKE_BUFFER_SIZE_1 = 30
 
 # Residual layer
 if CLUSTER:
-    N_NEURONS_RES = 600 #!800 #? Should I lower it?
+    N_NEURONS_RES = 480 #!800 #? Should I lower it?
 else:
     N_NEURONS_RES = 480
 TAU_S_RES = 0.130
@@ -78,11 +78,11 @@ N_TRAINING_EPOCHS = 20 #! used to  be 100
 if CLUSTER:
     N_TRAIN_SAMPLES = 60000 #! used to be 60000
     N_TEST_SAMPLES = 10000 #! used to be 10000
-    TRAIN_BATCH_SIZE = 50 #! used to be 50
-    TEST_BATCH_SIZE = 100
+    TRAIN_BATCH_SIZE = 20 #! used to be 50
+    TEST_BATCH_SIZE = 40
 else:
-    N_TRAIN_SAMPLES = 60000
-    N_TEST_SAMPLES = 10000
+    N_TRAIN_SAMPLES = 600
+    N_TEST_SAMPLES = 100
     TRAIN_BATCH_SIZE = 20
     TEST_BATCH_SIZE = 40
 
