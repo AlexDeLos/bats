@@ -49,6 +49,23 @@ THRESHOLD_HAT_1 = 0.2
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 30
 
+# Residual layer
+
+#Residual parameters
+USE_RESIDUAL = True
+RESIDUAL_EVERY_N = 50
+N_HIDDEN_LAYERS = 2
+
+
+if CLUSTER:
+    N_NEURONS_RES = 400 #!800 #? Should I lower it?
+else:
+    N_NEURONS_RES = 240
+TAU_S_RES = 0.130
+THRESHOLD_HAT_RES = 0.2
+DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES
+SPIKE_BUFFER_SIZE_RES = 30
+
 # Output_layer
 N_OUTPUTS = 10
 TAU_S_OUTPUT = 0.130
@@ -56,10 +73,6 @@ THRESHOLD_HAT_OUTPUT = 1.3
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
-#Residual parameters
-USE_RESIDUAL = True
-RESIDUAL_EVERY_N = 50
-N_HIDDEN_LAYERS = 2
 
 
 # Training parameters
@@ -165,20 +178,20 @@ for run in range(NUMBER_OF_RUNS):
                                     name="Hidden layer 0")
             
         elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL:
-            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[0], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-                                    theta=THRESHOLD_HAT_1,
+            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[0], n_neurons=N_NEURONS_1, tau_s=TAU_S_RES,
+                                    theta=THRESHOLD_HAT_RES,
                                     fuse_function=FUSE_FUNCTION,
-                                    delta_theta=DELTA_THRESHOLD_1,
+                                    delta_theta=DELTA_THRESHOLD_RES,
                                     weight_initializer=weight_initializer,
-                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                    max_n_spike=SPIKE_BUFFER_SIZE_RES,
                                     name="Residual layer " + str(i))
         elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
-            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i - RESIDUAL_EVERY_N], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-                                    theta=THRESHOLD_HAT_1,
+            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i - RESIDUAL_EVERY_N], n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
+                                    theta=THRESHOLD_HAT_RES,
                                     fuse_function=FUSE_FUNCTION,
-                                    delta_theta=DELTA_THRESHOLD_1,
+                                    delta_theta=DELTA_THRESHOLD_RES,
                                     weight_initializer=weight_initializer,
-                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                    max_n_spike=SPIKE_BUFFER_SIZE_RES,
                                     name="Residual layer " + str(i))
         else:
             hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1*2, tau_s=TAU_S_1,
