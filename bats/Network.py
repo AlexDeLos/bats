@@ -47,7 +47,17 @@ class Network:
                 # check for nans
                 # check the shapes
                 weights_grad, errors = layer.backward(errors)
+                test = cp.any(cp.isnan(errors)).item() 
+                #? why are there nans in the append case?
+                #! Let's try forcing it to be zero
+                # errors = cp.nan_to_num(errors, nan=0.0)
+                # weights_grad = cp.nan_to_num(weights_grad, nan=0.0)
                 qweqwe = 0
+                # nan_mask = cp.isnan(errors)
+
+                # Get the indices of NaN values
+                # nan_indices = cp.where(nan_mask)
+                # print(nan_indices)
                 asdas= 1
             #problem here when the previous layer is a residual
             # errors.shape = (batch_size, n_neurons, max_n_spikes)
@@ -56,6 +66,7 @@ class Network:
             # when residual is used it should look like
             else:
                 weights_grad, errors = layer.backward(errors)
+                # test = cp.any(cp.isnan(errors)).item()
                 qweqwe = 0
                 asdas= 1
             gradient.insert(0, weights_grad)

@@ -34,6 +34,11 @@ SIMULATION_TIME = 0.2
 CLUSTER = False
 FUSE_FUNCTION = "N Append"
 
+#Residual parameters
+USE_RESIDUAL = True
+RESIDUAL_EVERY_N = 50
+N_HIDDEN_LAYERS = 2
+
 if CLUSTER:
     NUMBER_OF_RUNS = 20
 else:
@@ -43,24 +48,17 @@ else:
 if CLUSTER:
     N_NEURONS_1 = 400 #!800 #? Should I lower it?
 else:
-    N_NEURONS_1 = 100
+    N_NEURONS_1 = 240
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.2
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 30
 
 # Residual layer
-
-#Residual parameters
-USE_RESIDUAL = True
-RESIDUAL_EVERY_N = 50
-N_HIDDEN_LAYERS = 2
-
-
 if CLUSTER:
     N_NEURONS_RES = 600 #!800 #? Should I lower it?
 else:
-    N_NEURONS_RES = 240
+    N_NEURONS_RES = 480
 TAU_S_RES = 0.130
 THRESHOLD_HAT_RES = 0.2
 DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES
