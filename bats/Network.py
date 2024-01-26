@@ -50,8 +50,8 @@ class Network:
                 test = cp.any(cp.isnan(errors)).item() 
                 #? why are there nans in the append case?
                 #! Let's try forcing it to be zero
-                # errors = cp.nan_to_num(errors, nan=0.0)
-                # weights_grad = cp.nan_to_num(weights_grad, nan=0.0)
+                errors = cp.nan_to_num(errors, nan=0.0)
+                weights_grad = cp.nan_to_num(weights_grad, nan=0.0)
                 qweqwe = 0
                 # nan_mask = cp.isnan(errors)
 
@@ -66,7 +66,6 @@ class Network:
             # when residual is used it should look like
             else:
                 weights_grad, errors = layer.backward(errors)
-                # test = cp.any(cp.isnan(errors)).item()
                 qweqwe = 0
                 asdas= 1
             gradient.insert(0, weights_grad)

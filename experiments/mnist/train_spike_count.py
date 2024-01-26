@@ -1,4 +1,5 @@
 from pathlib import Path
+from re import A
 import cupy as cp
 import numpy as np
 import os
@@ -31,8 +32,9 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Change from small test on computer to big test on cluster
-CLUSTER = False
-FUSE_FUNCTION = "N Append"
+CLUSTER = True
+ALTERNATE = False
+FUSE_FUNCTION = "Append"
 
 #Residual parameters
 USE_RESIDUAL = True
@@ -115,7 +117,7 @@ def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
 
 for run in range(NUMBER_OF_RUNS):
 
-    if CLUSTER:
+    if ALTERNATE and CLUSTER:
         USE_RESIDUAL = run%2 == 0
     if CLUSTER:
         wandb.init(
