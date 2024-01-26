@@ -86,7 +86,7 @@ def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
 
 for run in range(NUMBER_OF_RUNS):
 
-    # USE_RESIDUAL = run%2 == 0
+    USE_RESIDUAL = run%2 == 0
 
     wandb.init(
     # set the wandb project where this run will be logged
