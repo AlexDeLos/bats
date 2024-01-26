@@ -2,6 +2,7 @@ from pathlib import Path
 import cupy as cp
 import numpy as np
 import os
+from pyparsing import C
 import wandb
 import sys
 
@@ -29,10 +30,20 @@ DATASET_PATH = Path("./datasets/mnist.npz")
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
-NUMBER_OF_RUNS = 1
+# Change from small test on computer to big test on cluster
+CLUSTER = False
+FUSE_FUNCTION = "Append"
+
+if CLUSTER:
+    NUMBER_OF_RUNS = 20
+else:
+    NUMBER_OF_RUNS = 1
 
 # Hidden layer
-N_NEURONS_1 = 400 #!800 #? Should I lower it?
+if CLUSTER:
+    N_NEURONS_1 = 400 #!800 #? Should I lower it?
+else:
+    N_NEURONS_1 = 240
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.2
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -53,10 +64,17 @@ N_HIDDEN_LAYERS = 2
 
 # Training parameters
 N_TRAINING_EPOCHS = 20 #! used to  be 100
-N_TRAIN_SAMPLES = 60000 #! used to be 60000
-N_TEST_SAMPLES = 10000 #! used to be 10000	
-TRAIN_BATCH_SIZE = 50 #! used to be 50
-TEST_BATCH_SIZE = 100
+if CLUSTER:
+    N_TRAIN_SAMPLES = 60000 #! used to be 60000
+    N_TEST_SAMPLES = 10000 #! used to be 10000
+    TRAIN_BATCH_SIZE = 50 #! used to be 50
+    TEST_BATCH_SIZE = 100
+else:
+    N_TRAIN_SAMPLES = 600
+    N_TEST_SAMPLES = 100
+    TRAIN_BATCH_SIZE = 20
+    TEST_BATCH_SIZE = 40
+
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
 TRAIN_PRINT_PERIOD = 0.1
@@ -86,7 +104,8 @@ def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
 
 for run in range(NUMBER_OF_RUNS):
 
-    USE_RESIDUAL = run%2 == 0
+    if CLUSTER:
+        USE_RESIDUAL = run%2 == 0
 
     wandb.init(
     # set the wandb project where this run will be logged
@@ -95,6 +114,7 @@ for run in range(NUMBER_OF_RUNS):
     
     # track hyperparameters and run metadata4
     config={
+    "Cluster": CLUSTER,
     "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
     "train_batch_size": TRAIN_BATCH_SIZE,
     "residual_every_n": RESIDUAL_EVERY_N,
@@ -106,7 +126,7 @@ for run in range(NUMBER_OF_RUNS):
     "architecture": "SNN",
     "dataset": "MNIST",
     "epochs": N_TRAINING_EPOCHS,
-    "version": "3.6.2_APPENDING_cluster_" + str(NUMBER_OF_RUNS),
+    "version": "3.6.2_cluster_" + str(CLUSTER),
     }
     )
 
@@ -143,22 +163,11 @@ for run in range(NUMBER_OF_RUNS):
                                     weight_initializer=weight_initializer,
                                     max_n_spike=SPIKE_BUFFER_SIZE_1,
                                     name="Hidden layer 0")
-            # hidden_layer = LIFLayerResidual(previous_layer=input_layer, jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-            #                         theta=THRESHOLD_HAT_1,
-            #                         delta_theta=DELTA_THRESHOLD_1,
-            #                         weight_initializer=weight_initializer,
-            #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
-            #                         name="Residual layer " + str(i))
             
         elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL:
-            # hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-            #                         theta=THRESHOLD_HAT_1,
-            #                         delta_theta=DELTA_THRESHOLD_1,
-            #                         weight_initializer=weight_initializer,
-            #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
-            #                         name="Hidden layer 0")
             hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[0], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                     theta=THRESHOLD_HAT_1,
+                                    fuse_function=FUSE_FUNCTION,
                                     delta_theta=DELTA_THRESHOLD_1,
                                     weight_initializer=weight_initializer,
                                     max_n_spike=SPIKE_BUFFER_SIZE_1,
@@ -166,27 +175,13 @@ for run in range(NUMBER_OF_RUNS):
         elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
             hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i - RESIDUAL_EVERY_N], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                     theta=THRESHOLD_HAT_1,
+                                    fuse_function=FUSE_FUNCTION,
                                     delta_theta=DELTA_THRESHOLD_1,
                                     weight_initializer=weight_initializer,
                                     max_n_spike=SPIKE_BUFFER_SIZE_1,
                                     name="Residual layer " + str(i))
-
-
-        # elif (i == N_HIDDEN_LAYERS - 1 or i % RESIDUAL_EVERY_N ==0) and N_HIDDEN_LAYERS > 5 and USE_RESIDUAL:
-        #     hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-        #                             theta=THRESHOLD_HAT_1,
-        #                             delta_theta=DELTA_THRESHOLD_1,
-        #                             weight_initializer=weight_initializer,
-        #                             max_n_spike=SPIKE_BUFFER_SIZE_1,
-        #                             name="Residual layer " + str(i))
         else:
-            # hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i-2], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-            #                         theta=THRESHOLD_HAT_1,
-            #                         delta_theta=DELTA_THRESHOLD_1,
-            #                         weight_initializer=weight_initializer,
-            #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
-            #                         name="Residual layer " + str(i))
-            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1*2, tau_s=TAU_S_1,
                                     theta=THRESHOLD_HAT_1,
                                     delta_theta=DELTA_THRESHOLD_1,
                                     weight_initializer=weight_initializer,

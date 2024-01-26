@@ -12,7 +12,7 @@ from bats.CudaKernels.Wrappers.Backpropagation import *
 
 class LIFLayerResidual(AbstractLayer):
     def __init__(self, previous_layer: AbstractLayer, jump_layer: AbstractLayer, tau_s: float, theta: float, delta_theta: float,
-                 weight_initializer: Callable[[int, int], cp.ndarray] = None, max_n_spike: int = 32, **kwargs):
+                 weight_initializer: Callable[[int, int], cp.ndarray] = None, fuse_function = "Append", max_n_spike: int = 32, **kwargs):
         super().__init__(**kwargs)
         self._is_residual = True
         self.__previous_layer: AbstractLayer = previous_layer
@@ -21,13 +21,18 @@ class LIFLayerResidual(AbstractLayer):
         self.__tau: cp.float32 = cp.float32(2 * tau_s)
         self.__theta_tau: cp.float32 = cp.float32(theta / self.__tau)
         self.__delta_theta_tau: cp.float32 = cp.float32(delta_theta / self.__tau)
+        self.__fuse_function = fuse_function
         #TODO: Change the initial state of the weights
         if weight_initializer is None:
-            # self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons), dtype=cp.float32)
-            self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons), dtype=cp.float32)
+            if fuse_function == "Append":
+                self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons), dtype=cp.float32)
+            else:
+                self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons), dtype=cp.float32)
         else:
-            # self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons)
-            self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons)
+            if fuse_function == "Append":
+                self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons)
+            else:
+                self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons)
         self.__max_n_spike: cp.int32 = cp.int32(max_n_spike)
 
         self.__n_spike_per_neuron: Optional[cp.ndarray] = None
@@ -78,7 +83,10 @@ class LIFLayerResidual(AbstractLayer):
 
         #> pre_spike_per_neuron is a vector with the spike times of the previous layer
 
-        pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, pre_n_spike_per_neuron_residual, jump_connection_spike_count, self.__max_n_spike)
+        if self.__fuse_function == "Append":
+            pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs_append(pre_spike_per_neuron_residual, jump_connection_spikes, pre_n_spike_per_neuron_residual, jump_connection_spike_count, self.__max_n_spike)
+        else:
+            pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, pre_n_spike_per_neuron_residual, jump_connection_spike_count, self.__max_n_spike)
         # join them together in a good way
         # pre_n_spike_per_neuron = np.append(pre_n_spike_per_neuron_residual, jump_connection_spike_count, axis=1)
 
