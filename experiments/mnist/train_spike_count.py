@@ -30,7 +30,7 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Change from small test on computer to big test on cluster
-CLUSTER = True
+CLUSTER = False
 ALTERNATE = False
 FUSE_FUNCTION = "Append"
 
