@@ -33,6 +33,7 @@ SIMULATION_TIME = 0.2
 CLUSTER = True
 ALTERNATE = False
 FUSE_FUNCTION = "Append"
+#TODO: try to get the non append function to run out of memory
 
 #Residual parameters
 USE_RESIDUAL = True
@@ -78,8 +79,8 @@ N_TRAINING_EPOCHS = 20 #! used to  be 100
 if CLUSTER:
     N_TRAIN_SAMPLES = 60000 #! used to be 60000
     N_TEST_SAMPLES = 10000 #! used to be 10000
-    TRAIN_BATCH_SIZE = 20 #! used to be 50
-    TEST_BATCH_SIZE = 40
+    TRAIN_BATCH_SIZE = 50 #! used to be 50
+    TEST_BATCH_SIZE = 100
 else:
     N_TRAIN_SAMPLES = 600
     N_TEST_SAMPLES = 100
