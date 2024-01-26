@@ -30,7 +30,8 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Change from small test on computer to big test on cluster
-CLUSTER = False
+CLUSTER = True
+USE_WANDB = False
 ALTERNATE = False
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
@@ -118,7 +119,7 @@ for run in range(NUMBER_OF_RUNS):
 
     if ALTERNATE and CLUSTER:
         USE_RESIDUAL = run%2 == 0
-    if CLUSTER:
+    if USE_WANDB:
         wandb.init(
         # set the wandb project where this run will be logged
         project="Residual-SNN",
@@ -367,7 +368,7 @@ for run in range(NUMBER_OF_RUNS):
                 mean_first = cp.mean(cp.array(first_spike_for_times))
                 print(f'Output layer mean times: {mean_res}')
                 print(f'Output layer first spike: {mean_first}')
-                if CLUSTER:
+                if USE_WANDB:
                     wandb.log({"mean_spikes_for_times": float(mean_res), "first_spike_for_times": float(mean_first)})
 
                     wandb.log({"acc": acc, "loss": loss_to_save})
@@ -381,7 +382,7 @@ for run in range(NUMBER_OF_RUNS):
     # with open('times.txt', 'a') as f:
     #     string =f'End of run: {c}'+ "\n"
     #     f.write(string)
-    if CLUSTER:
+    if USE_WANDB:
         wandb.finish()
     print("Done!: ", run)
 
