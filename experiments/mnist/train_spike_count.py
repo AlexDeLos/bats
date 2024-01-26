@@ -43,7 +43,7 @@ else:
 if CLUSTER:
     N_NEURONS_1 = 400 #!800 #? Should I lower it?
 else:
-    N_NEURONS_1 = 240
+    N_NEURONS_1 = 100
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.2
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -58,7 +58,7 @@ N_HIDDEN_LAYERS = 2
 
 
 if CLUSTER:
-    N_NEURONS_RES = 400 #!800 #? Should I lower it?
+    N_NEURONS_RES = 600 #!800 #? Should I lower it?
 else:
     N_NEURONS_RES = 240
 TAU_S_RES = 0.130

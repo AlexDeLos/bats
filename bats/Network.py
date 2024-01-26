@@ -50,7 +50,8 @@ class Network:
             # weights_grad.shape = (batch_size, pre_num_neurons , n_neurons)
             #BINGO: the problem is that when the layer is residual the pre_num_neurons is fucked up
             # when residual is used it should look like
-            weights_grad, errors = layer.backward(errors)
+            else:
+                weights_grad, errors = layer.backward(errors)
             gradient.insert(0, weights_grad)
             #gradient can have different shapes
         return gradient
