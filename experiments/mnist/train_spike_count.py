@@ -30,7 +30,7 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Change from small test on computer to big test on cluster
-CLUSTER = True
+CLUSTER = False
 ALTERNATE = False
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
@@ -38,7 +38,7 @@ FUSE_FUNCTION = "Append"
 #Residual parameters
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = 50
-N_HIDDEN_LAYERS = 2
+N_HIDDEN_LAYERS = 50
 
 if CLUSTER:
     NUMBER_OF_RUNS = 20
@@ -47,7 +47,7 @@ else:
 
 # Hidden layer
 if CLUSTER:
-    N_NEURONS_1 = 1800 #!800 #? Should I lower it?
+    N_NEURONS_1 = 800 #!800 #? Should I lower it?
 else:
     N_NEURONS_1 = 240
 TAU_S_1 = 0.130
@@ -57,9 +57,9 @@ SPIKE_BUFFER_SIZE_1 = 30
 
 # Residual layer
 if CLUSTER:
-    N_NEURONS_RES = 1800 #!800 #? Should I lower it?
+    N_NEURONS_RES = 800 #!800 #? Should I lower it?
 else:
-    N_NEURONS_RES = 480
+    N_NEURONS_RES = 240
 TAU_S_RES = 0.130
 THRESHOLD_HAT_RES = 0.2
 DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES

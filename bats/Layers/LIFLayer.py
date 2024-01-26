@@ -118,6 +118,8 @@ class LIFLayer(AbstractLayer):
         weights_grad = compute_weights_gradient(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron,
                                                 self.__pre_exp_tau_s, self.__pre_exp_tau, errors)
         # Propagate errors
+        # what are the dimensions of f1
+        # what are the dimensions of pre_exp_tau_s
         if self.__previous_layer.trainable:
             pre_errors = propagate_errors_to_pre_spikes(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron,
                                                         self.__pre_exp_tau_s, self.__pre_exp_tau, self.__weights,
