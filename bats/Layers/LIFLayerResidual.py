@@ -1,7 +1,5 @@
-from operator import and_, or_
 from typing import Callable, Tuple
 from typing import Optional
-from unittest import result
 import cupy as cp
 import numpy as np
 
@@ -12,22 +10,23 @@ from bats.CudaKernels.Wrappers.Backpropagation import *
 
 class LIFLayerResidual(AbstractLayer):
     def __init__(self, previous_layer: AbstractLayer, jump_layer: AbstractLayer, tau_s: float, theta: float, delta_theta: float,
-                 weight_initializer: Callable[[int, int], cp.ndarray] = None, fuse_function = "Append", max_n_spike: int = 32, **kwargs):
+                 weight_initializer: Callable[[int, int], cp.ndarray] = None, fuse_function = "Append", max_n_spike: int = 32, **kwargs): # type: ignore
         super().__init__(**kwargs)
         self._is_residual = True
         self.__previous_layer: AbstractLayer = previous_layer
-        self.__previous_layer_residual: AbstractLayer = jump_layer
+        self.__jump_layer: AbstractLayer = jump_layer
         self.__tau_s: cp.float32 = cp.float32(tau_s)
         self.__tau: cp.float32 = cp.float32(2 * tau_s)
-        self.__theta_tau: cp.float32 = cp.float32(theta / self.__tau)
-        self.__delta_theta_tau: cp.float32 = cp.float32(delta_theta / self.__tau)
+        self.__theta_tau: cp.float32 = cp.float32(theta / self.__tau) # type: ignore
+        self.__delta_theta_tau: cp.float32 = cp.float32(delta_theta / self.__tau) # type: ignore
         self.__fuse_function = fuse_function
         #TODO: Change the initial state of the weights
         if weight_initializer is None:
-            if fuse_function == "Append":
-                self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons), dtype=cp.float32)
+            if fuse_function == "Append": 
+                self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons), dtype=cp.float32) # type: ignore
+                self.__weights_2: cp.ndarray = cp.zeros((self.n_neurons, jump_layer.n_neurons), dtype=cp.float32) # type: ignore
             else:
-                self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons), dtype=cp.float32)
+                self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons), dtype=cp.float32) # type: ignore
         else:
             if fuse_function == "Append":
                 self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons)
@@ -62,6 +61,14 @@ class LIFLayerResidual(AbstractLayer):
     def weights(self, weights: np.ndarray) -> None:
         self.__weights = cp.array(weights, dtype=cp.float32)
 
+    @property
+    def previous_layer(self) -> AbstractLayer:
+        return self.__previous_layer
+    
+    @property
+    def jump_layer(self) -> AbstractLayer:
+        return self.__jump_layer
+
     def reset(self) -> None:
         self.__n_spike_per_neuron = None
         self.__spike_times_per_neuron = None
@@ -79,7 +86,7 @@ class LIFLayerResidual(AbstractLayer):
         pre_spike_per_neuron_residual, pre_n_spike_per_neuron_residual = self.__previous_layer.spike_trains
 
         #We will try just adding them together
-        jump_connection_spikes, jump_connection_spike_count = self.__previous_layer_residual.spike_trains
+        jump_connection_spikes, jump_connection_spike_count = self.__jump_layer.spike_trains
 
         #> pre_spike_per_neuron is a vector with the spike times of the previous layer
 
@@ -100,7 +107,7 @@ class LIFLayerResidual(AbstractLayer):
         if sorted_indices.size == 0:  # No input spike in the batch
             batch_size = pre_spike_per_neuron.shape[0]
             shape = (batch_size, self.n_neurons, self.__max_n_spike)
-            self.__n_spike_per_neuron = cp.zeros((batch_size, self.n_neurons), dtype=cp.int32)
+            self.__n_spike_per_neuron = cp.zeros((batch_size, self.n_neurons), dtype=cp.int32) # type: ignore
             self.__spike_times_per_neuron = cp.full(shape, cp.inf, dtype=cp.float32)
             self.__post_exp_tau = cp.full(shape, cp.inf, dtype=cp.float32)
             self.__a = cp.full(shape, cp.inf, dtype=cp.float32)
@@ -119,21 +126,21 @@ class LIFLayerResidual(AbstractLayer):
             # Compute spikes, everything has been calculated in order to make this
             self.__n_spike_per_neuron, self.__a, self.__x, self.__spike_times_per_neuron, \
             self.__post_exp_tau = compute_spike_times(sorted_spike_times, sorted_pre_exp_tau_s, sorted_pre_exp_tau,
-                                                      pre_spike_weights, self.__c,
+                                                      pre_spike_weights, self.__c, # type: ignore
                                                       self.__delta_theta_tau,
                                                       self.__tau, cp.float32(max_simulation), self.__max_n_spike, residual = True)
             # if cp.array_equal(self.spike_trains[1], cp.zeros(self.spike_trains[1].shape)):
             #     breakpoint()
             
 
-    def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
-        # Compute gradient
+    def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]: # type: ignore
+        # Compute gradient 
         # pre_spike_per_neuron, _ = self.__previous_layer.spike_trains
 
         pre_spike_per_neuron_residual, pre_n_spike_per_neuron_residual = self.__previous_layer.spike_trains
 
         #We will try just adding them together
-        jump_connection_spikes, jump_connection_spike_count = self.__previous_layer_residual.spike_trains
+        jump_connection_spikes, jump_connection_spike_count = self.__jump_layer.spike_trains
 
         #> pre_spike_per_neuron is a vector with the spike times of the previous layer
 
@@ -143,9 +150,11 @@ class LIFLayerResidual(AbstractLayer):
             pre_spike_per_neuron, _ = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, pre_n_spike_per_neuron_residual, jump_connection_spike_count, self.__max_n_spike)
 
         propagate_recurrent_errors(self.__x, self.__post_exp_tau, errors, self.__delta_theta_tau, residual = True)
-        f1, f2 = compute_factors(self.__spike_times_per_neuron, self.__a, self.__c, self.__x,
-                                 self.__post_exp_tau, self.__tau,residual=True)
 
+        f1, f2 = compute_factors(self.__spike_times_per_neuron, self.__a, self.__c, self.__x, # type: ignore
+                                 self.__post_exp_tau, self.__tau,residual=True)
+        
+        
         weights_grad = compute_weights_gradient(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron,
                                                 self.__pre_exp_tau_s, self.__pre_exp_tau, errors)
         #TODO: delay_grad = compute_delay_gradient()
@@ -158,42 +167,38 @@ class LIFLayerResidual(AbstractLayer):
         # is it when the calculation is done?
         # or when the result is used?
         # Seems to be when the result is used
-        if self.__previous_layer.trainable:
-            pre_errors = propagate_errors_to_pre_spikes(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron,
-                                                         #!here we only feed the residual spikes
-                                                        self.__pre_exp_tau_s, self.__pre_exp_tau, self.__weights,
-                                                        errors, self.__tau_s, self.__tau)
-        else:
-            pre_errors = None
-
+        if self.__fuse_function == "Append":
+            if self.__previous_layer.trainable:
+                pre_errors_res = propagate_errors_to_pre_spikes(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron_residual,
+                                                            #!here we only feed the residual spikes
+                                                            self.__pre_exp_tau_s, self.__pre_exp_tau, self.__weights,
+                                                            errors, self.__tau_s, self.__tau)
+            else:
+                pre_errors_res = None
+            if self.__jump_layer.trainable:
+                pre_errors_jump = propagate_errors_to_pre_spikes(f1, f2, self.__spike_times_per_neuron, jump_connection_spikes,
+                                                            #!here we only feed the jump spikes
+                                                            self.__pre_exp_tau_s, self.__pre_exp_tau, self.__weights,
+                                                            errors, self.__tau_s, self.__tau)
+            else:
+                pre_errors_jump = None
+        #TODO: what if we try to split the results?
         #! I believe the problem is with weights_grad as it is used in Network.py backwards and pre_errors is not
-        return weights_grad, pre_errors
+            return weights_grad, (pre_errors_res, pre_errors_jump)
+        else:
+            if self.__previous_layer.trainable:
+                pre_errors = propagate_errors_to_pre_spikes(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron,
+                                                            self.__pre_exp_tau_s, self.__pre_exp_tau, self.__weights,
+                                                            errors, self.__tau_s, self.__tau)
+            else:
+                pre_errors = None
+            return weights_grad, pre_errors
 
     def add_deltas(self, delta_weights: cp.ndarray) -> None:
         #!Why are the last two or three entries of delta_weights nan?
         self.__weights += delta_weights
 
-def old_fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.ndarray:
-    batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
-    batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
 
-    if batch_size_res != batch_size_jump:
-        raise ValueError("Batch size of residual and jump connection must be the same.")
-    if max_n_spike < max_n_spike_res or max_n_spike < max_n_spike_jump:
-        raise ValueError("Max number of spikes must be greater than the max number of spikes in residual and jump connection.")
-
-
-    if max_n_spike_res != max_n_spike_jump: #need to change this if
-        # We pad the smallest one with inf to make them the same size
-        #! Possible problem here, if inf are not ignored then I am adding a lot more spikes...
-        max_n_spike = max(max_n_spike_res, max_n_spike_jump)
-        residual_input = np.pad(residual_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_res)),constant_values = np.inf,mode = 'constant')
-        jump_input = np.pad(jump_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_jump)), constant_values = np.inf,mode = 'constant')
-    
-    result = np.append(residual_input, jump_input, axis=1)
-    if result.shape != (batch_size_res, n_of_neurons_res + n_of_neurons_jump, max_n_spike):
-        raise ValueError("The shape of the fused is not correct.")
-    return result
 
 def fuse_inputs_append(residual_input, jump_input, count_residual, count_jump, max_n_spike, delay = None) -> Tuple[cp.ndarray, cp.ndarray]:
     batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
@@ -265,3 +270,27 @@ def fuse_inputs(residual_input, jump_input, count_residual, count_jump, max_n_sp
 
 
     return result_times, result_count
+
+
+
+# def old_fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.ndarray:
+#     batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
+#     batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
+
+#     if batch_size_res != batch_size_jump:
+#         raise ValueError("Batch size of residual and jump connection must be the same.")
+#     if max_n_spike < max_n_spike_res or max_n_spike < max_n_spike_jump:
+#         raise ValueError("Max number of spikes must be greater than the max number of spikes in residual and jump connection.")
+
+
+#     if max_n_spike_res != max_n_spike_jump: #need to change this if
+#         # We pad the smallest one with inf to make them the same size
+#         #! Possible problem here, if inf are not ignored then I am adding a lot more spikes...
+#         max_n_spike = max(max_n_spike_res, max_n_spike_jump)
+#         residual_input = np.pad(residual_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_res)),constant_values = np.inf,mode = 'constant')
+#         jump_input = np.pad(jump_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_jump)), constant_values = np.inf,mode = 'constant')
+    
+#     result = np.append(residual_input, jump_input, axis=1)
+#     if result.shape != (batch_size_res, n_of_neurons_res + n_of_neurons_jump, max_n_spike):
+#         raise ValueError("The shape of the fused is not correct.")
+#     return result

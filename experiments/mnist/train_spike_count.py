@@ -5,8 +5,6 @@ import os
 import wandb
 import sys
 
-from sympy import Trace
-
 # if it is not working try going back to the pip 3.9 interpreter
 
 
@@ -31,15 +29,15 @@ SIMULATION_TIME = 0.2
 
 # Change from small test on computer to big test on cluster
 CLUSTER = True
-USE_WANDB = False
-ALTERNATE = False
-FUSE_FUNCTION = "Append"
+USE_WANDB = True
+ALTERNATE = True
+FUSE_FUNCTION = "Not Append"
 #TODO: try to get the non append function to run out of memory
 
 #Residual parameters
 USE_RESIDUAL = True
-RESIDUAL_EVERY_N = 50
-N_HIDDEN_LAYERS = 50
+RESIDUAL_EVERY_N = 500
+N_HIDDEN_LAYERS = 4
 
 if CLUSTER:
     NUMBER_OF_RUNS = 20
@@ -50,7 +48,7 @@ else:
 if CLUSTER:
     N_NEURONS_1 = 800 #!800 #? Should I lower it?
 else:
-    N_NEURONS_1 = 240
+    N_NEURONS_1 = 200
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.2
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -60,7 +58,7 @@ SPIKE_BUFFER_SIZE_1 = 30
 if CLUSTER:
     N_NEURONS_RES = 800 #!800 #? Should I lower it?
 else:
-    N_NEURONS_RES = 240
+    N_NEURONS_RES = 260
 TAU_S_RES = 0.130
 THRESHOLD_HAT_RES = 0.2
 DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES
@@ -112,7 +110,7 @@ SAVE_DIR = Path("./experiments/mnist/best_model")
 
 
 def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
-    return cp.random.uniform(-1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
+    return cp.random.uniform(-1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32) # type: ignore
 
 
 for run in range(NUMBER_OF_RUNS):
@@ -123,11 +121,12 @@ for run in range(NUMBER_OF_RUNS):
         wandb.init(
         # set the wandb project where this run will be logged
         project="Residual-SNN",
-        name="Residual-SNN_"+str(run),
+        name="Residual-SNN_"+ str(FUSE_FUNCTION)+"_run_"+str(run),
         
         # track hyperparameters and run metadata4
         config={
         "Cluster": CLUSTER,
+        "FUSE_FUNCTION": FUSE_FUNCTION,
         "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
         "train_batch_size": TRAIN_BATCH_SIZE,
         "residual_every_n": RESIDUAL_EVERY_N,
@@ -139,7 +138,7 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "SNN",
         "dataset": "MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "3.6.2_cluster_" + str(CLUSTER),
+        "version": "3.6.3_cluster_" + str(CLUSTER),
         }
         )
 
@@ -194,7 +193,7 @@ for run in range(NUMBER_OF_RUNS):
                                     max_n_spike=SPIKE_BUFFER_SIZE_RES,
                                     name="Residual layer " + str(i))
         else:
-            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1*2, tau_s=TAU_S_1,
+            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1 + i*10, tau_s=TAU_S_1,
                                     theta=THRESHOLD_HAT_1,
                                     delta_theta=DELTA_THRESHOLD_1,
                                     weight_initializer=weight_initializer,
@@ -203,7 +202,7 @@ for run in range(NUMBER_OF_RUNS):
         hidden_layers.append(hidden_layer)
         network.add_layer(hidden_layer)
 
-    output_layer = LIFLayer(previous_layer=hidden_layer, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT,
+    output_layer = LIFLayer(previous_layer=hidden_layer, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT, # type: ignore
                             theta=THRESHOLD_HAT_OUTPUT,
                             delta_theta=DELTA_THRESHOLD_OUTPUT,
                             weight_initializer=weight_initializer,
@@ -254,7 +253,7 @@ for run in range(NUMBER_OF_RUNS):
 
         # Learning rate decay
         if epoch > 0 and epoch % LR_DECAY_EPOCH == 0:
-            optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
+            optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE) # type: ignore
 
         for batch_idx in range(N_TRAIN_BATCH):
             # print("batch_idx: ", batch_idx)
@@ -352,9 +351,9 @@ for run in range(NUMBER_OF_RUNS):
                         mon.add(l.spike_trains[1])
 
                 for l, mon in test_norm_monitors.items():
-                    mon.add(l.weights)
+                    mon.add(l.weights) # type: ignore
 
-                test_learning_rate_monitor.add(optimizer.learning_rate)
+                test_learning_rate_monitor.add(optimizer.learning_rate) # type: ignore
 
                 records = test_monitors_manager.record(epoch_metrics)
                 test_monitors_manager.print(epoch_metrics)

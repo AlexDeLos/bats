@@ -28,23 +28,23 @@ class AdamOptimizer(AbstractOptimizer):
         self.__one_minus_beta_2: cp.float32 = cp.float32(1.0 - beta_2)
         self.__epsilon: cp.float32 = cp.float32(epsilon)
 
-        self.__m: Optional[List[List[cp.array]]] = None
-        self.__v: Optional[List[List[cp.array]]] = None
+        self.__m: Optional[List[List[cp.array]]] = None # type: ignore
+        self.__v: Optional[List[List[cp.array]]] = None # type: ignore
         self.__t: cp.int32 = cp.int32(0)
 
     def step(self, gradient: List[cp.ndarray]) -> List[cp.ndarray]:
-        self.__t += 1
+        self.__t += 1 # type: ignore
 
         # Set m and v to 0 at first iteration
         if self.__m is None:
             #! Error found here: 2 (found here when no break points are set)
-            self.__m = [None if grad is None else cp.zeros(grad.shape, dtype=cp.float32) for grad in gradient]
-            self.__v = [None if grad is None else cp.zeros(grad.shape, dtype=cp.float32) for grad in gradient]
+            self.__m = [None if grad is None else cp.zeros(grad.shape, dtype=cp.float32) for grad in gradient] # type: ignore
+            self.__v = [None if grad is None else cp.zeros(grad.shape, dtype=cp.float32) for grad in gradient] # type: ignore
         # Update m and v
-        self.__m = [None if grad is None else update_m_kernel(pre_m, self.__beta_1, self.__one_minus_beta_1, grad)
+        self.__m = [None if grad is None else update_m_kernel(pre_m, self.__beta_1, self.__one_minus_beta_1, grad)# type: ignore
                     for pre_m, grad in zip(self.__m, gradient)]
-        self.__v = [None if grad is None else update_v_kernel(pre_v, self.__beta_2, self.__one_minus_beta_2, grad)
-                    for pre_v, grad in zip(self.__v, gradient)]
+        self.__v = [None if grad is None else update_v_kernel(pre_v, self.__beta_2, self.__one_minus_beta_2, grad) # type: ignore
+                    for pre_v, grad in zip(self.__v, gradient)] # type: ignore
 
         # Compute m_hat and v_hat
         one_minus_beta_1_power_t = 1 - self.__beta_1 ** self.__t
