@@ -46,17 +46,17 @@ class Network:
             if not layer.trainable:  # Reached input layer
                 gradient.insert(0, None)
                 break
-            if layer == jump_layer:
-                #! errors might have different shapes
-                in_error = errors + errors_jump# type: ignore
-                weights_grad, errors = layer.backward(in_error)# type: ignore
+            # if layer == jump_layer:
+            #     #! errors might have different shapes
+            #     in_error = errors + errors_jump# type: ignore
+            #     weights_grad, errors = layer.backward(in_error)# type: ignore
                 # weights_grad = cp.mean(weights_grad, weights_grad_jump)
 
 
             if layer._is_residual:
                 # check for nans
                 # check the shapes
-                weights_grad, (errors,errors_jump) = layer.backward(errors)# type: ignore
+                weights_grad, errors = layer.backward(errors)# type: ignore
                 jump_layer = layer.jump_layer# type: ignore
             #problem here when the previous layer is a residual
             # errors.shape = (batch_size, n_neurons, max_n_spikes)
