@@ -1,5 +1,8 @@
+from ast import Tuple
 from typing import List, Dict
 import numpy as np
+from sympy import use
+import wandb
 
 from bats.AbstractMonitor import AbstractMonitor
 
@@ -12,10 +15,14 @@ class MonitorsManager:
     def add(self, monitor: AbstractMonitor) -> None:
         self._monitors.append(monitor)
 
-    def print(self, epoch: float, decimal: int = 1) -> None:
+    def print(self, epoch: float, decimal: int = 1, use_wandb = False) -> None:
+        returns = []
         to_print = self._print_prefix + f"Epoch {np.around(epoch, decimal)}"
         for i, monitor in enumerate(self._monitors):
             to_print += (" | " if i == 0 else ", ") + str(monitor)
+            if use_wandb:
+                wandb.log({monitor._name: monitor._values[-1]})
+            returns.append((monitor._name, monitor._values[-1]))
         print(to_print)
 
     def record(self, epoch: float) -> Dict:

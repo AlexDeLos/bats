@@ -4,7 +4,7 @@ import cupy as cp
 import numpy as np
 import os
 import wandb
-import sys
+import sys  
 
 # if it is not working try going back to the pip 3.9 interpreter
 
@@ -94,7 +94,7 @@ TRAIN_PRINT_PERIOD_STEP = int(N_TRAIN_SAMPLES * TRAIN_PRINT_PERIOD / TRAIN_BATCH
 TEST_PERIOD = 1.0  # Evaluate on test batch every TEST_PERIOD epochs
 TEST_PERIOD_STEP = int(N_TRAIN_SAMPLES * TEST_PERIOD / TRAIN_BATCH_SIZE)
 LEARNING_RATE = 0.003
-LR_DECAY_EPOCH = 10  # Perform decay very n epochs
+LR_DECAY_EPOCH = int(N_TRAINING_EPOCHS/10)  # Perform decay very n epochs
 LR_DECAY_FACTOR = 1.0
 MIN_LEARNING_RATE = 0
 TARGET_FALSE = 3
@@ -247,6 +247,7 @@ for run in range(NUMBER_OF_RUNS):
                                             print_prefix="Test | ")
 
     best_acc = 0.0
+    tracker = [0.0]* (N_HIDDEN_LAYERS+2)
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
@@ -299,10 +300,29 @@ for run in range(NUMBER_OF_RUNS):
                     averaged_values = cp.mean(g, axis=0)
                     avg_gradient.append(averaged_values)
 
+            training_steps += 1
             
             #gradient 
             del gradient
-
+            # keep track of the gradient
+            if USE_WANDB:
+                for i in range(len(avg_gradient)):
+                    if avg_gradient[i] is not None:
+                        if isinstance(avg_gradient[i], list):
+                            for j in range(len(avg_gradient[i])):
+                                tracker[i] = (tracker[i] + float(cp.mean(cp.abs(avg_gradient[i][j]))))/2
+                            if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
+                                wandb.log({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
+                                if not CLUSTER:
+                                    print("Mean Gradient Magnitude at residual layer "+str(i)+": ", tracker[i])
+                                tracker = [0.0]* (N_HIDDEN_LAYERS+2)
+                        else:
+                            tracker[i] = (tracker[i] + float(cp.mean(cp.abs(avg_gradient[i]))))/2
+                            if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
+                                wandb.log({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
+                                if not CLUSTER:
+                                    print("Mean Gradient Magnitude at layer "+str(i)+": ", tracker[i])
+                                tracker = [0.0]* (N_HIDDEN_LAYERS+2)
             # Apply step
             #! problem is here, in has no nans but deltas has nans
             deltas = optimizer.step(avg_gradient)
@@ -311,7 +331,6 @@ for run in range(NUMBER_OF_RUNS):
             network.apply_deltas(deltas)
             del deltas
 
-            training_steps += 1
             epoch_metrics = training_steps * TRAIN_BATCH_SIZE / N_TRAIN_SAMPLES
 
             # Training metrics
@@ -319,16 +338,29 @@ for run in range(NUMBER_OF_RUNS):
                 # Compute metrics
 
                 train_monitors_manager.record(epoch_metrics)
-                train_monitors_manager.print(epoch_metrics)
+                train_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB)
                 train_monitors_manager.export()
                 out_spikes, n_out_spikes = network.output_spike_trains
+                out_copy = cp.copy(out_spikes)
+                mask = cp.isinf(out_copy)
+                out_copy[mask] = cp.nan
+                mean_spikes_for_times = cp.nanmean(out_copy)
+
+                first_spike_for_times = cp.nanmin(out_copy)
+
+                mean_res = cp.mean(cp.array(mean_spikes_for_times))
+                mean_first = cp.mean(cp.array(first_spike_for_times))
+                if not CLUSTER:
+                    print(f'Output layer mean times: {mean_res}')
+                    print(f'Output layer first spike: {mean_first}')
+                if USE_WANDB:
+                    wandb.log({"mean_spikes_for_times": float(mean_res), "first_spike_for_times": float(mean_first)})
+                
 
             # Test evaluation
             if training_steps % TEST_PERIOD_STEP == 0:
                 test_time_monitor.start()
 
-                mean_spikes_for_times = []
-                first_spike_for_times = []
 
                 for batch_idx in range(N_TEST_BATCH):
                     spikes, n_spikes, labels = dataset.get_test_batch(batch_idx, TEST_BATCH_SIZE)
@@ -336,13 +368,6 @@ for run in range(NUMBER_OF_RUNS):
                     network.forward(spikes, n_spikes, max_simulation=SIMULATION_TIME)
                     out_spikes, n_out_spikes = network.output_spike_trains
 
-                                        
-                    out_copy = cp.copy(out_spikes)
-                    mask = cp.isinf(out_copy)
-                    out_copy[mask] = cp.nan
-                    mean_spikes_for_times.append(cp.nanmean(out_copy))
-
-                    first_spike_for_times.append(cp.nanmin(out_copy))
                     
 
                     pred = loss_fct.predict(out_spikes, n_out_spikes)
@@ -375,17 +400,7 @@ for run in range(NUMBER_OF_RUNS):
 
                 acc = records[test_accuracy_monitor]
                 loss_to_save = records[test_loss_monitor]
-
-
-                mean_res = cp.mean(cp.array(mean_spikes_for_times))
-                mean_first = cp.mean(cp.array(first_spike_for_times))
-                print(f'Output layer mean times: {mean_res}')
-                print(f'Output layer first spike: {mean_first}')
-                if USE_WANDB:
-                    wandb.log({"mean_spikes_for_times": float(mean_res), "first_spike_for_times": float(mean_first)})
-
-                    wandb.log({"acc": acc, "loss": loss_to_save})
-
+                
                 if acc > best_acc:
                     best_acc = acc
                     network.store(SAVE_DIR)

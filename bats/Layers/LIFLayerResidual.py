@@ -32,7 +32,8 @@ class LIFLayerResidual(AbstractLayer):
                 self.__weights_res: cp.ndarray = cp.zeros((int(cp.ceil(self.n_neurons/2)), previous_layer.n_neurons), dtype=cp.float32) # type: ignore
                 self.__weights_jump: cp.ndarray = cp.zeros((int(cp.floor(self.n_neurons/2)), jump_layer.n_neurons), dtype=cp.float32) # type: ignore
             else:
-                self.__weights_res: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons), dtype=cp.float32) # type: ignore
+                self.__weights_res: cp.ndarray = cp.zeros((int(cp.ceil(self.n_neurons/2)), previous_layer.n_neurons), dtype=cp.float32) # type: ignore
+                self.__weights_jump: cp.ndarray = cp.zeros((int(cp.floor(self.n_neurons/2)), jump_layer.n_neurons), dtype=cp.float32) # type: ignore
 
         else:
             if fuse_function == "Append":
@@ -40,7 +41,8 @@ class LIFLayerResidual(AbstractLayer):
                 self.__weights_jump: cp.ndarray = weight_initializer(int(cp.ceil(self.n_neurons/2)), jump_layer.n_neurons)
 
             else:
-                self.__weights_res: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons)
+                self.__weights_res: cp.ndarray = weight_initializer(int(cp.floor(self.n_neurons/2)), previous_layer.n_neurons)
+                self.__weights_jump: cp.ndarray = weight_initializer(int(cp.ceil(self.n_neurons/2)), jump_layer.n_neurons)
         self.__max_n_spike: cp.int32 = cp.int32(max_n_spike)
 
         self.__n_spike_per_neuron_res: Optional[cp.ndarray] = None
@@ -71,8 +73,11 @@ class LIFLayerResidual(AbstractLayer):
         # testing = self.__spike_times_per_neuron_res
         # testing2 = self.__spike_times_per_neuron_jump
         #first half are residual, second half are jump
-        res =  fuse_inputs_append(self.__spike_times_per_neuron_res, self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_res, self.__n_spike_per_neuron_jump, self.__max_n_spike)
-        #no nans here
+        if self.__fuse_function == "Append":
+            res =  fuse_inputs_append(self.__spike_times_per_neuron_res, self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_res, self.__n_spike_per_neuron_jump, self.__max_n_spike)
+        else:
+            #! shape is different here than in the other option don;t belive it fits with n_neurons
+            res = fuse_inputs(self.__spike_times_per_neuron_res, self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_res, self.__n_spike_per_neuron_jump, self.__max_n_spike)
         return res
         return self.__spike_times_per_neuron_res, self.__n_spike_per_neuron_res
 
