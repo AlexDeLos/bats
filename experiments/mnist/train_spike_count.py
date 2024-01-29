@@ -29,7 +29,7 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Change from small test on computer to big test on cluster
-CLUSTER = True
+CLUSTER = False
 USE_WANDB = False
 ALTERNATE = False
 FUSE_FUNCTION = "Append"
@@ -360,7 +360,12 @@ for run in range(NUMBER_OF_RUNS):
                         mon.add(l.spike_trains[1])
 
                 for l, mon in test_norm_monitors.items():
-                    mon.add(l.weights) # type: ignore
+                    #TODO what does this do?
+                    if type(l.weights) is tuple:
+                        mon.add(l.weights[0])
+                        mon.add(l.weights[1])
+                    else:
+                        mon.add(l.weights) # type: ignore
 
                 test_learning_rate_monitor.add(optimizer.learning_rate) # type: ignore
 

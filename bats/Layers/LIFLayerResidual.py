@@ -2,11 +2,13 @@ from typing import Callable, Tuple
 from typing import Optional
 import cupy as cp
 import numpy as np
+from pathlib import Path
 
 from bats.AbstractLayer import AbstractLayer
 from bats.CudaKernels.Wrappers.Inference import *
 from bats.CudaKernels.Wrappers.Backpropagation import *
 
+WEIGHTS_FILE_SUFFIX = "_weights.npy"
 
 class LIFLayerResidual(AbstractLayer):
     def __init__(self, previous_layer: AbstractLayer, jump_layer: AbstractLayer, tau_s: float, theta: float, delta_theta: float,
@@ -104,61 +106,6 @@ class LIFLayerResidual(AbstractLayer):
         self.__a_res = None
         self.__x_res = None
         self.__post_exp_tau_res = None
-
-    # def forward_old(self, max_simulation: float, training: bool = False) -> None:
-    #     #? What are these two variables?
-    #     #? How is it per neuron? (50, 784, 1)=>shape of spike_times_per_neuron on first stop of debugger
-    #     #? It seems to be the number of spikes per layer, not per neuron, as there where 784 neurons in the input layer
-    #     pre_spike_per_neuron_residual, pre_n_spike_per_neuron_residual = self.__previous_layer.spike_trains
-
-    #     #We will try just adding them together
-    #     jump_connection_spikes, jump_connection_spike_count = self.__jump_layer.spike_trains
-
-    #     #> pre_spike_per_neuron is a vector with the spike times of the previous layer
-
-    #     if self.__fuse_function == "Append":
-    #         pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs_append(pre_spike_per_neuron_residual, jump_connection_spikes, pre_n_spike_per_neuron_residual, jump_connection_spike_count, self.__max_n_spike)
-    #     else:
-    #         pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs(pre_spike_per_neuron_residual, jump_connection_spikes, pre_n_spike_per_neuron_residual, jump_connection_spike_count, self.__max_n_spike)
-    #     # join them together in a good way
-    #     # pre_n_spike_per_neuron = np.append(pre_n_spike_per_neuron, jump_connection_spike_count, axis=1)
-
-    #     self.__pre_exp_tau_s_res, self.__pre_exp_tau_res = compute_pre_exps(pre_spike_per_neuron, self.__tau_s_res, self.__tau_res)
-    #     # self.__pre_exp_tau_s_residual, self.__pre_exp_tau_residual = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
-    #     # END OF PREVIOUS LAYER INPUTS
-
-    #     # Sort spikes for inference
-    #     new_shape, sorted_indices, spike_times_reshaped = get_sorted_spikes_indices(pre_spike_per_neuron,
-    #                                                                                 pre_n_spike_per_neuron)
-    #     if sorted_indices.size == 0:  # No input spike in the batch
-    #         batch_size = pre_spike_per_neuron.shape[0]
-    #         shape = (batch_size, self.n_neurons, self.__max_n_spike)
-    #         self.__n_spike_per_neuron_res = cp.zeros((batch_size, self.n_neurons), dtype=cp.int32) # type: ignore
-    #         self.__spike_times_per_neuron_res = cp.full(shape, cp.inf, dtype=cp.float32)
-    #         self.__post_exp_tau_res = cp.full(shape, cp.inf, dtype=cp.float32)
-    #         self.__a_res = cp.full(shape, cp.inf, dtype=cp.float32)
-    #         self.__x_res = cp.full(shape, cp.inf, dtype=cp.float32)
-    #     else:
-    #         #? What are they sorting the spikes by? TIME obviously
-    #         sorted_spike_indices = (sorted_indices.astype(cp.int32) // pre_spike_per_neuron.shape[2])
-    #         sorted_spike_times = cp.take_along_axis(spike_times_reshaped, sorted_indices, axis=1)
-
-    #         # Store the times of the spikes (this array A[i]<A[i+1] for all i)
-    #         sorted_spike_times[sorted_indices == -1] = cp.inf
-    #         sorted_pre_exp_tau_s = cp.take_along_axis(cp.reshape(self.__pre_exp_tau_s_res, new_shape), sorted_indices, axis=1)
-    #         sorted_pre_exp_tau = cp.take_along_axis(cp.reshape(self.__pre_exp_tau_res, new_shape), sorted_indices, axis=1)
-    #         pre_spike_weights = get_spike_weights(self.weights, sorted_spike_indices)
-
-    #         # Compute spikes, everything has been calculated in order to make this
-    #         self.__n_spike_per_neuron_res, self.__a_res, self.__x_res, self.__spike_times_per_neuron_res, \
-    #         self.__post_exp_tau_res = compute_spike_times(sorted_spike_times, sorted_pre_exp_tau_s, sorted_pre_exp_tau,
-    #                                                   pre_spike_weights, self.__c_res, # type: ignore
-    #                                                   self.__delta_theta_tau_res,
-    #                                                   self.__tau_res, cp.float32(max_simulation), self.__max_n_spike, residual = True)
-    #         testing = self.__spike_times_per_neuron_res
-    #         cp.any(cp.isnan(testing))
-    #         sdfds = 'f'
-    #         #     breakpoint()
 
     # forward function for the jump part of the residual layer
     def forward_res(self, max_simulation: float, training: bool = False) -> None:
@@ -299,8 +246,6 @@ class LIFLayerResidual(AbstractLayer):
         weights_grad = compute_weights_gradient(f1, f2, self.__spike_times_per_neuron_res, pre_spike_per_neuron,
                                                 self.__pre_exp_tau_s_res, self.__pre_exp_tau_res, errors)
         
-        # weights_grad_test = compute_weights_gradient(f1, f2, self.__spike_times_per_neuron_jump, pre_spike_per_neuron,
-        #                                         self.__pre_exp_tau_s_jump, self.__pre_exp_tau_jump, errors)
         # Propagate errors
         # what are the dimensions of f1
         # what are the dimensions of pre_exp_tau_s
@@ -338,6 +283,24 @@ class LIFLayerResidual(AbstractLayer):
         self.__weights_res += delta_weights[0]
         #! delta_weights[1] has nans in it
         self.__weights_jump += delta_weights[1]
+    
+    def store(self, dir_path: Path) -> None:
+        weights = self.weights
+        if weights is not None:
+            pre,_ = WEIGHTS_FILE_SUFFIX.split('.npy')
+            filename_res = dir_path / (self._name + pre + "_res" + '.npy')
+            filename_jump = dir_path / (self._name + pre + "_jump" + '.npy')
+            np.save(filename_res, self.__weights_res.get())
+            np.save(filename_jump, self.__weights_jump.get())
+
+    def restore(self, dir_path: Path) -> None:
+        pre,_ = WEIGHTS_FILE_SUFFIX.split('.npy')
+        filename_res = dir_path / (self._name + pre + "_res" + '.npy')
+        filename_jump = dir_path / (self._name + pre + "_jump" + '.npy')
+        if filename_res.exists():
+            self.__weights_res = np.load(filename_res)
+        if filename_jump.exists():
+            self.__weights_jump = np.load(filename_jump)
 
 
 
