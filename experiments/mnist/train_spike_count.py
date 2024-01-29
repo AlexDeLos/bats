@@ -1,4 +1,5 @@
 from pathlib import Path
+from re import T
 import cupy as cp
 import numpy as np
 import os
@@ -28,16 +29,16 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Change from small test on computer to big test on cluster
-CLUSTER = True
-USE_WANDB = True
-ALTERNATE = True
-FUSE_FUNCTION = "Not Append"
+CLUSTER = False
+USE_WANDB = False
+ALTERNATE = False
+FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 
 #Residual parameters
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = 500
-N_HIDDEN_LAYERS = 2
+N_HIDDEN_LAYERS = 6
 
 if CLUSTER:
     NUMBER_OF_RUNS = 20
@@ -279,26 +280,34 @@ for run in range(NUMBER_OF_RUNS):
             train_silent_label_monitor.add(n_out_spikes_cpu, labels)
 
             # Compute gradient
+            #! the second set of gradients form the residual layer has nans
             gradient = network.backward(errors)
-            avg_gradient = [None if g is None else cp.mean(g, axis=0) for g, layer in zip(gradient, network.layers)]
-            """
+            # avg_gradient = [None if g is None else cp.mean(g, axis=0) for g, layer in zip(gradient, network.layers)]
+            
             avg_gradient = []
 
             for g, layer in zip(gradient, network.layers):
                 if g is None:
                     avg_gradient.append(None)
+                elif isinstance(layer, LIFLayerResidual):
+                    grad_entry = []
+                    for i in range(len(g)):
+                        averaged_values = cp.mean(g[i], axis=0)
+                        grad_entry.append(averaged_values)
+                    avg_gradient.append(grad_entry)
                 else:
                     averaged_values = cp.mean(g, axis=0)
                     avg_gradient.append(averaged_values)
 
-            """
+            
             #gradient 
             del gradient
 
             # Apply step
+            #! problem is here, in has no nans but deltas has nans
             deltas = optimizer.step(avg_gradient)
             del avg_gradient
-
+            #! deltas have nans
             network.apply_deltas(deltas)
             del deltas
 

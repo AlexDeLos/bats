@@ -40,24 +40,31 @@ class Network:
         errors = output_errors
         gradient = []
         jump_layer = None
+        using_fuse = False
         for i, layer in enumerate(reversed(self.__layers)):
                 
 
             if not layer.trainable:  # Reached input layer
                 gradient.insert(0, None)
                 break
-            # if layer == jump_layer:
-            #     #! errors might have different shapes
-            #     in_error = errors + errors_jump# type: ignore
-            #     weights_grad, errors = layer.backward(in_error)# type: ignore
-                # weights_grad = cp.mean(weights_grad, weights_grad_jump)
-
-
-            if layer._is_residual:
-                # check for nans
-                # check the shapes
-                weights_grad, errors = layer.backward(errors)# type: ignore
-                jump_layer = layer.jump_layer# type: ignore
+            if layer == jump_layer:
+                #! errors might have different shapes
+                if using_fuse:
+                    # if this is connected to a res layer we run it two times
+                    #! this is never used, how should we deal with the layer that recieves the jump?
+                    weights_grad_jump, errors_jump = layer.backward(errors_jump)
+                    weights_grad, errors = layer.backward(errors)
+                    # weights_grad = (weights_grad, weights_grad_jump)
+                else:
+                    weights_grad, errors = layer.backward(errors) # type: ignore
+            elif layer._is_residual:
+                if layer.fuse_function == "Append":
+                    using_fuse = True
+                    weights_grad, (errors,errors_jump) = layer.backward(errors)
+                    jump_layer = layer.jump_layer# type: ignore
+                else:
+                    weights_grad, errors = layer.backward(errors)# type: ignore
+                    jump_layer = layer.jump_layer# type: ignore
             #problem here when the previous layer is a residual
             # errors.shape = (batch_size, n_neurons, max_n_spikes)
             # weights_grad.shape = (batch_size, pre_num_neurons , n_neurons)
@@ -67,7 +74,6 @@ class Network:
                 #? how on earth is the gradient flowing in the residual?
                 weights_grad, errors = layer.backward(errors) # type: ignore
                 x =0
-                #! layer.__previous_layer_residual.backward(errors)
                 # TODO: Look into this thing
                 #? how does back propagation work with residual?
                 # It updates the res, and the res receives an update from the input (always have errors), but 

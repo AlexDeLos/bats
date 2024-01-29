@@ -31,7 +31,8 @@ class LIFLayer(AbstractLayer):
 
         self.__pre_exp_tau_s: Optional[cp.ndarray] = None
         self.__pre_exp_tau: Optional[cp.ndarray] = None
-        self.__pre_spike_weights: Optional[cp.ndarray] = None
+        #! this is never used
+        # self.__pre_spike_weights: Optional[cp.ndarray] = None
         self.__c: Optional[cp.float32] = self.__theta_tau
 
     @property
@@ -55,7 +56,7 @@ class LIFLayer(AbstractLayer):
         self.__spike_times_per_neuron = None
         self.__pre_exp_tau_s = None
         self.__pre_exp_tau = None
-        self.__pre_spike_weights = None
+        # self.__pre_spike_weights = None
         self.__a = None
         self.__x = None
         self.__post_exp_tau = None
@@ -92,21 +93,17 @@ class LIFLayer(AbstractLayer):
             pre_spike_weights = get_spike_weights(self.weights, sorted_spike_indices)
 
             # Compute spikes, everything has been calculated in order to make this
+            #! nans in self.__spike_times_per_neuron-> there are no nans in the input
             self.__n_spike_per_neuron, self.__a, self.__x, self.__spike_times_per_neuron, \
             self.__post_exp_tau = compute_spike_times(sorted_spike_times, sorted_pre_exp_tau_s, sorted_pre_exp_tau,
                                                       pre_spike_weights, self.__c,
                                                       self.__delta_theta_tau,
                                                       self.__tau, cp.float32(max_simulation), self.__max_n_spike)
-            # break point here in order to see if normal layers have any NaN values
-            # FOUND: No NaN values in normal layers
-            # if self.name == 'Output layer':
-            #     deep_copy = cp.copy(self.__spike_times_per_neuron)
-            #     mask = cp.isinf(deep_copy)
-            #     deep_copy[mask] = cp.nan
-            #     mean_spikes = cp.nanmean(deep_copy)
-            #     first_spike = cp.nanmin(deep_copy)
-            #     print(f'Output layer mean times: {mean_spikes}')
-            #     print(f'Output layer first spike: {first_spike}')
+            test = self.__spike_times_per_neuron
+            test2 = self.__n_spike_per_neuron
+            test3 = self.__post_exp_tau
+            test4 = self.__a
+            test5 = self.__x
 
     def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
@@ -114,7 +111,7 @@ class LIFLayer(AbstractLayer):
         propagate_recurrent_errors(self.__x, self.__post_exp_tau, errors, self.__delta_theta_tau)
         f1, f2 = compute_factors(self.__spike_times_per_neuron, self.__a, self.__c, self.__x,
                                  self.__post_exp_tau, self.__tau)
-
+        #! nans show up here when getting the previous layer spikes
         weights_grad = compute_weights_gradient(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron,
                                                 self.__pre_exp_tau_s, self.__pre_exp_tau, errors)
         # Propagate errors
