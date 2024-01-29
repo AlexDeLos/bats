@@ -139,7 +139,7 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "SNN",
         "dataset": "MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "4.0.0_cluster_proof_" + str(CLUSTER),
+        "version": "4.0.0_cluster_" + str(CLUSTER),
         }
         )
 
