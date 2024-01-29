@@ -31,7 +31,7 @@ SIMULATION_TIME = 0.2
 # Change from small test on computer to big test on cluster
 CLUSTER = True
 USE_WANDB = True
-ALTERNATE = True
+ALTERNATE = False
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 
@@ -139,7 +139,7 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "SNN",
         "dataset": "MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "4.0.0_cluster_" + str(CLUSTER),
+        "version": "4.0.0_cluster_proof_" + str(CLUSTER),
         }
         )
 
@@ -178,7 +178,7 @@ for run in range(NUMBER_OF_RUNS):
                                     name="Hidden layer 0")
             
         elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL:
-            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[0], n_neurons=N_NEURONS_1, tau_s=TAU_S_RES,
+            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_RES,
                                     theta=THRESHOLD_HAT_RES,
                                     fuse_function=FUSE_FUNCTION,
                                     delta_theta=DELTA_THRESHOLD_RES,
@@ -354,13 +354,15 @@ for run in range(NUMBER_OF_RUNS):
                     print(f'Output layer mean times: {mean_res}')
                     print(f'Output layer first spike: {mean_first}')
                 if USE_WANDB:
-                    wandb.log({"mean_spikes_for_times": float(mean_res), "first_spike_for_times": float(mean_first)})
+                    wandb.log({"Train_mean_spikes_for_times": float(mean_res), "Train_first_spike_for_times": float(mean_first)})
                 
 
             # Test evaluation
             if training_steps % TEST_PERIOD_STEP == 0:
                 test_time_monitor.start()
 
+                mean_spikes_for_times = []
+                first_spike_for_times = []
 
                 for batch_idx in range(N_TEST_BATCH):
                     spikes, n_spikes, labels = dataset.get_test_batch(batch_idx, TEST_BATCH_SIZE)
@@ -368,6 +370,12 @@ for run in range(NUMBER_OF_RUNS):
                     network.forward(spikes, n_spikes, max_simulation=SIMULATION_TIME)
                     out_spikes, n_out_spikes = network.output_spike_trains
 
+                    out_copy = cp.copy(out_spikes)
+                    mask = cp.isinf(out_copy)
+                    out_copy[mask] = cp.nan
+                    mean_spikes_for_times.append(cp.nanmean(out_copy))
+
+                    first_spike_for_times.append(cp.nanmin(out_copy))
                     
 
                     pred = loss_fct.predict(out_spikes, n_out_spikes)
@@ -395,12 +403,21 @@ for run in range(NUMBER_OF_RUNS):
                 test_learning_rate_monitor.add(optimizer.learning_rate) # type: ignore
 
                 records = test_monitors_manager.record(epoch_metrics)
-                test_monitors_manager.print(epoch_metrics)
+                test_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB)
                 test_monitors_manager.export()
 
                 acc = records[test_accuracy_monitor]
                 loss_to_save = records[test_loss_monitor]
                 
+
+                mean_res = cp.mean(cp.array(mean_spikes_for_times))
+                mean_first = cp.mean(cp.array(first_spike_for_times))
+                if not CLUSTER:
+                    print(f'Output layer mean times: {mean_res}')
+                    print(f'Output layer first spike: {mean_first}')
+                if USE_WANDB:
+                    wandb.log({"Test_mean_spikes_for_times": float(mean_res), "Test_first_spike_for_times": float(mean_first)})
+
                 if acc > best_acc:
                     best_acc = acc
                     network.store(SAVE_DIR)

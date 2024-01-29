@@ -1,7 +1,8 @@
 from ast import Tuple
 from typing import List, Dict
 import numpy as np
-from sympy import use
+import cupy as cp
+from sympy import im, use
 import wandb
 
 from bats.AbstractMonitor import AbstractMonitor
@@ -21,7 +22,10 @@ class MonitorsManager:
         for i, monitor in enumerate(self._monitors):
             to_print += (" | " if i == 0 else ", ") + str(monitor)
             if use_wandb:
-                wandb.log({monitor._name: monitor._values[-1]})
+                value = monitor._values[-1]
+                if type(value) == cp.ndarray:
+                    value = float(value)
+                wandb.log({self._print_prefix + monitor._name: value})
             returns.append((monitor._name, monitor._values[-1]))
         print(to_print)
 
