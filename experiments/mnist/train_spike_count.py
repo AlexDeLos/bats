@@ -30,15 +30,15 @@ SIMULATION_TIME = 0.2
 
 # Change from small test on computer to big test on cluster
 CLUSTER = True
-USE_WANDB = False
-ALTERNATE = False
+USE_WANDB = True
+ALTERNATE = True
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 
 #Residual parameters
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = 500
-N_HIDDEN_LAYERS = 6
+N_HIDDEN_LAYERS = 2
 
 if CLUSTER:
     NUMBER_OF_RUNS = 20
@@ -139,7 +139,7 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "SNN",
         "dataset": "MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "3.6.3_cluster_" + str(CLUSTER),
+        "version": "4.6.3_cluster_" + str(CLUSTER),
         }
         )
 
