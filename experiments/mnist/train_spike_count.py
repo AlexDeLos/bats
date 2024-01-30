@@ -36,7 +36,7 @@ FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 
 #Residual parameters
-USE_RESIDUAL = True
+USE_RESIDUAL = False
 RESIDUAL_EVERY_N = 500
 N_HIDDEN_LAYERS = 2
 
