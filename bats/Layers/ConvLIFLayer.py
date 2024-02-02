@@ -105,6 +105,7 @@ class ConvLIFLayer(AbstractConvLayer):
                                                            self.__tau, cp.float32(max_simulation), self.__max_n_spike,
                                                            self.__previous_layer.neurons_shape, self.neurons_shape,
                                                            self.__filters_shape)
+            ewrwe = 0
 
     def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
@@ -121,6 +122,7 @@ class ConvLIFLayer(AbstractConvLayer):
 
         # Propagate errors
         if self.__previous_layer.trainable:
+            # the error shape comes from: 
             pre_errors = propagate_errors_to_pre_spikes_conv(f1, f2, self.__spike_times_per_neuron,
                                                              pre_spike_per_neuron,
                                                              self.__pre_exp_tau_s, self.__pre_exp_tau, self.__weights,

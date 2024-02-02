@@ -1,3 +1,4 @@
+from re import split
 from typing import Callable, Tuple
 from typing import Optional
 import cupy as cp
@@ -270,8 +271,16 @@ class LIFLayerResidual(AbstractLayer):
         #! weights_grad_jump has nans in it
         #! check the shapes pf everything
         #! i need to split the errors
+        split_index = self.__previous_layer.n_neurons
+        split_index_jump = self.__jump_layer.n_neurons
         # the order of this split has been checked and is correct the first half is residual and the second half is jump
         errors_res, errors_jump = cp.split(errors, 2, axis=1)
+        # if split_index_jump != errors_jump.shape[1]:
+        #     raise ValueError("The split index of the jump layer is not the same as the shape of the jump errors")
+        # if split_index != errors_res.shape[1]:
+        #     raise ValueError("The split index of the residual layer is not the same as the shape of the residual errors")
+
+        
         #DONE: flip the inputs, where flipped to test ->the problem is not the input
         #! problem is with the function, not the inputs:
         # The problem was that in the forward I took the res input not the jump
@@ -286,7 +295,6 @@ class LIFLayerResidual(AbstractLayer):
         # TODO: to make this separate I need to make the gradient separate instead of averaging them in the backward function
         # delta_split = cp.split(delta_weights, 2, axis=1)
         self.__weights_res += delta_weights[0]
-        #! delta_weights[1] has nans in it
         self.__weights_jump += delta_weights[1]
     
     def store(self, dir_path: Path) -> None:
@@ -323,7 +331,6 @@ def fuse_inputs_append(residual_input, jump_input, count_residual, count_jump, m
     # result_count = count_residual
     # result_spikes = residual_input
     return result_spikes, result_count
-    # We n
 
 
 def fuse_inputs(residual_input, jump_input, count_residual, count_jump, max_n_spike, delay = None) -> Tuple[cp.ndarray, cp.ndarray]:
@@ -379,27 +386,3 @@ def fuse_inputs(residual_input, jump_input, count_residual, count_jump, max_n_sp
 
 
     return result_times, result_count
-
-
-
-# def old_fuse_inputs(residual_input, jump_input, max_n_spike, delay = None) -> cp.ndarray:
-#     batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
-#     batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
-
-#     if batch_size_res != batch_size_jump:
-#         raise ValueError("Batch size of residual and jump connection must be the same.")
-#     if max_n_spike < max_n_spike_res or max_n_spike < max_n_spike_jump:
-#         raise ValueError("Max number of spikes must be greater than the max number of spikes in residual and jump connection.")
-
-
-#     if max_n_spike_res != max_n_spike_jump: #need to change this if
-#         # We pad the smallest one with inf to make them the same size
-#         #! Possible problem here, if inf are not ignored then I am adding a lot more spikes...
-#         max_n_spike = max(max_n_spike_res, max_n_spike_jump)
-#         residual_input = np.pad(residual_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_res)),constant_values = np.inf,mode = 'constant')
-#         jump_input = np.pad(jump_input, ((0, 0), (0, 0), (0, max_n_spike - max_n_spike_jump)), constant_values = np.inf,mode = 'constant')
-    
-#     result = np.append(residual_input, jump_input, axis=1)
-#     if result.shape != (batch_size_res, n_of_neurons_res + n_of_neurons_jump, max_n_spike):
-#         raise ValueError("The shape of the fused is not correct.")
-#     return result

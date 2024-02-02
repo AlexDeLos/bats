@@ -29,4 +29,7 @@ def compute_weights_gradient_conv(f1: cp.ndarray, f2: cp.ndarray,
                                                                  n_post_neurons, n_pre_neurons,
                                                                  cp.int32(max_n_post_spike),
                                                                  cp.int32(max_n_pre_spike)))
+    if cp.any(cp.isnan(gradient)):
+        #! maybe something with the max spikes?
+        ups = True
     return gradient

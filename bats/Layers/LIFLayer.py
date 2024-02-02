@@ -112,6 +112,7 @@ class LIFLayer(AbstractLayer):
         f1, f2 = compute_factors(self.__spike_times_per_neuron, self.__a, self.__c, self.__x,
                                  self.__post_exp_tau, self.__tau)
         #! nans show up here when getting the previous layer spikes
+        test = self.__spike_times_per_neuron
         weights_grad = compute_weights_gradient(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron,
                                                 self.__pre_exp_tau_s, self.__pre_exp_tau, errors)
         # Propagate errors

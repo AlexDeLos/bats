@@ -29,16 +29,16 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Change from small test on computer to big test on cluster
-CLUSTER = True
-USE_WANDB = True
+CLUSTER = False
+USE_WANDB = False
 ALTERNATE = False
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 
 #Residual parameters
-USE_RESIDUAL = False
+USE_RESIDUAL = True
 RESIDUAL_EVERY_N = 500
-N_HIDDEN_LAYERS = 2
+N_HIDDEN_LAYERS = 5
 
 if CLUSTER:
     NUMBER_OF_RUNS = 20
@@ -49,7 +49,7 @@ else:
 if CLUSTER:
     N_NEURONS_1 = 800 #!800 #? Should I lower it?
 else:
-    N_NEURONS_1 = 200
+    N_NEURONS_1 = 400
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.2
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -178,7 +178,7 @@ for run in range(NUMBER_OF_RUNS):
                                     name="Hidden layer 0")
             
         elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL:
-            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_RES,
+            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[0], n_neurons=N_NEURONS_1, tau_s=TAU_S_RES,
                                     theta=THRESHOLD_HAT_RES,
                                     fuse_function=FUSE_FUNCTION,
                                     delta_theta=DELTA_THRESHOLD_RES,

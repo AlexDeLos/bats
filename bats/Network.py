@@ -4,7 +4,7 @@ import numpy as np
 import cupy as cp
 
 from bats import AbstractLayer
-from bats.Layers import InputLayer
+from bats.Layers import InputLayer, PoolingLayer
 
 
 class Network:
@@ -42,7 +42,7 @@ class Network:
         jump_layer = None
         using_fuse = False
         for i, layer in enumerate(reversed(self.__layers)):
-                
+            
 
             if not layer.trainable:  # Reached input layer
                 gradient.insert(0, None)
@@ -53,7 +53,11 @@ class Network:
                     # if this is connected to a res layer we run it two times
                     #! this is never used, how should we deal with the layer that recieves the jump?
                     weights_grad_jump, errors_jump = layer.backward(errors_jump)
-                    weights_grad, errors = layer.backward(errors)
+                    weights_grad_pre, errors = layer.backward(errors)
+                    if weights_grad_jump is None and weights_grad_pre is None:
+                        weights_grad = None
+                    else:
+                        weights_grad = (weights_grad_jump + weights_grad_pre) / 2
                     # weights_grad = (weights_grad, weights_grad_jump)
                 else:
                     weights_grad, errors = layer.backward(errors) # type: ignore
@@ -61,19 +65,15 @@ class Network:
                 if layer.fuse_function == "Append":
                     using_fuse = True
                     weights_grad, (errors,errors_jump) = layer.backward(errors)
+                    if errors_jump is None:
+                        jump_layer_is_input = True
                     jump_layer = layer.jump_layer# type: ignore
                 else:
                     weights_grad, errors = layer.backward(errors)# type: ignore
                     jump_layer = layer.jump_layer# type: ignore
-            #problem here when the previous layer is a residual
-            # errors.shape = (batch_size, n_neurons, max_n_spikes)
-            # weights_grad.shape = (batch_size, pre_num_neurons , n_neurons)
-            #BINGO: the problem is that when the layer is residual the pre_num_neurons is fucked up
-            # when residual is used it should look like
             else:
                 #? how on earth is the gradient flowing in the residual?
                 weights_grad, errors = layer.backward(errors) # type: ignore
-                x =0
                 # TODO: Look into this thing
                 #? how does back propagation work with residual?
                 # It updates the res, and the res receives an update from the input (always have errors), but 
