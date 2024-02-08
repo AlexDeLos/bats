@@ -122,6 +122,7 @@ class LIFLayer(AbstractLayer):
             pre_errors = propagate_errors_to_pre_spikes(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron,
                                                         self.__pre_exp_tau_s, self.__pre_exp_tau, self.__weights,
                                                         errors, self.__tau_s, self.__tau)
+            asdasd = 0
         else:
             pre_errors = None
 

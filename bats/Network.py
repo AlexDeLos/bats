@@ -1,4 +1,5 @@
 from pathlib import Path
+from re import L
 from typing import List, Tuple, Optional
 import numpy as np
 import cupy as cp
@@ -39,7 +40,8 @@ class Network:
             -> List[cp.array]:# type: ignore
         errors = output_errors
         gradient = []
-        jump_layer = None
+        jump_layers = []
+        errors_jump_array = []
         using_fuse = False
         for i, layer in enumerate(reversed(self.__layers)):
             
@@ -47,30 +49,64 @@ class Network:
             if not layer.trainable:  # Reached input layer
                 gradient.insert(0, None)
                 break
-            if layer == jump_layer:
+            if layer in jump_layers:
+                if jump_layers.count(layer) != 1:
+                    #? maybe do something
+                    qwe = ""
+                index = jump_layers.index(layer) # this will give the first index of the layer, so the lowest layer
                 #! errors might have different shapes
-                if using_fuse:
-                    # if this is connected to a res layer we run it two times
+                # if this is connected to a res layer we run it two times
+                if layer._is_residual:
+                    weights_grad, (errors1,errors_jump1) = layer.backward(errors)
+                    weights_grad_jump, (errors2,errors_jump2) = layer.backward(errors_jump_array[index])
+                    #! we are adding the errors, is this good?
+                    jump_layers.pop(index)
+                    errors_jump_array.pop(index)
+                    if errors1 is None:
+                        errors = errors2
+                    elif errors2 is None:
+                        errors = errors1
+                    else:
+                        errors = errors1 + errors2
+                    if errors_jump1 is None:
+                        errors_jump = errors_jump2
+                    elif errors_jump2 is None:
+                        errors_jump = errors_jump1
+                    else:
+                        errors_jump = errors_jump1 + errors_jump2
+
+                    if errors_jump is None:
+                        jump_layer_is_input = True
+
+                    errors_jump_array.append(errors_jump)
+                    jump_layers.append(layer.jump_layer)# type: ignore
+
+                else:
+                    weights_grad_pre, errors1 = layer.backward(errors)
                     #! this is never used, how should we deal with the layer that recieves the jump?
-                    weights_grad_jump, errors_jump = layer.backward(errors_jump)
-                    weights_grad_pre, errors = layer.backward(errors)
+                    #! error shape in conv can be wrong
+                    weights_grad_jump, errors2 = layer.backward(errors_jump_array[index])
+                    jump_layers.pop(index)
+                    errors_jump_array.pop(index)
+                    if errors1 is None:
+                        errors = errors2
+                    elif errors2 is None:
+                        errors = errors1
+                    else:
+                        errors = errors1 + errors2
+
                     if weights_grad_jump is None and weights_grad_pre is None:
                         weights_grad = None
                     else:
                         weights_grad = (weights_grad_jump + weights_grad_pre) / 2
-                    # weights_grad = (weights_grad, weights_grad_jump)
-                else:
-                    weights_grad, errors = layer.backward(errors) # type: ignore
+
             elif layer._is_residual:
-                if layer.fuse_function == "Append":
-                    using_fuse = True
-                    weights_grad, (errors,errors_jump) = layer.backward(errors)
-                    if errors_jump is None:
-                        jump_layer_is_input = True
-                    jump_layer = layer.jump_layer# type: ignore
-                else:
-                    weights_grad, errors = layer.backward(errors)# type: ignore
-                    jump_layer = layer.jump_layer# type: ignore
+                weights_grad, (errors,errors_jump) = layer.backward(errors)
+                if errors_jump is None:
+                    jump_layer_is_input = True
+
+                errors_jump_array.append(errors_jump)
+                jump_layers.append(layer.jump_layer)# type: ignore
             else:
                 #? how on earth is the gradient flowing in the residual?
                 weights_grad, errors = layer.backward(errors) # type: ignore

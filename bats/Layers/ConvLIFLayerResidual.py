@@ -1,9 +1,12 @@
+from doctest import debug
+from math import inf
+from operator import ne
 from typing import Callable, Tuple
 from typing import Optional
 import cupy as cp
 from cupy._core import ndarray
 from cupy._creation.from_data import array
-import numpy as np
+# import numpy as np
 
 from bats.AbstractConvLayer import AbstractConvLayer
 from bats.CudaKernels.Wrappers.Backpropagation.compute_weights_gradient_conv import compute_weights_gradient_conv
@@ -15,20 +18,41 @@ from bats.CudaKernels.Wrappers.Inference.compute_spike_times_conv import compute
 
 
 class ConvLIFLayerResidual(AbstractConvLayer):
-    def __init__(self, previous_layer: AbstractConvLayer, jump_layer: AbstractConvLayer, filters_shape: np.ndarray, tau_s: float, theta: float,
-                 delta_theta: float,
+    def __init__(self, previous_layer: AbstractConvLayer, jump_layer: AbstractConvLayer, filters_shape: cp.ndarray,
+                 use_padding: bool,
+                 tau_s: float, theta: float,
+                 delta_theta: float, # input_channels:,
                  weight_initializer: Callable[[int, int, int, int], cp.ndarray] = None, max_n_spike: int = 32,
                  **kwargs):
         prev_x, prev_y, prev_c = previous_layer._neurons_shape.get()
         prev_x_jump, prev_y_jump, prev_c_jump = jump_layer._neurons_shape.get()
         filter_x, filter_y, filter_c = filters_shape #? do I need to duplicate this?
-        n_x = prev_x - filter_x + 1
-        n_x_jump = prev_x_jump - filter_x + 1
-        n_y = prev_y - filter_y + 1
-        n_y_jump = prev_y_jump - filter_y + 1
-        neurons_shape: cp.ndarray = np.array([n_x, n_y, filter_c], dtype=cp.int32)
+        if use_padding:
+            n_x = prev_x
+            n_x_jump = prev_x_jump
+            n_y = prev_y
+            n_y_jump = prev_y_jump
+        else:
+            n_x = prev_x - filter_x + 1
+            n_x_jump = prev_x_jump - filter_x + 1
+            n_y = prev_y - filter_y + 1
+            n_y_jump = prev_y_jump - filter_y + 1
+        if n_x != n_x_jump or n_y != n_y_jump:
+            raise ValueError("The dimensions of the layers do not match")
+        # n_x = prev_x - filter_x + 1
+        # #? why are they connected? couldn't it be whatever?
+        # n_x_jump = prev_x_jump - filter_x + 1
+        # n_y = prev_y - filter_y + 1
+        # n_y_jump = prev_y_jump - filter_y + 1
+        neurons_shape: cp.ndarray = cp.array([n_x, n_y, filter_c], dtype=cp.int32)
+        #! neurons_shape just return the normal shape, not the residual shape
+        neurons_shape_jump: cp.ndarray = cp.array([n_x_jump, n_y_jump, filter_c], dtype=cp.int32)
+        if cp.all(neurons_shape != neurons_shape_jump):
+            raise ValueError("The dimensions of the layers do not match 2")
 
-        super().__init__(neurons_shape=neurons_shape, **kwargs)
+        # how can I mix it?
+        super().__init__(neurons_shape=neurons_shape, use_padding= use_padding, **kwargs)
+        # super().__init__(neurons_shape=neurons_shape, **kwargs)
         self._is_residual = True
         self.fuse_function = "Append"
         self.jump_layer = jump_layer
@@ -87,6 +111,8 @@ class ConvLIFLayerResidual(AbstractConvLayer):
         # No NaNs here
         return spikes, number
 
+        return self.__spike_times_per_neuron, self.__n_spike_per_neuron
+
     @property
     def weights(self) -> Optional[cp.ndarray]:
         # return self.__weights_pre
@@ -96,7 +122,7 @@ class ConvLIFLayerResidual(AbstractConvLayer):
         return ret
 
     @weights.setter
-    def weights(self, weights: np.ndarray) -> None:
+    def weights(self, weights: cp.ndarray) -> None:
         self.__weights_pre = cp.array(weights, dtype=cp.float32)
 
     def reset(self) -> None:
@@ -237,9 +263,19 @@ class ConvLIFLayerResidual(AbstractConvLayer):
         return weights_grad, pre_errors
     
     def backward_jump(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
+        # SAVE ERROR FOR DEBUG PURPOSES
+        #! should errors be infinities?
+        #* that is not the problem
+        
+        debug_err = errors.copy()
+
+        # try to overwrite the infs in the errors
+        #! OK, this would fix it, but why are there infs in the first place?
+
         # Compute gradient
         #shape of errors is (batch_size, n_neurons, ?(3))
-        pre_spike_per_neuron, _ = self.__jump_layer.spike_trains
+        pre_spike_per_neuron, spikes = self.__jump_layer.spike_trains
+        
         # shape of pre_spike_per_neuron is (batch_size, n_neurons_jump, max_n_spike)
         #! what  about the shape of pre_spike_per_neuron
         #! do self.__spike_times_per_neuron_jump have the proper shape?
@@ -281,7 +317,8 @@ class ConvLIFLayerResidual(AbstractConvLayer):
         #? does this happen repeatedly?
         if self.__jump_layer.trainable:
             # pre_errors.shape => (batch_size, n_neurons_jump, max_n_spike_jump)
-            #! same thing that is cuasing the nans in the weights_grad causes them here
+            #! after a few iterations there are nans in the pre_errors
+            #! The problem comes when the errors that come in contain infs
             pre_errors = propagate_errors_to_pre_spikes_conv(f1, f2, self.__spike_times_per_neuron_jump,
                                                              pre_spike_per_neuron,
                                                              self.__pre_exp_tau_s_jump, self.__pre_exp_tau_jump, self.__weights_jump,
@@ -302,9 +339,13 @@ class ConvLIFLayerResidual(AbstractConvLayer):
             raise ValueError("The split index is not correct")
         if split_index_jump != errors_jump.shape[1]:
             raise ValueError("The split index is not correct")
+        # if the error size is to big it gives nans 
         weights_grad_pre, pre_errors_pre = self.backward_pre(errors_pre)
-
+        #! when i put errors I get a similar type nans
         weights_grad_jump, pre_errors_jump = self.backward_jump(errors_jump)
+
+        #? is the problem with the error input?
+        #* if I use the errors_pre here I get NO nans
 
         #problem with the input?
         #! NaNs show up here
@@ -320,12 +361,13 @@ class ConvLIFLayerResidual(AbstractConvLayer):
 def fuse_inputs_append(residual_input, jump_input, count_residual, count_jump, max_n_spike, delay = None) -> Tuple[cp.ndarray, cp.ndarray]:
     batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
     batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
+    # I need to make sure I append the right way with the channel dimension
 
     result_count =cp.append(count_residual, count_jump, axis=1)
     # this changes the effect
     # result_count = count_residual
     # result_count = cp.zeros((residual_input.shape))
-    result_spikes = np.append(residual_input, jump_input, axis=1)
+    result_spikes = cp.append(residual_input, jump_input, axis=1)
     if cp.any(result_count > max_n_spike):
         raise ValueError("The count of spikes is greater than the max number of spikes")
     # result_count = count_residual

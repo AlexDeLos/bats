@@ -37,8 +37,8 @@ FUSE_FUNCTION = "Append"
 
 #Residual parameters
 USE_RESIDUAL = True
-RESIDUAL_EVERY_N = 500
-N_HIDDEN_LAYERS = 5
+RESIDUAL_EVERY_N = 2
+N_HIDDEN_LAYERS = 10
 
 if CLUSTER:
     NUMBER_OF_RUNS = 20
@@ -47,7 +47,7 @@ else:
 
 # Hidden layer
 if CLUSTER:
-    N_NEURONS_1 = 800 #!800 #? Should I lower it?
+    N_NEURONS_1 = 750 #!800 #? Should I lower it?
 else:
     N_NEURONS_1 = 400
 TAU_S_1 = 0.130
@@ -63,7 +63,7 @@ else:
 TAU_S_RES = 0.130
 THRESHOLD_HAT_RES = 0.2
 DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES
-SPIKE_BUFFER_SIZE_RES = 30
+SPIKE_BUFFER_SIZE_RES = 20
 
 # Output_layer
 N_OUTPUTS = 10

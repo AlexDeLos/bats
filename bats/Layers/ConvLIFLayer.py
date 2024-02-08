@@ -2,6 +2,7 @@ from typing import Callable, Tuple
 from typing import Optional
 import cupy as cp
 import numpy as np
+from sympy import use
 
 from bats.AbstractConvLayer import AbstractConvLayer
 from bats.CudaKernels.Wrappers.Backpropagation.compute_weights_gradient_conv import compute_weights_gradient_conv
@@ -13,17 +14,22 @@ from bats.CudaKernels.Wrappers.Inference.compute_spike_times_conv import compute
 
 
 class ConvLIFLayer(AbstractConvLayer):
-    def __init__(self, previous_layer: AbstractConvLayer, filters_shape: np.ndarray, tau_s: float, theta: float,
+    def __init__(self, previous_layer: AbstractConvLayer, filters_shape: np.ndarray, use_padding: bool,
+                 tau_s: float, theta: float,
                  delta_theta: float,
                  weight_initializer: Callable[[int, int, int, int], cp.ndarray] = None, max_n_spike: int = 32,
                  **kwargs):
         prev_x, prev_y, prev_c = previous_layer._neurons_shape.get()
         filter_x, filter_y, filter_c = filters_shape
-        n_x = prev_x - filter_x + 1
-        n_y = prev_y - filter_y + 1
+        if use_padding:
+            n_x = prev_x# why this equation? -> this is the reduction of dimensions because of the filter
+            n_y = prev_y
+        else:
+            n_x = prev_x - filter_x + 1 # why this equation? -> this is the reduction of dimensions because of the filter
+            n_y = prev_y - filter_y + 1
         neurons_shape: cp.ndarray = np.array([n_x, n_y, filter_c], dtype=cp.int32)
 
-        super().__init__(neurons_shape=neurons_shape, **kwargs)
+        super().__init__(neurons_shape=neurons_shape, use_padding = use_padding, **kwargs)
 
         self.__filters_shape = cp.array([filter_c, filter_x, filter_y, prev_c], dtype=cp.int32)
         self.__previous_layer: AbstractConvLayer = previous_layer
@@ -78,6 +84,7 @@ class ConvLIFLayer(AbstractConvLayer):
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
 
         self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
+        # how are the spikes used? and how do I add padding?
 
         # Sort spikes for inference
         new_shape, sorted_indices, spike_times_reshaped = get_sorted_spikes_indices(pre_spike_per_neuron,
@@ -105,11 +112,13 @@ class ConvLIFLayer(AbstractConvLayer):
                                                            self.__tau, cp.float32(max_simulation), self.__max_n_spike,
                                                            self.__previous_layer.neurons_shape, self.neurons_shape,
                                                            self.__filters_shape)
+            spikes = self.__spike_times_per_neuron
             ewrwe = 0
 
-    def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
+    def backward(self, errors: cp.array, from_res = False) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
         pre_spike_per_neuron, _ = self.__previous_layer.spike_trains
+        #? all shapes have 3 channels
         propagate_recurrent_errors(self.__x, self.__post_exp_tau, errors, self.__delta_theta_tau)
         f1, f2 = compute_factors(self.__spike_times_per_neuron, self.__a, self.__c, self.__x,
                                  self.__post_exp_tau, self.__tau)
@@ -130,6 +139,7 @@ class ConvLIFLayer(AbstractConvLayer):
                                                              self.__previous_layer.neurons_shape,
                                                              self.neurons_shape,
                                                              self.__filters_shape)
+            testsd = 0
         else:
             pre_errors = None
 
