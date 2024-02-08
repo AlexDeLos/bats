@@ -42,5 +42,6 @@ def compute_weights_gradient_conv(f1: cp.ndarray, f2: cp.ndarray,
         #! maybe something with the max spikes?
         #* errors are not the problem
         num_nans_grad = cp.sum(cp.isnan(gradient))
+        gradient = cp.nan_to_num(gradient)
         ups = True
     return gradient
