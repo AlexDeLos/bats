@@ -17,13 +17,13 @@ def compute_weights_gradient_conv(f1: cp.ndarray, f2: cp.ndarray,
     batch_size, n_post_neurons, max_n_post_spike = f1.shape
     _, n_pre_neurons, max_n_pre_spike = pre_exp_tau_s.shape
 
-    errors = cp.zeros(errors.shape, dtype=cp.float32)
-    f1 = cp.zeros(f1.shape, dtype=cp.float32)
-    f2 = cp.zeros(f2.shape, dtype=cp.float32)
-    pre_times = cp.zeros(pre_times.shape, dtype=cp.float32)
-    post_times = cp.zeros(post_times.shape, dtype=cp.float32)
-    pre_exp_tau_s = cp.zeros(pre_exp_tau_s.shape, dtype=cp.float32)
-    pre_exp_tau = cp.zeros(pre_exp_tau.shape, dtype=cp.float32)
+    # errors = cp.zeros(errors.shape, dtype=cp.float32)
+    # f1 = cp.zeros(f1.shape, dtype=cp.float32)
+    # f2 = cp.zeros(f2.shape, dtype=cp.float32)
+    # pre_times = cp.zeros(pre_times.shape, dtype=cp.float32)
+    # post_times = cp.zeros(post_times.shape, dtype=cp.float32)
+    # pre_exp_tau_s = cp.zeros(pre_exp_tau_s.shape, dtype=cp.float32)
+    # pre_exp_tau = cp.zeros(pre_exp_tau.shape, dtype=cp.float32)
 
 
     filter_c, filter_x, filter_y, filter_z = filter_shape.get()
