@@ -26,4 +26,5 @@ conda activate myHomeEnv
 # echo "cuda version (from torch): " `python3 -c "import torch; print(torch.version.cuda)"`
 # echo "cuda version: " `python3 -c "import cupy; print(cupy.cuda.runtime.runtimeGetVersion())"`
 
-srun python3 experiments/mnist/train_spike_count.py
+# srun python3 experiments/mnist/train_spike_count.py
+srun python3 experiments/mnist/train_conv.py
