@@ -44,7 +44,7 @@ else:
     NUMBER_OF_RUNS = 5
 
 
-USE_PADDING = False
+USE_PADDING = True
 
 INPUT_SHAPE = np.array([28, 28, 1])
 # INPUT_SHAPE_TEST = np.array([5,5,2])
