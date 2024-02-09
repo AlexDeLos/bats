@@ -1,6 +1,7 @@
 from operator import ne
 from pathlib import Path
 from re import T
+from sre_constants import IN
 import cupy as cp
 import numpy as np
 
@@ -29,7 +30,7 @@ from bats.Layers.PoolingLayer import PoolingLayer
 DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
-CLUSTER = True
+CLUSTER = False
 USE_WANDB = False
 ALTERNATE = False
 FUSE_FUNCTION = "Append"
@@ -46,40 +47,41 @@ else:
     NUMBER_OF_RUNS = 5
 
 
+USE_PADDING = False
 
-INPUT_SHAPE = np.array([28, 28, 1]) 
+INPUT_SHAPE = np.array([28, 28, 1])
+# INPUT_SHAPE_TEST = np.array([5,5,2])
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
-FILTER_1 = np.array([5, 5, 20]) #? could it be the size of this filter's channels?
+FILTER_1 = np.array([3, 3, 10]) #? could it be the size of this filter's channels?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 10
-USE_PADDING = True
 
 FILTER_1_5 = np.array([3, 3, 15])
-TAU_S_1_5 = 0.130
+TAU_S_1_5 = 0.0130
 THRESHOLD_HAT_1_5 = 0.04
 DELTA_THRESHOLD_1_5 = 1 * THRESHOLD_HAT_1_5
 SPIKE_BUFFER_SIZE_1_5 = 10
 
-FILTER_2 = np.array([5, 5, 1]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_2 = np.array([3, 3, 15]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_2 = 0.130
 THRESHOLD_HAT_2 = 0.8
 DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
-SPIKE_BUFFER_SIZE_2 = 10
+SPIKE_BUFFER_SIZE_2 = 20
 
-N_NEURONS_FC = 300
+N_NEURONS_FC = 200
 TAU_S_FC = 0.130
-THRESHOLD_HAT_FC = 0.6
+THRESHOLD_HAT_FC = 0.06
 DELTA_THRESHOLD_FC = 1 * THRESHOLD_HAT_FC
 SPIKE_BUFFER_SIZE_FC = 10
 
 # Output_layer
 N_OUTPUTS = 10
 TAU_S_OUTPUT = 0.130
-THRESHOLD_HAT_OUTPUT = 0.3
+THRESHOLD_HAT_OUTPUT = 0.03
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
@@ -171,14 +173,14 @@ for run in range(NUMBER_OF_RUNS):
                         #   tau_s=TAU_S_2,
                                   
     # *I can connect it straight to other conv layers
-    # conv_2 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
-    #                       tau_s=TAU_S_2,
-    #                       theta=THRESHOLD_HAT_2,
-    #                       delta_theta=DELTA_THRESHOLD_2,
-    #                       weight_initializer=weight_initializer_conv,
-    #                       max_n_spike=SPIKE_BUFFER_SIZE_2,
-    #                       name="Convolution 2")
-    # network.add_layer(conv_2)
+    conv_2 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+                          tau_s=TAU_S_2,
+                          theta=THRESHOLD_HAT_2,
+                          delta_theta=DELTA_THRESHOLD_2,
+                          weight_initializer=weight_initializer_conv,
+                          max_n_spike=SPIKE_BUFFER_SIZE_2,
+                          name="Convolution 2")
+    network.add_layer(conv_2)
 
 
     # mlp1 = LIFLayer(previous_layer=conv_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
@@ -204,7 +206,7 @@ for run in range(NUMBER_OF_RUNS):
     # pool_2 = PoolingLayer(conv_2, name="Pooling 2")
     # network.add_layer(pool_2)
 
-    feedforward = LIFLayer(previous_layer=conv_1, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+    feedforward = LIFLayer(previous_layer=conv_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
                            theta=THRESHOLD_HAT_FC,
                            delta_theta=DELTA_THRESHOLD_FC,
                            weight_initializer=weight_initializer_ff,

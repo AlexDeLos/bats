@@ -99,8 +99,8 @@ class LIFLayer(AbstractLayer):
                                                       pre_spike_weights, self.__c,
                                                       self.__delta_theta_tau,
                                                       self.__tau, cp.float32(max_simulation), self.__max_n_spike)
-            test = self.__spike_times_per_neuron
-            test2 = self.__n_spike_per_neuron
+            spikes = self.__spike_times_per_neuron
+            count = self.__n_spike_per_neuron
             test3 = self.__post_exp_tau
             test4 = self.__a
             test5 = self.__x

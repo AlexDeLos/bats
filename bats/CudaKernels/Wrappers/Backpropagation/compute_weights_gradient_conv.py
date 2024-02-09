@@ -31,6 +31,22 @@ def compute_weights_gradient_conv(f1: cp.ndarray, f2: cp.ndarray,
 
     block_dim = (batch_size, 1, 1)
     grid_dim = (filter_x, filter_y, filter_z)
+    # Variables for debugging
+
+    test_f1 = f1
+    test_f2 = f2
+    test_post_times = post_times
+    test_pre_times = pre_times
+    test_pre_exp_tau_s = pre_exp_tau_s
+    test_pre_exp_tau = pre_exp_tau
+    test_errors = errors
+    test_pre_shape = pre_shape
+    test_post_shape = post_shape
+    test_filter_shape = filter_shape
+    test_gradient = gradient
+    test_n_post_neurons = n_post_neurons
+    test_n_pre_neurons = n_pre_neurons
+    test_max_n_post_spike = max_n_post_spike
     __compute_weights_gradient_conv_kernel(grid_dim, block_dim, (f1, f2, post_times, pre_times,
                                                                  pre_exp_tau_s, pre_exp_tau, errors,
                                                                  pre_shape, post_shape, filter_shape,
@@ -38,6 +54,7 @@ def compute_weights_gradient_conv(f1: cp.ndarray, f2: cp.ndarray,
                                                                  n_post_neurons, n_pre_neurons,
                                                                  cp.int32(max_n_post_spike),
                                                                  cp.int32(max_n_pre_spike)))
+    
     if cp.any(cp.isnan(gradient)):
         #! maybe something with the max spikes?
         #* errors are not the problem
@@ -45,4 +62,5 @@ def compute_weights_gradient_conv(f1: cp.ndarray, f2: cp.ndarray,
         gradient = cp.nan_to_num(gradient)
         print(f"Found {num_nans_grad} nans in gradient")
         ups = True
+    
     return gradient
