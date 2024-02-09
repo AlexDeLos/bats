@@ -1,4 +1,3 @@
-from itertools import count
 from typing import Callable, Tuple
 from typing import Optional
 import cupy as cp
