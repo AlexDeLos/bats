@@ -62,6 +62,7 @@ def compute_weights_gradient_conv(f1: cp.ndarray, f2: cp.ndarray,
         num_nans_grad = cp.sum(cp.isnan(gradient))
         gradient = cp.nan_to_num(gradient)
         print(f"Found {num_nans_grad} nans in gradient")
+        raise ValueError("Found NaNs in gradient")
         ups = True
     
     return gradient
