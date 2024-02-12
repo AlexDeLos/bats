@@ -44,6 +44,8 @@ class ConvInputLayer(AbstractConvLayer):
         
         # n_times_per_neuron = [[1]*25, [1]*25]
         #Old shapes = (2, 728 , 1) and (2, 728)
+        # times_per_neuron = cp.zeros(times_per_neuron.shape, dtype=cp.float32)
+        # n_times_per_neuron = cp.zeros(n_times_per_neuron.shape, dtype=cp.int32)
         self.__times_per_neuron = cp.array(times_per_neuron, dtype=cp.float32)
         self.__n_spike_per_neuron = cp.array(n_times_per_neuron, dtype=cp.int32)
         

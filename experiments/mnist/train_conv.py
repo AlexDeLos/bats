@@ -1,4 +1,5 @@
 from pathlib import Path
+from re import T
 import cupy as cp
 import numpy as np
 
@@ -47,31 +48,40 @@ else:
 USE_PADDING = True
 
 INPUT_SHAPE = np.array([28, 28, 1])
-# INPUT_SHAPE_TEST = np.array([5,5,2])
+# INPUT_SHAPE = np.array([5,5,2])
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
-FILTER_1 = np.array([3, 3, 10]) #? could it be the size of this filter's channels?
+FILTER_1 = np.array([3, 3, 3]) #? could it be the size of this filter's channels?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 10
+if USE_PADDING:
+    PADDING_FROM_NEXT_LAYER_1 = np.array([2,2])
+else:
+    PADDING_FROM_NEXT_LAYER_1 = None
 
-FILTER_1_5 = np.array([3, 3, 15])
-TAU_S_1_5 = 0.0130
-THRESHOLD_HAT_1_5 = 0.04
-DELTA_THRESHOLD_1_5 = 1 * THRESHOLD_HAT_1_5
-SPIKE_BUFFER_SIZE_1_5 = 10
-
-FILTER_2 = np.array([3, 3, 15]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_2 = np.array([3, 3, 5]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_2 = 0.130
-THRESHOLD_HAT_2 = 0.8
+THRESHOLD_HAT_2 = 0.08
 DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
 SPIKE_BUFFER_SIZE_2 = 20
+if USE_PADDING:
+    PADDING_FROM_NEXT_LAYER_2 = [2,2]
+else:
+    PADDING_FROM_NEXT_LAYER_2 = None
+
+FILTER_3 = np.array([3, 3, 10]) # used to be [5,5,40] -> is the 40 the channels?
+TAU_S_3 = 0.130
+THRESHOLD_HAT_3 = 0.008
+DELTA_THRESHOLD_3 = 1 * THRESHOLD_HAT_2
+SPIKE_BUFFER_SIZE_3 = 30
+# PADDING_FROM_NEXT_LAYER_3 = cp.array([4,4])
 
 N_NEURONS_FC = 200
 TAU_S_FC = 0.130
-THRESHOLD_HAT_FC = 0.06
+THRESHOLD_HAT_FC = 0.006
 DELTA_THRESHOLD_FC = 1 * THRESHOLD_HAT_FC
 SPIKE_BUFFER_SIZE_FC = 10
 
@@ -123,9 +133,9 @@ def weight_initializer_ff(n_post: int, n_pre: int) -> cp.ndarray:
 for run in range(NUMBER_OF_RUNS):
     max_int = np.iinfo(np.int32).max
     np_seed = np.random.randint(low=0, high=max_int)
-    # np_seed = 491171073
+    np_seed = 19835382
     cp_seed = np.random.randint(low=0, high=max_int)
-    # cp_seed =  1989221150
+    cp_seed =  787773187
     np.random.seed(np_seed)
     cp.random.seed(cp_seed)
     print(f"Numpy seed: {np_seed}, Cupy seed: {cp_seed}")
@@ -142,6 +152,7 @@ for run in range(NUMBER_OF_RUNS):
     network.add_layer(input_layer, input=True)
 
     conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
+                          padding_from_next = PADDING_FROM_NEXT_LAYER_1,
                           tau_s=TAU_S_1,
                           theta=THRESHOLD_HAT_1,
                           delta_theta=DELTA_THRESHOLD_1,
@@ -171,6 +182,7 @@ for run in range(NUMBER_OF_RUNS):
                                   
     # *I can connect it straight to other conv layers
     conv_2 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+                          padding_from_next = PADDING_FROM_NEXT_LAYER_2,
                           tau_s=TAU_S_2,
                           theta=THRESHOLD_HAT_2,
                           delta_theta=DELTA_THRESHOLD_2,
@@ -179,31 +191,20 @@ for run in range(NUMBER_OF_RUNS):
                           name="Convolution 2")
     network.add_layer(conv_2)
 
-
-    # mlp1 = LIFLayer(previous_layer=conv_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
-    #                        theta=THRESHOLD_HAT_FC,
-    #                        delta_theta=DELTA_THRESHOLD_FC,
-    #                        weight_initializer=weight_initializer_ff,
-    #                        max_n_spike=SPIKE_BUFFER_SIZE_FC,
-    #                        name="mlp1")
-    # network.add_layer(mlp1)
-    
-    # adapting_layer = ConvInterLayer(previous_layer= mlp1 ,neurons_shape=INPUT_SHAPE, name="Input layer")
-    # network.add_layer(adapting_layer)
-
-    # conv_3 = ConvLIFLayer(previous_layer=conv_2, filters_shape=FILTER_1_5, tau_s=TAU_S_1_5,
-    #                       theta=THRESHOLD_HAT_1_5,
-    #                       delta_theta=DELTA_THRESHOLD_1_5,
-    #                       weight_initializer=weight_initializer_conv,
-    #                       max_n_spike=SPIKE_BUFFER_SIZE_1_5,
-    #                       name="Convolution 3")
-    # network.add_layer(conv_3)
+    conv_3 = ConvLIFLayer(previous_layer=conv_2, filters_shape=FILTER_3, use_padding=USE_PADDING,
+                          tau_s=TAU_S_3,
+                          theta=THRESHOLD_HAT_3,
+                          delta_theta=DELTA_THRESHOLD_3,
+                          weight_initializer=weight_initializer_conv,
+                          max_n_spike=SPIKE_BUFFER_SIZE_3,
+                          name="Convolution 3")
+    network.add_layer(conv_3)
 
 
     # pool_2 = PoolingLayer(conv_2, name="Pooling 2")
     # network.add_layer(pool_2)
 
-    feedforward = LIFLayer(previous_layer=conv_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+    feedforward = LIFLayer(previous_layer=conv_3, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
                            theta=THRESHOLD_HAT_FC,
                            delta_theta=DELTA_THRESHOLD_FC,
                            weight_initializer=weight_initializer_ff,
@@ -211,7 +212,7 @@ for run in range(NUMBER_OF_RUNS):
                            name="Feedforward 1")
     network.add_layer(feedforward)
 
-    output_layer = LIFLayer(previous_layer=feedforward   , n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT,
+    output_layer = LIFLayer(previous_layer=feedforward, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT,
                             theta=THRESHOLD_HAT_OUTPUT,
                             delta_theta=DELTA_THRESHOLD_OUTPUT,
                             weight_initializer=weight_initializer_ff,

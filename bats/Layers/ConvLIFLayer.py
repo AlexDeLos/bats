@@ -1,3 +1,4 @@
+from hmac import new
 from typing import Callable, Tuple
 from typing import Optional
 import cupy as cp
@@ -10,19 +11,25 @@ from bats.CudaKernels.Wrappers.Backpropagation.propagate_errors_to_pre_spikes_co
 from bats.CudaKernels.Wrappers.Inference import *
 from bats.CudaKernels.Wrappers.Backpropagation import *
 from bats.CudaKernels.Wrappers.Inference.compute_spike_times_conv import compute_spike_times_conv
-from bats.Utils.utils import add_padding
+from bats.Utils.utils import add_padding, add_padding_to_x_and_tau
 
 
 class ConvLIFLayer(AbstractConvLayer):
     def __init__(self, previous_layer: AbstractConvLayer, filters_shape: np.ndarray, use_padding: bool,
                  tau_s: float, theta: float,
                  delta_theta: float,
+                 padding_from_next: cp.ndarray = None,
                  weight_initializer: Callable[[int, int, int, int], cp.ndarray] = None, max_n_spike: int = 32,
                  **kwargs):
         prev_x, prev_y, prev_c = previous_layer._neurons_shape.get()
-        self.__pre_shape = previous_layer._neurons_shape.get()
         filter_x, filter_y, filter_c = filters_shape
+        padding= [filter_x-1, filter_y -1]
+        self.__padding_from_next = padding_from_next
         if use_padding:
+            prev_x += padding[0]
+            prev_y += padding[1]
+        self.__pre_shape = (prev_x, prev_y, prev_c)
+        if False:
             n_x = prev_x# why this equation? -> this is the reduction of dimensions because of the filter
             n_y = prev_y
         else:
@@ -83,18 +90,27 @@ class ConvLIFLayer(AbstractConvLayer):
 
     def forward(self, max_simulation: float, training: bool = False) -> None:
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
-        if self._use_padding:
-            new_pre_spike_per_neuron, new_pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron,
-                                                                       self.__pre_shape, self._padding)
         self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
         # how are the spikes used? and how do I add padding?
+        if self._use_padding: #! using this causes random nans for some reason
+        #? what is I don't use padding in the forward pass?
+            pre_spike_per_neuron, pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron,
+                                                                       self.__pre_shape, self._padding)
+            padded_pre_exp_tau_s, padded_pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
+        else:
+            padded_pre_exp_tau_s = self.__pre_exp_tau_s
+            padded_pre_exp_tau = self.__pre_exp_tau
 
         # Sort spikes for inference
         new_shape, sorted_indices, spike_times_reshaped = get_sorted_spikes_indices(pre_spike_per_neuron,
                                                                                     pre_n_spike_per_neuron)
         if sorted_indices.size == 0:  # No input spike in the batch
             batch_size = pre_spike_per_neuron.shape[0]
-            shape = (batch_size, self.n_neurons, self.__max_n_spike)
+            if self._use_padding:
+                shape = (self.neurons_shape[0]+ self._padding[0], self.neurons_shape[1] + self._padding[1], self.neurons_shape[2])
+                shape = cp.array(shape, dtype=cp.int32)
+            else:
+                shape = (batch_size, self.n_neurons, self.__max_n_spike)
             self.__n_spike_per_neuron = cp.zeros((batch_size, self.n_neurons), dtype=cp.int32)
             self.__spike_times_per_neuron = cp.full(shape, cp.inf, dtype=cp.float32)
             self.__post_exp_tau = cp.full(shape, cp.inf, dtype=cp.float32)
@@ -104,32 +120,72 @@ class ConvLIFLayer(AbstractConvLayer):
             sorted_spike_indices = (sorted_indices.astype(cp.int32) // pre_spike_per_neuron.shape[2])
             sorted_spike_times = cp.take_along_axis(spike_times_reshaped, sorted_indices, axis=1)
             sorted_spike_times[sorted_indices == -1] = cp.inf
-            sorted_pre_exp_tau_s = cp.take_along_axis(cp.reshape(self.__pre_exp_tau_s, new_shape), sorted_indices,
+            sorted_pre_exp_tau_s = cp.take_along_axis(cp.reshape(padded_pre_exp_tau_s, new_shape), sorted_indices,
                                                       axis=1)
-            sorted_pre_exp_tau = cp.take_along_axis(cp.reshape(self.__pre_exp_tau, new_shape), sorted_indices, axis=1)
-
+            sorted_pre_exp_tau = cp.take_along_axis(cp.reshape(padded_pre_exp_tau, new_shape), sorted_indices, axis=1)
+            if self._use_padding:
+                #* Padding is now added by makes the previous layer appear to have a different shape
+                # This can cause a problem in the backward pass
+                new_shape_previous = (self.__previous_layer.neurons_shape[0]+ self._padding[0], self.__previous_layer.neurons_shape[1] + self._padding[1], self.__previous_layer.neurons_shape[2])
+                new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
+            else:
+                new_shape_previous = self.__previous_layer.neurons_shape
+            # if self.__padding_from_next is not None:                
+                # new_shape_neuron = (self.neurons_shape[0]+ self.__padding_from_next[0], self.neurons_shape[1] + self.__padding_from_next[1], self.neurons_shape[2])
+                # new_shape_neuron = cp.array(new_shape_neuron, dtype=cp.int32)
+            new_shape_neuron = self.neurons_shape
             self.__n_spike_per_neuron, self.__a, self.__x, self.__spike_times_per_neuron, \
             self.__post_exp_tau = compute_spike_times_conv(sorted_spike_indices, sorted_spike_times,
                                                            sorted_pre_exp_tau_s, sorted_pre_exp_tau,
                                                            self.weights, self.__c, self.__delta_theta_tau,
                                                            self.__tau, cp.float32(max_simulation), self.__max_n_spike,
-                                                           self.__previous_layer.neurons_shape, self.neurons_shape,
+                                                           new_shape_previous, self.neurons_shape,
                                                            self.__filters_shape)
-            #? where did the 10 channels come from?
+
             spikes = self.__spike_times_per_neuron
-            count = self.__n_spike_per_neuron
+            count = self.__n_spike_per_neuron #! they no longer have the 28*28 size
+            new_x = self.__x #-> the X here is always the same size as the spikes
+            #? what does the X represent?
             ewrwe = 0
             sad = ""
 
     def backward(self, errors: cp.array, from_res = False) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
-        pre_spike_per_neuron, _ = self.__previous_layer.spike_trains
-        #? all shapes have 3 channels
-        propagate_recurrent_errors(self.__x, self.__post_exp_tau, errors, self.__delta_theta_tau)
-        f1, f2 = compute_factors(self.__spike_times_per_neuron, self.__a, self.__c, self.__x,
-                                 self.__post_exp_tau, self.__tau)
+        if cp.any(cp.isnan(errors)):
+            raise ValueError("NaNs in errors")
+        pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
+        if False:
+            #? what is I don't use padding in the backward pass?
+            pre_spike_per_neuron, pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron,
+                                            self.__pre_shape, self._padding)
+            new_shape_previous = (self.__previous_layer.neurons_shape[0]+ self._padding[0], self.__previous_layer.neurons_shape[1] + self._padding[1], self.__previous_layer.neurons_shape[2])
+            new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
+        else:
+            new_shape_previous = self.__previous_layer.neurons_shape
+        
+        # if self.__padding_from_next is not None:
+        if False:
+            #! Això utilitza el padding de la capa anterior, però no el de la capa seguent, que es el que s'hauria d'utilitzar
+            padding_of_next = self.__padding_from_next
+
+            #? let's now try to pad X
+            new_x, new_post_exp_tau = add_padding_to_x_and_tau(self.__x, self.__post_exp_tau, self.__pre_shape, self._padding, padding_of_next, errors)
+            #* shape of x needs to be the same as the shape of errors and errors need to have shape of:
+            #* (batch_size, n_neurons, number of channels)
+            #TODO: add padding to x and post_exp_tau
+            #! maybe the problem is the error shape?
+        else:
+            new_x = self.__x
+            new_post_exp_tau = self.__post_exp_tau
+        
+        new_spike_times_per_neuron = self.__spike_times_per_neuron
+        errors_debug = errors.copy()
+        propagate_recurrent_errors(self.__x, self.__post_exp_tau, errors, self.__delta_theta_tau)#! they all have the shape of the current layer
+        f1, f2 = compute_factors(new_spike_times_per_neuron, self.__a, self.__c, new_x,
+                                 new_post_exp_tau, self.__tau)
         weights_grad = compute_weights_gradient_conv(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron,
                                                      self.__pre_exp_tau_s, self.__pre_exp_tau,
+                                                    #  new_shape_previous,
                                                      self.__previous_layer.neurons_shape,
                                                      self.neurons_shape,
                                                      self.__filters_shape,
@@ -138,10 +194,13 @@ class ConvLIFLayer(AbstractConvLayer):
         # Propagate errors
         if self.__previous_layer.trainable:
             # the error shape comes from: 
-            pre_errors = propagate_errors_to_pre_spikes_conv(f1, f2, self.__spike_times_per_neuron,
-                                                             pre_spike_per_neuron,
-                                                             self.__pre_exp_tau_s, self.__pre_exp_tau, self.__weights,
-                                                             errors, self.__tau_s, self.__tau,
+            pre_errors = propagate_errors_to_pre_spikes_conv(f1, f2, self.__spike_times_per_neuron, # this has the shape of the current layer
+                                                             pre_spike_per_neuron, # this has the shape of the previous layer
+                                                             self.__pre_exp_tau_s, self.__pre_exp_tau, # these 2 also have the shape of the previous layer
+                                                             self.__weights,
+                                                             errors, # this has the shape of the current layer
+                                                             self.__tau_s, self.__tau,
+                                                            #  new_shape_previous,
                                                              self.__previous_layer.neurons_shape,
                                                              self.neurons_shape,
                                                              self.__filters_shape)
@@ -149,6 +208,8 @@ class ConvLIFLayer(AbstractConvLayer):
         else:
             pre_errors = None
 
+        stop_for_errors = 0
+        #? should I do some reshaping of the pre_errors?
         return weights_grad, pre_errors
 
     def add_deltas(self, delta_weights: cp.ndarray) -> None:

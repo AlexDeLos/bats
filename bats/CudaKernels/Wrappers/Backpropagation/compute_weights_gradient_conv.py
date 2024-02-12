@@ -55,6 +55,7 @@ def compute_weights_gradient_conv(f1: cp.ndarray, f2: cp.ndarray,
                                                                  cp.int32(max_n_post_spike),
                                                                  cp.int32(max_n_pre_spike)))
     
+    #! OK, how do I now make sire the new paddings don't mess up the gradient?
     if cp.any(cp.isnan(gradient)):
         #! maybe something with the max spikes?
         #* errors are not the problem
