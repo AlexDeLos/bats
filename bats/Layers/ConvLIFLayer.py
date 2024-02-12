@@ -92,7 +92,7 @@ class ConvLIFLayer(AbstractConvLayer):
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
         self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
         # how are the spikes used? and how do I add padding?
-        if False: #! using this causes random nans for some reason
+        if self._use_padding: #! using this causes random nans for some reason
         #? what is I don't use padding in the forward pass?
             pre_spike_per_neuron, pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron,
                                                                        self.__pre_shape, self._padding)
@@ -102,11 +102,12 @@ class ConvLIFLayer(AbstractConvLayer):
             padded_pre_exp_tau = self.__pre_exp_tau
 
         # Sort spikes for inference
+        #? what if I add padding to the indeces? increase theyr number to what they should be?
         new_shape, sorted_indices, spike_times_reshaped = get_sorted_spikes_indices(pre_spike_per_neuron,
                                                                                     pre_n_spike_per_neuron)
         if sorted_indices.size == 0:  # No input spike in the batch
             batch_size = pre_spike_per_neuron.shape[0]
-            if self._use_padding:
+            if False:
                 shape = (self.neurons_shape[0]+ self._padding[0], self.neurons_shape[1] + self._padding[1], self.neurons_shape[2])
                 shape = cp.array(shape, dtype=cp.int32)
             else:

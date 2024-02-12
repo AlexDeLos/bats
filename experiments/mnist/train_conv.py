@@ -31,6 +31,7 @@ DATASET_PATH = Path("datasets/mnist.npz")
 CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
+USE_PADDING = True
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 
@@ -45,7 +46,6 @@ else:
     NUMBER_OF_RUNS = 5
 
 
-USE_PADDING = True
 
 INPUT_SHAPE = np.array([28, 28, 1])
 # INPUT_SHAPE = np.array([5,5,2])

@@ -20,4 +20,5 @@ def get_sorted_spikes_indices(spike_times_per_neuron, n_spike_per_neuron):
     keys = np.arange(max_total_spike)
     # keys produces: ValueError: kth(=7200) out of bounds 7200
     sorted_indices = cp.argpartition(spike_times_reshaped, keys, axis=1)[:, :max_total_spike]
+    #? what if I add padding to the indeces? increase theyr number to what they should be?
     return new_shape, sorted_indices, spike_times_reshaped
