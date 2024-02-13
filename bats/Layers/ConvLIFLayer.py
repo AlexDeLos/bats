@@ -155,7 +155,7 @@ class ConvLIFLayer(AbstractConvLayer):
         if cp.any(cp.isnan(errors)):
             raise ValueError("NaNs in errors")
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
-        if self._use_padding:
+        if False:
             #? what is I don't use padding in the backward pass?
             # pre_spike_per_neuron, pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron,
             #                                 self.__pre_shape, self._padding)
