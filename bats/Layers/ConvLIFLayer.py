@@ -190,7 +190,7 @@ class ConvLIFLayer(AbstractConvLayer):
             new_x = self.__x
             new_post_exp_tau = self.__post_exp_tau
         if new_x.shape != errors.shape:
-            errors = trimed_errors(errors, self.__filter_from_next)
+            errors = trimed_errors(errors, self.__filter_from_next, self.neurons_shape[2])
         
         new_spike_times_per_neuron = self.__spike_times_per_neuron
         errors_debug = errors.copy()
