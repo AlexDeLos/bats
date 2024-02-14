@@ -28,10 +28,10 @@ from bats.Layers.PoolingLayer import PoolingLayer
 DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
-CLUSTER = True
+CLUSTER = False
 USE_WANDB = False
 ALTERNATE = False
-USE_PADDING = True
+USE_PADDING = False
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 

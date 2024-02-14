@@ -67,6 +67,7 @@ def compute_weights_gradient_conv(f1: cp.ndarray, f2: cp.ndarray,
     #     num_nans_grad = cp.sum(cp.isnan(gradient))
     #     # with all of shape [3,3,1] I get 3 nan values
         # gradient = cp.nan_to_num(gradient)
+        #! problem could be with the channels
         print("nans in the gradient")
         print("where: ", cp.where(cp.isnan(gradient)))
         print("Sum: ", cp.sum(cp.isnan(gradient)))
