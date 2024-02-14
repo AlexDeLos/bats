@@ -1,5 +1,6 @@
 import re
 import cupy as cp
+from math import sqrt
 # This file contains utility functions that are used in the main code
 
 
@@ -50,6 +51,8 @@ def add_padding_to_x_and_tau(x: cp.ndarray, tau: cp.ndarray, pre_shape: cp.ndarr
     batch_size, spikes, max_n_spikes = x.shape
     top_pad = cp.full((batch_size, (x_dim-x_padd + x_padd_after)*int(y_padd_after/2), max_n_spikes), cp.inf)
     side_pads = cp.full((batch_size,int(x_padd_after/2), max_n_spikes), cp.inf)
+    # top_pad = cp.zeros((batch_size, (x_dim-x_padd + x_padd_after)*int(y_padd_after/2), max_n_spikes))
+    # side_pads = cp.zeros((batch_size,int(x_padd_after/2), max_n_spikes))
     # we will start from the end to make it simpler
     splits_x = cp.split(x, (x_dim- x_padd), axis=1)
     splits_tau = cp.split(tau, (x_dim- x_padd), axis=1)
@@ -65,3 +68,16 @@ def add_padding_to_x_and_tau(x: cp.ndarray, tau: cp.ndarray, pre_shape: cp.ndarr
     x_new_padded = cp.concatenate(splits_x, axis=1)
     tau_new_padded = cp.concatenate(splits_tau, axis=1)
     return x_new_padded, tau_new_padded
+
+def trimed_errors(errors, previous_filter):
+    x_filter, y_filter, channels = previous_filter
+    padding_x_to_remove = int((x_filter-1)/2)
+    padding_y_to_remove = int((y_filter-1)/2)
+    batch_size, n_neurons, max_n_spike = errors.shape
+    x = int(sqrt(n_neurons/channels))
+    y = int(sqrt(n_neurons/channels))
+    errors = cp.reshape(errors, (batch_size, x, y, channels, max_n_spike))
+    errors = errors[:,padding_x_to_remove:-padding_x_to_remove,padding_y_to_remove:-padding_y_to_remove]
+    new_n_neurons = (x-padding_x_to_remove*2) * (y-padding_y_to_remove*2) * channels
+    shapped_errors = cp.reshape(errors, (batch_size, new_n_neurons, max_n_spike))
+    return shapped_errors
