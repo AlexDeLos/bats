@@ -72,7 +72,7 @@ if USE_PADDING:
 else:
     PADDING_FROM_NEXT_LAYER_2 = None
 
-FILTER_3 = np.array([3, 3, 10]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_3 = np.array([3, 3, 40]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_3 = 0.130
 THRESHOLD_HAT_3 = 0.008
 DELTA_THRESHOLD_3 = 1 * THRESHOLD_HAT_2
