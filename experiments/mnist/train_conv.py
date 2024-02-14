@@ -52,7 +52,7 @@ INPUT_SHAPE = np.array([28, 28, 1])
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
-FILTER_1 = np.array([3, 3, 3]) #? could it be the size of this filter's channels?
+FILTER_1 = np.array([3, 3, 1]) #? could it be the size of this filter's channels?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -62,7 +62,7 @@ if USE_PADDING:
 else:
     PADDING_FROM_NEXT_LAYER_1 = None
 
-FILTER_2 = np.array([3, 3, 5]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_2 = np.array([3, 3, 1]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_2 = 0.130
 THRESHOLD_HAT_2 = 0.08
 DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
@@ -72,7 +72,7 @@ if USE_PADDING:
 else:
     PADDING_FROM_NEXT_LAYER_2 = None
 
-FILTER_3 = np.array([3, 3, 10]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_3 = np.array([3, 3, 1]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_3 = 0.130
 THRESHOLD_HAT_3 = 0.008
 DELTA_THRESHOLD_3 = 1 * THRESHOLD_HAT_2
@@ -133,9 +133,9 @@ def weight_initializer_ff(n_post: int, n_pre: int) -> cp.ndarray:
 for run in range(NUMBER_OF_RUNS):
     max_int = np.iinfo(np.int32).max
     np_seed = np.random.randint(low=0, high=max_int)
-    np_seed = 19835382
+    # np_seed = 19835382
     cp_seed = np.random.randint(low=0, high=max_int)
-    cp_seed =  787773187
+    # cp_seed =  787773187
     np.random.seed(np_seed)
     cp.random.seed(cp_seed)
     print(f"Numpy seed: {np_seed}, Cupy seed: {cp_seed}")

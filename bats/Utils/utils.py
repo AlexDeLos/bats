@@ -48,8 +48,8 @@ def add_padding_to_x_and_tau(x: cp.ndarray, tau: cp.ndarray, pre_shape: cp.ndarr
     x_padd, y_padd = padding
     x_padd_after, y_padd_after = padding_after
     batch_size, spikes, max_n_spikes = x.shape
-    top_pad = cp.zeros((batch_size, (x_dim-x_padd + x_padd_after)*int(y_padd_after/2), max_n_spikes))#, cp.inf)
-    side_pads = cp.zeros((batch_size,int(x_padd_after/2), max_n_spikes))#, cp.inf)
+    top_pad = cp.full((batch_size, (x_dim-x_padd + x_padd_after)*int(y_padd_after/2), max_n_spikes), cp.inf)
+    side_pads = cp.full((batch_size,int(x_padd_after/2), max_n_spikes), cp.inf)
     # we will start from the end to make it simpler
     splits_x = cp.split(x, (x_dim- x_padd), axis=1)
     splits_tau = cp.split(tau, (x_dim- x_padd), axis=1)

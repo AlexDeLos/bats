@@ -4,7 +4,7 @@ extern "C" {
                                                       float *errors,
                                                       float delta_theta_tau,
                                                       int max_n_spike) {
-        int sample_idx = threadIdx.x;
+        int sample_idx = threadIdx.x; //What is this thread id?
         int neuron_idx = blockIdx.x;
         int n_neurons = gridDim.x;
         int offset = (sample_idx * n_neurons + neuron_idx) * max_n_spike;
