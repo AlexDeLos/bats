@@ -52,7 +52,7 @@ INPUT_SHAPE = np.array([28, 28, 1])
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
-FILTER_1 = np.array([3, 3, 1]) #? could it be the size of this filter's channels?
+FILTER_1 = np.array([3, 3, 5]) #? could it be the size of this filter's channels?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -62,7 +62,7 @@ if USE_PADDING:
 else:
     PADDING_FROM_NEXT_LAYER_1 = None
 
-FILTER_2 = np.array([3, 3, 1]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_2 = np.array([3, 3, 10]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_2 = 0.130
 THRESHOLD_HAT_2 = 0.08
 DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
@@ -72,7 +72,7 @@ if USE_PADDING:
 else:
     PADDING_FROM_NEXT_LAYER_2 = None
 
-FILTER_3 = np.array([3, 3, 1]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_3 = np.array([3, 3, 10]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_3 = 0.130
 THRESHOLD_HAT_3 = 0.008
 DELTA_THRESHOLD_3 = 1 * THRESHOLD_HAT_2
