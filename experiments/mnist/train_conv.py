@@ -28,7 +28,7 @@ from bats.Layers.PoolingLayer import PoolingLayer
 DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
-CLUSTER = False
+CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
 USE_PADDING = True
@@ -58,11 +58,11 @@ THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 10
 if USE_PADDING:
-    FILTER_FROM_NEXT = np.array([3, 3, 1])
+    FILTER_FROM_NEXT = np.array([3, 3, 5])
 else:
     FILTER_FROM_NEXT = None
 
-FILTER_2 = np.array([3, 3, 1]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_2 = np.array([3, 3, 10]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_2 = 0.130
 THRESHOLD_HAT_2 = 0.08
 DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
