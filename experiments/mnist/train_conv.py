@@ -277,7 +277,7 @@ for run in range(NUMBER_OF_RUNS):
                                             print_prefix="Test | ")
 
     best_acc = 0.0
-    tracker = [0.0]* (N_HIDDEN_LAYERS+2)
+    tracker = [0.0]* len(network.layers)
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
