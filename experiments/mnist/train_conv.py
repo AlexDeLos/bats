@@ -27,7 +27,7 @@ DATASET_PATH = Path("datasets/mnist.npz")
 CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
-USE_PADDING = False
+USE_PADDING = True
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 
