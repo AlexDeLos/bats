@@ -71,7 +71,7 @@ def add_padding_to_x_and_tau(x: cp.ndarray, tau: cp.ndarray, pre_shape: cp.ndarr
 
 def trimed_errors(errors, previous_filter, channels):
     channels = int(channels)
-    x_filter, y_filter, _ = previous_filter
+    x_filter, y_filter, pre_channels = previous_filter
     padding_x_to_remove = int((x_filter-1)/2)
     padding_y_to_remove = int((y_filter-1)/2)
     batch_size, n_neurons, max_n_spike = errors.shape
