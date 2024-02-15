@@ -11,7 +11,7 @@ from bats.CudaKernels.Wrappers.Backpropagation.propagate_errors_to_pre_spikes_co
 from bats.CudaKernels.Wrappers.Inference import *
 from bats.CudaKernels.Wrappers.Backpropagation import *
 from bats.CudaKernels.Wrappers.Inference.compute_spike_times_conv import compute_spike_times_conv
-from bats.Utils.utils import add_padding, add_padding_to_x_and_tau, trimed_errors
+from bats.Utils.utils import add_padding, trimed_errors
 
 
 class ConvLIFLayer(AbstractConvLayer):
