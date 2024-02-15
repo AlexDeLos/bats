@@ -25,8 +25,8 @@ DATASET_PATH = Path("datasets/mnist.npz")
 # Change from small test on computer to big test on cluster
 CLUSTER = True
 USE_WANDB = False
-ALTERNATE = False
-USE_PADDING = False
+ALTERNATE = True
+USE_PADDING = True
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 
@@ -36,7 +36,7 @@ RESIDUAL_EVERY_N = 500
 N_HIDDEN_LAYERS = 2
 
 if CLUSTER:
-    NUMBER_OF_RUNS = 2
+    NUMBER_OF_RUNS = 10
 else:
     NUMBER_OF_RUNS = 5
 
