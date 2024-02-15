@@ -23,7 +23,7 @@ from bats.Layers.PoolingLayer import PoolingLayer
 DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
-CLUSTER = True
+CLUSTER = False
 USE_WANDB = True
 ALTERNATE = True
 USE_PADDING = True
@@ -338,14 +338,14 @@ for run in range(NUMBER_OF_RUNS):
                                 wandb.log({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
                                 if not CLUSTER:
                                     print("Mean Gradient Magnitude at residual layer "+str(i)+": ", tracker[i])
-                                tracker = [0.0]* (N_HIDDEN_LAYERS+2)
+                                tracker = [0.0]* len(network.layers)
                         else:
                             tracker[i] = (tracker[i] + float(cp.mean(cp.abs(avg_gradient[i]))))/2
                             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
                                 wandb.log({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
                                 if not CLUSTER:
                                     print("Mean Gradient Magnitude at layer "+str(i)+": ", tracker[i])
-                                tracker = [0.0]* (N_HIDDEN_LAYERS+2)
+                                tracker = [0.0]* len(network.layers)
             # Apply step
             deltas = optimizer.step(avg_gradient)
             del avg_gradient
