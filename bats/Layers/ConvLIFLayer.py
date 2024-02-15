@@ -113,19 +113,10 @@ class ConvLIFLayer(AbstractConvLayer):
         #? what if I add padding to the indeces? increase theyr number to what they should be?
         new_shape, sorted_indices, spike_times_reshaped = get_sorted_spikes_indices(pre_spike_per_neuron,
                                                                                     pre_n_spike_per_neuron)
-        # if self.__padding_from_next is not None:                
-        if False:
-            # this is done to make sure the x, a and tau have the same shape as the errors
-            new_shape_neuron = (self.neurons_shape[0]+ self.__filter_from_next[0], self.neurons_shape[1] + self.__filter_from_next[1], self.neurons_shape[2])
-            new_shape_neuron = cp.array(new_shape_neuron, dtype=cp.int32)
-        else:
-            new_shape_neuron = self.neurons_shape
         if sorted_indices.size == 0:  # No input spike in the batch
             batch_size = pre_spike_per_neuron.shape[0]
-            if self.__filter_from_next is not None:
-                shape = new_shape_neuron
-            else:
-                shape = (batch_size, self.n_neurons, self.__max_n_spike)
+            shape = (batch_size, self.n_neurons, self.__max_n_spike)
+            # shape = self.neurons_shape.get()
             self.__n_spike_per_neuron = cp.zeros((batch_size, self.n_neurons), dtype=cp.int32)
             self.__spike_times_per_neuron = cp.full(shape, cp.inf, dtype=cp.float32)
             self.__post_exp_tau = cp.full(shape, cp.inf, dtype=cp.float32)
@@ -144,7 +135,7 @@ class ConvLIFLayer(AbstractConvLayer):
                                                            sorted_pre_exp_tau_s, sorted_pre_exp_tau,
                                                            self.weights, self.__c, self.__delta_theta_tau,
                                                            self.__tau, cp.float32(max_simulation), self.__max_n_spike,
-                                                           new_shape_previous, new_shape_neuron,
+                                                           new_shape_previous, self.neurons_shape,
                                                            self.__filters_shape)
             # self.neurons_shape = new_shape_neuron
 
@@ -191,6 +182,8 @@ class ConvLIFLayer(AbstractConvLayer):
             new_post_exp_tau = self.__post_exp_tau
         if new_x.shape != errors.shape:
             errors = trimed_errors(errors, self.__filter_from_next, self.neurons_shape[2])
+            if new_x.shape != errors.shape:
+                raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors.shape}")
         
         new_spike_times_per_neuron = self.__spike_times_per_neuron
         errors_debug = errors.copy()
