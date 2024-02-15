@@ -2,14 +2,9 @@ from pathlib import Path
 import wandb
 import cupy as cp
 import numpy as np
-
 import sys
-
 import os
-
 import sys
-
-from sympy import use
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from Dataset import Dataset
@@ -282,6 +277,7 @@ for run in range(NUMBER_OF_RUNS):
                                             print_prefix="Test | ")
 
     best_acc = 0.0
+    tracker = [0.0]* (N_HIDDEN_LAYERS+2)
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
