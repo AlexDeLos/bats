@@ -13,17 +13,18 @@ from bats.Layers import LIFLayer
 from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *
-from bats.Layers.ConvInterLayer import ConvInterLayer
 from bats.Layers.ConvInputLayer import ConvInputLayer
 from bats.Layers.ConvLIFLayerResidual import ConvLIFLayerResidual
 from bats.Layers.ConvLIFLayer import ConvLIFLayer
+from bats.Layers.ConvLIFLayer_clean import ConvLIFLayer_clean
+
 from bats.Layers.PoolingLayer import PoolingLayer
 
 # Dataset
 DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
-CLUSTER = False
+CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
 USE_PADDING = False
@@ -31,9 +32,9 @@ FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 
 #Residual parameters
-USE_RESIDUAL = True
-RESIDUAL_EVERY_N = 500
-N_HIDDEN_LAYERS = 2
+# USE_RESIDUAL = True
+# RESIDUAL_EVERY_N = 500
+# N_HIDDEN_LAYERS = 2
 
 if CLUSTER:
     NUMBER_OF_RUNS = 10
@@ -49,7 +50,7 @@ SIMULATION_TIME = 0.2
 
 FILTER_1 = np.array([5, 5, 15]) #? could it be the size of this filter's channels?
 TAU_S_1 = 0.130
-THRESHOLD_HAT_1 = 0.004
+THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 10
 if USE_PADDING:
@@ -57,9 +58,9 @@ if USE_PADDING:
 else:
     FILTER_FROM_NEXT = None
 
-FILTER_2 = np.array([5, 5, 20]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_2 = np.array([5, 5, 40]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_2 = 0.130
-THRESHOLD_HAT_2 = 0.008
+THRESHOLD_HAT_2 = 0.8
 DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
 SPIKE_BUFFER_SIZE_2 = 20
 if USE_PADDING:
@@ -67,23 +68,16 @@ if USE_PADDING:
 else:
     FILTER_FROM_NEXT_2 = None
 
-FILTER_3 = np.array([5, 5, 40]) # used to be [5,5,40] -> is the 40 the channels?
-TAU_S_3 = 0.130
-THRESHOLD_HAT_3 = 0.008
-DELTA_THRESHOLD_3 = 1 * THRESHOLD_HAT_2
-SPIKE_BUFFER_SIZE_3 = 30
-# PADDING_FROM_NEXT_LAYER_3 = cp.array([4,4])
-
 N_NEURONS_FC = 300
 TAU_S_FC = 0.130
-THRESHOLD_HAT_FC = 0.006
+THRESHOLD_HAT_FC = 0.6
 DELTA_THRESHOLD_FC = 1 * THRESHOLD_HAT_FC
 SPIKE_BUFFER_SIZE_FC = 10
 
 # Output_layer
 N_OUTPUTS = 10
 TAU_S_OUTPUT = 0.130
-THRESHOLD_HAT_OUTPUT = 0.03
+THRESHOLD_HAT_OUTPUT = 0.3
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
