@@ -182,6 +182,7 @@ class ConvLIFLayer(AbstractConvLayer):
             new_post_exp_tau = self.__post_exp_tau
         if new_x.shape != errors.shape:
             errors = trimed_errors(errors, self.__filter_from_next, self.neurons_shape[2])
+            print("errors shape is not the same as the x shape")
             if new_x.shape != errors.shape:
                 raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors.shape}")
         
