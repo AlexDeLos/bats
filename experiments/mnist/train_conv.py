@@ -24,7 +24,7 @@ DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
 CLUSTER = False
-USE_WANDB = True
+USE_WANDB = False
 ALTERNATE = True
 USE_PADDING = True
 FUSE_FUNCTION = "Append"
@@ -177,7 +177,7 @@ for run in range(NUMBER_OF_RUNS):
     network.add_layer(input_layer, input=True)
 
     conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
-                          filter_from_next = FILTER_FROM_NEXT,
+                        #   filter_from_next = FILTER_FROM_NEXT,
                           tau_s=TAU_S_1,
                           theta=THRESHOLD_HAT_1,
                           delta_theta=DELTA_THRESHOLD_1,
@@ -186,8 +186,8 @@ for run in range(NUMBER_OF_RUNS):
                           name="Convolution 1")
     network.add_layer(conv_1)
 
-    # pool_1 = PoolingLayer(conv_1, name="Pooling 1")
-    # network.add_layer(pool_1)
+    pool_1 = PoolingLayer(conv_1, name="Pooling 1")
+    network.add_layer(pool_1)
 
     # conv_1_5 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_1_5, use_padding=USE_PADDING,
     #                       tau_s=TAU_S_1_5,
@@ -206,8 +206,8 @@ for run in range(NUMBER_OF_RUNS):
                         #   tau_s=TAU_S_2,
                                   
     # *I can connect it straight to other conv layers
-    conv_2 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
-                          filter_from_next = FILTER_FROM_NEXT_2,
+    conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+                        #   filter_from_next = FILTER_FROM_NEXT_2,
                           tau_s=TAU_S_2,
                           theta=THRESHOLD_HAT_2,
                           delta_theta=DELTA_THRESHOLD_2,
@@ -216,20 +216,20 @@ for run in range(NUMBER_OF_RUNS):
                           name="Convolution 2")
     network.add_layer(conv_2)
 
-    conv_3 = ConvLIFLayer(previous_layer=conv_2, filters_shape=FILTER_3, use_padding=USE_PADDING,
-                          tau_s=TAU_S_3,
-                          theta=THRESHOLD_HAT_3,
-                          delta_theta=DELTA_THRESHOLD_3,
-                          weight_initializer=weight_initializer_conv,
-                          max_n_spike=SPIKE_BUFFER_SIZE_3,
-                          name="Convolution 3")
-    network.add_layer(conv_3)
+    # conv_3 = ConvLIFLayer(previous_layer=conv_2, filters_shape=FILTER_3, use_padding=USE_PADDING,
+    #                       tau_s=TAU_S_3,
+    #                       theta=THRESHOLD_HAT_3,
+    #                       delta_theta=DELTA_THRESHOLD_3,
+    #                       weight_initializer=weight_initializer_conv,
+    #                       max_n_spike=SPIKE_BUFFER_SIZE_3,
+    #                       name="Convolution 3")
+    # network.add_layer(conv_3)
 
 
     # pool_2 = PoolingLayer(conv_2, name="Pooling 2")
     # network.add_layer(pool_2)
 
-    feedforward = LIFLayer(previous_layer=conv_3, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+    feedforward = LIFLayer(previous_layer=conv_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
                            theta=THRESHOLD_HAT_FC,
                            delta_theta=DELTA_THRESHOLD_FC,
                            weight_initializer=weight_initializer_ff,
