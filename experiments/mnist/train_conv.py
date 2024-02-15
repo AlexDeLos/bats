@@ -53,11 +53,11 @@ THRESHOLD_HAT_1 = 0.004
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 10
 if USE_PADDING:
-    FILTER_FROM_NEXT = np.array([5, 5, 40])
+    FILTER_FROM_NEXT = np.array([5, 5, 20])
 else:
     FILTER_FROM_NEXT = None
 
-FILTER_2 = np.array([5, 5, 40]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_2 = np.array([5, 5, 20]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_2 = 0.130
 THRESHOLD_HAT_2 = 0.008
 DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
