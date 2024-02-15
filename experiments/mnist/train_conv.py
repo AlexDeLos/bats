@@ -26,7 +26,7 @@ DATASET_PATH = Path("datasets/mnist.npz")
 CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
-USE_PADDING = False
+USE_PADDING = True
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 
@@ -47,13 +47,13 @@ INPUT_SHAPE = np.array([28, 28, 1])
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
-FILTER_1 = np.array([3, 3, 1]) #? could it be the size of this filter's channels?
+FILTER_1 = np.array([5, 5, 10]) #? could it be the size of this filter's channels?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.004
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 10
 if USE_PADDING:
-    FILTER_FROM_NEXT = np.array([3, 3, 5])
+    FILTER_FROM_NEXT = np.array([5, 5, 40])
 else:
     FILTER_FROM_NEXT = None
 
@@ -177,7 +177,7 @@ for run in range(NUMBER_OF_RUNS):
     network.add_layer(input_layer, input=True)
 
     conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
-                        #   filter_from_next = FILTER_FROM_NEXT,
+                          filter_from_next = FILTER_FROM_NEXT,
                           tau_s=TAU_S_1,
                           theta=THRESHOLD_HAT_1,
                           delta_theta=DELTA_THRESHOLD_1,
@@ -186,8 +186,8 @@ for run in range(NUMBER_OF_RUNS):
                           name="Convolution 1")
     network.add_layer(conv_1)
 
-    pool_1 = PoolingLayer(conv_1, name="Pooling 1")
-    network.add_layer(pool_1)
+    # pool_1 = PoolingLayer(conv_1, name="Pooling 1")
+    # network.add_layer(pool_1)
 
     # conv_1_5 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_1_5, use_padding=USE_PADDING,
     #                       tau_s=TAU_S_1_5,
@@ -206,7 +206,7 @@ for run in range(NUMBER_OF_RUNS):
                         #   tau_s=TAU_S_2,
                                   
     # *I can connect it straight to other conv layers
-    conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+    conv_2 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
                         #   filter_from_next = FILTER_FROM_NEXT_2,
                           tau_s=TAU_S_2,
                           theta=THRESHOLD_HAT_2,
