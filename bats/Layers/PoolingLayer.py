@@ -48,8 +48,6 @@ class PoolingLayer(AbstractConvLayer):
 
     def forward(self, max_simulation: float, training: bool = False) -> None:
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
-        pre_spike_per_neuron.shape
-        self.neurons_shape #! why it this a diffent object in 2? filter of 2 could be the wrong shape?
         self.__n_spike_per_neuron, self.__spike_times_per_neuron, self.__spike_indices = \
             aggregate_spikes_conv(pre_n_spike_per_neuron, pre_spike_per_neuron, self.__previous_layer.neurons_shape,
                                   self.neurons_shape)

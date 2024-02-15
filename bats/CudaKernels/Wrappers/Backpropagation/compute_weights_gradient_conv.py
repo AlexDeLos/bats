@@ -33,21 +33,21 @@ def compute_weights_gradient_conv(f1: cp.ndarray, f2: cp.ndarray,
     grid_dim = (filter_x, filter_y, filter_z)
     # Variables for debugging
 
-    test_f1 = f1.copy()
-    test_f2 = f2.copy()
-    test_post_times = post_times.copy()
-    test_pre_times = pre_times.copy()
-    test_pre_exp_tau_s = pre_exp_tau_s.copy()
-    test_pre_exp_tau = pre_exp_tau.copy()
-    test_errors = errors.copy()
-    test_pre_shape = pre_shape.copy()
-    test_post_shape = post_shape.copy()
-    test_filter_shape = filter_shape.copy()
-    test_gradient = gradient
-    test_n_post_neurons = n_post_neurons
-    test_n_pre_neurons = n_pre_neurons
-    test_max_n_post_spike = max_n_post_spike
-    test_max_n_pre_spike = max_n_pre_spike
+    # test_f1 = f1.copy()
+    # test_f2 = f2.copy()
+    # test_post_times = post_times.copy()
+    # test_pre_times = pre_times.copy()
+    # test_pre_exp_tau_s = pre_exp_tau_s.copy()
+    # test_pre_exp_tau = pre_exp_tau.copy()
+    # test_errors = errors.copy()
+    # test_pre_shape = pre_shape.copy()
+    # test_post_shape = post_shape.copy()
+    # test_filter_shape = filter_shape.copy()
+    # test_gradient = gradient
+    # test_n_post_neurons = n_post_neurons
+    # test_n_pre_neurons = n_pre_neurons
+    # test_max_n_post_spike = max_n_post_spike
+    # test_max_n_pre_spike = max_n_pre_spike
     any_nans = cp.any(cp.isnan(f1)) or cp.any(cp.isnan(f2)) or cp.any(cp.isnan(post_times)) or cp.any(cp.isnan(pre_times)) or cp.any(cp.isnan(pre_exp_tau_s)) or cp.any(cp.isnan(pre_exp_tau))# or cp.any(cp.isnan(errors))
     __compute_weights_gradient_conv_kernel(grid_dim, block_dim, (f1, f2, post_times, pre_times,
                                                                  pre_exp_tau_s, pre_exp_tau, errors,
@@ -63,28 +63,11 @@ def compute_weights_gradient_conv(f1: cp.ndarray, f2: cp.ndarray,
     if cp.any(cp.isnan(gradient)):
     #     #! maybe something with the max spikes?
     #     #* errors are not the problem
-    #     print(f"Found nans in gradient", cp.where(cp.isnan(gradient)))
+        print(f"Found nans in gradient", cp.where(cp.isnan(gradient)))
+        raise RuntimeError("Found nans in gradient")
     #     num_nans_grad = cp.sum(cp.isnan(gradient))
     #     # with all of shape [3,3,1] I get 3 nan values
         # gradient = cp.nan_to_num(gradient)
         #! problem could be with the channels
-        print("nans in the gradient")
-        print("where: ", cp.where(cp.isnan(gradient)))
-        print("Sum: ", cp.sum(cp.isnan(gradient)))
-        print('--------------------------------------------------------------')
-
-        new_gradient = cp.zeros((batch_size, filter_c, filter_x, filter_y, filter_z), dtype=cp.float32)
-        __compute_weights_gradient_conv_kernel(grid_dim, block_dim, (test_f1, test_f2, test_post_times, test_pre_times,
-                                                                test_pre_exp_tau_s, test_pre_exp_tau, test_errors,
-                                                                test_pre_shape, test_post_shape, test_filter_shape,
-                                                                new_gradient,
-                                                                test_n_post_neurons, test_n_pre_neurons,
-                                                                cp.int32(test_max_n_post_spike),
-                                                                cp.int32(test_max_n_pre_spike)))
-        if cp.any(cp.isnan(new_gradient)):
-            print("there are still nans in the gradient")
-        else:
-            return new_gradient
-
     
     return gradient

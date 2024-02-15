@@ -29,12 +29,8 @@ class ConvLIFLayer(AbstractConvLayer):
             prev_x += padding[0]
             prev_y += padding[1]
         self.__pre_shape = (prev_x, prev_y, prev_c)
-        if False:
-            n_x = prev_x# why this equation? -> this is the reduction of dimensions because of the filter
-            n_y = prev_y
-        else:
-            n_x = prev_x - filter_x + 1 # why this equation? -> this is the reduction of dimensions because of the filter
-            n_y = prev_y - filter_y + 1
+        n_x = prev_x - filter_x + 1 # why this equation? -> this is the reduction of dimensions because of the filter
+        n_y = prev_y - filter_y + 1
         neurons_shape: cp.ndarray = np.array([n_x, n_y, filter_c], dtype=cp.int32)
 
         super().__init__(neurons_shape=neurons_shape, use_padding = use_padding,padding= [filter_x-1, filter_y -1], **kwargs)
@@ -116,7 +112,6 @@ class ConvLIFLayer(AbstractConvLayer):
         if sorted_indices.size == 0:  # No input spike in the batch
             batch_size = pre_spike_per_neuron.shape[0]
             shape = (batch_size, self.n_neurons, self.__max_n_spike)
-            # shape = self.neurons_shape.get()
             self.__n_spike_per_neuron = cp.zeros((batch_size, self.n_neurons), dtype=cp.int32)
             self.__spike_times_per_neuron = cp.full(shape, cp.inf, dtype=cp.float32)
             self.__post_exp_tau = cp.full(shape, cp.inf, dtype=cp.float32)
@@ -139,12 +134,12 @@ class ConvLIFLayer(AbstractConvLayer):
                                                            self.__filters_shape)
             # self.neurons_shape = new_shape_neuron
 
-            spikes = self.__spike_times_per_neuron
-            count = self.__n_spike_per_neuron #! they no longer have the 28*28 size
-            new_x = self.__x #-> the X here is always the same size as the spikes
-            #? what does the X represent?
-            ewrwe = 0
-            sad = ""
+            # spikes = self.__spike_times_per_neuron
+            # count = self.__n_spike_per_neuron #! they no longer have the 28*28 size
+            # new_x = self.__x #-> the X here is always the same size as the spikes
+            # #? what does the X represent?
+            # ewrwe = 0
+            # sad = ""
 
     def backward(self, errors: cp.array, from_res = False) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
@@ -163,23 +158,9 @@ class ConvLIFLayer(AbstractConvLayer):
             padded_pre_exp_tau_s = self.__pre_exp_tau_s
             padded_pre_exp_tau = self.__pre_exp_tau
             new_shape_previous = self.__previous_layer.neurons_shape
-        
-        # if self.__padding_from_next is not None:
-        if False:
-            #This was used before I padded the previous layer in the output as well
-            #! Això utilitza el padding de la capa anterior, però no el de la capa seguent, que es el que s'hauria d'utilitzar
-            padding_of_next = self.__filter_from_next
-            new_x, new_post_exp_tau = add_padding_to_x_and_tau(self.__x, self.__post_exp_tau, self.__pre_shape, self._padding, padding_of_next, errors)
 
-            #? let's now try to pad X
-            # new_x, new_post_exp_tau = add_padding_to_x_and_tau(self.__x, self.__post_exp_tau, self.__pre_shape, self._padding, padding_of_next, errors)
-            #* shape of x needs to be the same as the shape of errors and errors need to have shape of:
-            #* (batch_size, n_neurons, number of channels)
-            #TODO: add padding to x and post_exp_tau
-            #! maybe the problem is the error shape?
-        else:
-            new_x = self.__x
-            new_post_exp_tau = self.__post_exp_tau
+        new_x = self.__x
+        new_post_exp_tau = self.__post_exp_tau
         if new_x.shape != errors.shape:
             errors = trimed_errors(errors, self.__filter_from_next, self.neurons_shape[2])
             # print("errors shape is not the same as the x shape")
