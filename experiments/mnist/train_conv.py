@@ -36,7 +36,7 @@ RESIDUAL_EVERY_N = 500
 N_HIDDEN_LAYERS = 2
 
 if CLUSTER:
-    NUMBER_OF_RUNS = 20
+    NUMBER_OF_RUNS = 2
 else:
     NUMBER_OF_RUNS = 5
 
@@ -47,7 +47,7 @@ INPUT_SHAPE = np.array([28, 28, 1])
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
-FILTER_1 = np.array([5, 5, 10]) #? could it be the size of this filter's channels?
+FILTER_1 = np.array([5, 5, 15]) #? could it be the size of this filter's channels?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.004
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -67,14 +67,14 @@ if USE_PADDING:
 else:
     FILTER_FROM_NEXT_2 = None
 
-FILTER_3 = np.array([3, 3, 10]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_3 = np.array([5, 5, 40]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_3 = 0.130
 THRESHOLD_HAT_3 = 0.008
 DELTA_THRESHOLD_3 = 1 * THRESHOLD_HAT_2
 SPIKE_BUFFER_SIZE_3 = 30
 # PADDING_FROM_NEXT_LAYER_3 = cp.array([4,4])
 
-N_NEURONS_FC = 200
+N_NEURONS_FC = 300
 TAU_S_FC = 0.130
 THRESHOLD_HAT_FC = 0.006
 DELTA_THRESHOLD_FC = 1 * THRESHOLD_HAT_FC
@@ -186,8 +186,8 @@ for run in range(NUMBER_OF_RUNS):
                           name="Convolution 1")
     network.add_layer(conv_1)
 
-    # pool_1 = PoolingLayer(conv_1, name="Pooling 1")
-    # network.add_layer(pool_1)
+    pool_1 = PoolingLayer(conv_1, name="Pooling 1")
+    network.add_layer(pool_1)
 
     # conv_1_5 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_1_5, use_padding=USE_PADDING,
     #                       tau_s=TAU_S_1_5,
@@ -206,7 +206,7 @@ for run in range(NUMBER_OF_RUNS):
                         #   tau_s=TAU_S_2,
                                   
     # *I can connect it straight to other conv layers
-    conv_2 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+    conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
                         #   filter_from_next = FILTER_FROM_NEXT_2,
                           tau_s=TAU_S_2,
                           theta=THRESHOLD_HAT_2,
@@ -226,10 +226,10 @@ for run in range(NUMBER_OF_RUNS):
     # network.add_layer(conv_3)
 
 
-    # pool_2 = PoolingLayer(conv_2, name="Pooling 2")
-    # network.add_layer(pool_2)
+    pool_2 = PoolingLayer(conv_2, name="Pooling 2")
+    network.add_layer(pool_2)
 
-    feedforward = LIFLayer(previous_layer=conv_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+    feedforward = LIFLayer(previous_layer=pool_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
                            theta=THRESHOLD_HAT_FC,
                            delta_theta=DELTA_THRESHOLD_FC,
                            weight_initializer=weight_initializer_ff,
