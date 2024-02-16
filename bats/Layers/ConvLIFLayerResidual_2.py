@@ -99,6 +99,12 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         self.__c: Optional[cp.float32] = self.__theta_tau
         self.__c_jump: Optional[cp.float32] = self.__theta_tau_jump
 
+
+        self.__pre_spike_per_neuron: Optional[cp.ndarray] = None
+        self.__pre_n_spike_per_neuron: Optional[cp.ndarray] = None
+        self.__jump_spike_per_neuron: Optional[cp.ndarray] = None
+        self.__jump_n_spike_per_neuron: Optional[cp.ndarray] = None
+
     @property
     def trainable(self) -> bool:
         return True
@@ -139,14 +145,17 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         # how are the spikes used? and how do I add padding?
         if self._use_padding: #! using this causes random nans for some reason
         #? what is I don't use padding in the forward pass?
-            pre_spike_per_neuron, pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron,
+            self.__pre_spike_per_neuron, self.__pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron,
                                                                        self.__pre_shape, self._padding)
+            pre_spike_per_neuron = self.__pre_spike_per_neuron
+            pre_n_spike_per_neuron = self.__pre_n_spike_per_neuron
             self.__padded_pre_exp_tau_s, self.__padded_pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
             padded_pre_exp_tau_s = self.__padded_pre_exp_tau_s
             padded_pre_exp_tau = self.__padded_pre_exp_tau
             new_shape_previous = (self.__previous_layer.neurons_shape[0]+ self._padding[0], self.__previous_layer.neurons_shape[1] + self._padding[1], self.__previous_layer.neurons_shape[2])
             new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
         else:
+            self.__pre_spike_per_neuron, self.__pre_n_spike_per_neuron = pre_spike_per_neuron, pre_n_spike_per_neuron
             self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
             padded_pre_exp_tau_s = self.__pre_exp_tau_s
             padded_pre_exp_tau = self.__pre_exp_tau
@@ -187,14 +196,18 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         # how are the spikes used? and how do I add padding?
         if self._use_padding: #! using this causes random nans for some reason
         #? what is I don't use padding in the forward pass?
-            jump_spike_per_neuron, jump_n_spike_per_neuron = add_padding(jump_spike_per_neuron, jump_n_spike_per_neuron,
+            self.__jump_spike_per_neuron, self.__jump_n_spike_per_neuron = add_padding(jump_spike_per_neuron, jump_n_spike_per_neuron,
                                                                        self.__jump_shape, self._padding)
+            
+            jump_spike_per_neuron = self.__jump_spike_per_neuron
+            jump_n_spike_per_neuron = self.__jump_n_spike_per_neuron
             self.__padded_pre_exp_tau_s_jump, self.__padded_pre_exp_tau_jump = compute_pre_exps(jump_spike_per_neuron, self.__tau_s, self.__tau)
             padded_pre_exp_tau_s_jump = self.__padded_pre_exp_tau_s_jump
             padded_pre_exp_tau_jump = self.__padded_pre_exp_tau_jump
             new_shape_previous = (self.__jump_layer.neurons_shape[0]+ self._padding[0], self.__jump_layer.neurons_shape[1] + self._padding[1], self.__jump_layer.neurons_shape[2])
             new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
         else:
+            self.__jump_spike_per_neuron, self.__jump_n_spike_per_neuron = jump_spike_per_neuron, jump_n_spike_per_neuron
             self.__pre_exp_tau_s_jump, self.__pre_exp_tau_jump = compute_pre_exps(jump_spike_per_neuron, self.__tau_s_jump, self.__tau_jump)
             padded_pre_exp_tau_s_jump = self.__pre_exp_tau_s_jump
             padded_pre_exp_tau_jump = self.__pre_exp_tau_jump
@@ -239,8 +252,9 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
         if self._use_padding: #-> adding this alone seems to have no effect on the loss of the model or anything else
             #? what is I don't use padding in the backward pass?
-            pre_spike_per_neuron, pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron,
-                                            self.__pre_shape, self._padding)
+            
+            pre_spike_per_neuron = self.__pre_spike_per_neuron
+            pre_n_spike_per_neuron = self.__pre_n_spike_per_neuron
             new_shape_previous = (self.__previous_layer.neurons_shape[0]+ self._padding[0], self.__previous_layer.neurons_shape[1] + self._padding[1], self.__previous_layer.neurons_shape[2])
             new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
             padded_pre_exp_tau_s = self.__padded_pre_exp_tau_s
@@ -253,10 +267,8 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         new_x = self.__x
         new_post_exp_tau = self.__post_exp_tau
         if new_x.shape != errors.shape:
-            errors = trimed_errors(errors, self.__filter_from_next, self.neurons_shape[2])
-            # print("errors shape is not the same as the x shape")
-            if new_x.shape != errors.shape:
-                raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors.shape}")
+            # Errors should have already been trimmed
+            raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors.shape}")
         
         new_spike_times_per_neuron = self.__spike_times_per_neuron
         errors_debug = errors.copy()
@@ -298,11 +310,12 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         # Compute gradient
         if cp.any(cp.isnan(errors)):
             raise ValueError("NaNs in errors")
-        pre_spike_per_neuron, pre_n_spike_per_neuron = self.__jump_layer.spike_trains
+        jump_spike_per_neuron, jump_n_spike_per_neuron = self.__jump_layer.spike_trains
         if self._use_padding: #-> adding this alone seems to have no effect on the loss of the model or anything else
             #? what is I don't use padding in the backward pass?
-            pre_spike_per_neuron, pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron,
-                                            self.__jump_shape, self._padding)
+            
+            jump_spike_per_neuron = self.__jump_spike_per_neuron
+            jump_n_spike_per_neuron = self.__jump_n_spike_per_neuron
             new_shape_previous = (self.__jump_layer.neurons_shape[0]+ self._padding[0], self.__jump_layer.neurons_shape[1] + self._padding[1], self.__jump_layer.neurons_shape[2])
             new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
             padded_pre_exp_tau_s = self.__padded_pre_exp_tau_s_jump
@@ -315,10 +328,8 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         new_x = self.__x_jump
         new_post_exp_tau = self.__post_exp_tau_jump
         if new_x.shape != errors.shape:
-            errors = trimed_errors(errors, self.__filter_from_next, self.neurons_shape[2])
-            # print("errors shape is not the same as the x shape")
-            if new_x.shape != errors.shape:
-                raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors.shape}")
+            # Errors should have already been trimmed
+            raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors.shape}, errors should have already been trimmed")
         
         new_spike_times_per_neuron = self.__spike_times_per_neuron_jump
         errors_debug = errors.copy()
@@ -326,7 +337,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         f1, f2 = compute_factors(new_spike_times_per_neuron, self.__a_jump, self.__c_jump, new_x,
                                  new_post_exp_tau, self.__tau_jump)
         weights_grad = compute_weights_gradient_conv(f1, f2, self.__spike_times_per_neuron_jump, # this has the shape of the current layer
-                                                     pre_spike_per_neuron,# this has the shape of the previous layer
+                                                     jump_spike_per_neuron,# this has the shape of the previous layer
                                                      padded_pre_exp_tau_s, padded_pre_exp_tau, # these 2 also have the shape of the previous layer
                                                      #! BUT IF i TRY TO run it as is now I get the shape of the current layer
                                                     #  new_shape_previous,
@@ -339,7 +350,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         if self.__previous_layer.trainable:
             # the error shape comes from: 
             pre_errors = propagate_errors_to_pre_spikes_conv(f1, f2, self.__spike_times_per_neuron_jump, # this has the shape of the current layer
-                                                             pre_spike_per_neuron, # this has the shape of the previous layer
+                                                             jump_spike_per_neuron, # this has the shape of the previous layer
                                                              padded_pre_exp_tau_s, padded_pre_exp_tau, # these 2 also have the shape of the previous layer
                                                              self.__weights_jump,
                                                              errors, # this has the shape of the current layer
@@ -358,7 +369,10 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
     
     def backward(self, errors: cp.array) -> Tuple:
         #TODO: split the errors into pre and jump
+        if self.__filter_from_next is not None:
+            errors = trimed_errors(errors, self.__filter_from_next, self.neurons_shape[2])
         split_index = self.__number_of_neurons_pre
+        #if padded this needs to be changed
         split_index_jump = self.__number_of_neurons_jump
         errors_pre, errors_jump = cp.split(errors, [int(split_index)], axis=1)
         if split_index != errors_pre.shape[1]:

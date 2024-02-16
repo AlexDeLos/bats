@@ -1,4 +1,5 @@
 from pathlib import Path
+from re import T
 import wandb
 import cupy as cp
 import numpy as np
@@ -29,8 +30,8 @@ DATASET_PATH = Path("datasets/mnist.npz")
 CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
-USE_PADDING = False
-FUSE_FUNCTION = "Append"
+USE_PADDING = False #! residual and padd gives nans, and without it is seems to not learn
+# but silent labels go down and kind of does loss
 #TODO: try to get the non append function to run out of memory
 
 #Residual parameters
