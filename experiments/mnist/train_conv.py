@@ -6,6 +6,7 @@ import sys
 import os
 import sys
 
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from Dataset import Dataset
 from bats.Monitors import *
@@ -16,7 +17,8 @@ from bats.Optimizers import *
 from bats.Layers.ConvInputLayer import ConvInputLayer
 from bats.Layers.ConvLIFLayerResidual import ConvLIFLayerResidual
 from bats.Layers.ConvLIFLayer import ConvLIFLayer
-from bats.Layers.ConvLIFLayer_clean import ConvLIFLayer_clean
+from bats.Layers.ConvLIFLayer_new_Residual import ConvLIFLayer_new_Residual
+from bats.Layers.ConvLIFLayerResidual_2 import ConvLIFLayerResidual_2
 
 from bats.Layers.PoolingLayer import PoolingLayer
 
@@ -27,7 +29,7 @@ DATASET_PATH = Path("datasets/mnist.npz")
 CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
-USE_PADDING = True
+USE_PADDING = False
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 
@@ -132,14 +134,14 @@ for run in range(NUMBER_OF_RUNS):
         config={
         "Cluster": CLUSTER,
         "FUSE_FUNCTION": FUSE_FUNCTION,
-        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
+        # "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
         "train_batch_size": TRAIN_BATCH_SIZE,
-        "residual_every_n": RESIDUAL_EVERY_N,
+        # "residual_every_n": RESIDUAL_EVERY_N,
         "use_residual": "Not implemented yet",
         "use_padding": USE_PADDING,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
-        "Filter": str(FILTER_1)+'|'+str(FILTER_2)+'|'+str(FILTER_3)+'|',
+        "Filter": str(FILTER_1)+'|'+str(FILTER_2),#+'|'+str(FILTER_3)+'|',
         "learning_rate": LEARNING_RATE,
         "architecture": "CNN",
         "dataset": "MNIST",
@@ -200,7 +202,7 @@ for run in range(NUMBER_OF_RUNS):
                         #   tau_s=TAU_S_2,
                                   
     # *I can connect it straight to other conv layers
-    conv_2 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+    conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1, jump_layer= conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
                         #   filter_from_next = FILTER_FROM_NEXT_2,
                           tau_s=TAU_S_2,
                           theta=THRESHOLD_HAT_2,
@@ -311,7 +313,7 @@ for run in range(NUMBER_OF_RUNS):
             for g, layer in zip(gradient, network.layers):
                 if g is None:
                     avg_gradient.append(None)
-                elif isinstance(layer, ConvLIFLayerResidual):
+                elif isinstance(layer, ConvLIFLayerResidual_2):
                     grad_entry = []
                     for i in range(len(g)):
                         averaged_values = cp.mean(g[i], axis=0)

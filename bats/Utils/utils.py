@@ -3,6 +3,44 @@ import cupy as cp
 from math import sqrt
 # This file contains utility functions that are used in the main code
 
+def aped_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike_per_neuron, jump_n_spike_per_neuron, pre_shape, jump_shape):
+    batch_size, spikes, max_n_spikes = pre_spike_per_neuron.shape
+    jump_batch_size, jump_spikes, jump_max_n_spikes = jump_spike_per_neuron.shape
+    if batch_size != jump_batch_size:
+        raise RuntimeError("The batch sizes of the two inputs are not the same")
+    pre_x, pre_y, pre_c = pre_shape.get()
+    jump_x, jump_y, jump_c = jump_shape.get()
+    if pre_x != jump_x or pre_y != jump_y:
+        raise RuntimeError("The input shapes are not the same")
+    if spikes != pre_x * pre_y * pre_c or jump_spikes != jump_x * jump_y * jump_c:
+        raise RuntimeError("The number of spikes is not the same as the number of neurons")
+    
+    if max_n_spikes != jump_max_n_spikes:
+        print('Warning: the maximum number of spikes is not the same for the two inputs')
+        max_n_spikes = max(max_n_spikes, jump_max_n_spikes)
+        # now we make sure that the two inputs have the same number of spikes by adding 0s to the smaller one
+        # TODO: does reshape do this?-> NO
+        padding_for_max_spikes_pre = ([0,0],[0,0], [0,max_n_spikes-pre_spike_per_neuron.shape[2]])
+        padding_for_max_spikes_jump = ([0,0],[0,0], [0,max_n_spikes-jump_spike_per_neuron.shape[2]])
+        pre_spike_per_neuron = cp.pad(pre_spike_per_neuron, padding_for_max_spikes_pre, mode='constant', constant_values=cp.inf)
+        jump_spike_per_neuron = cp.pad(jump_spike_per_neuron, padding_for_max_spikes_jump, mode='constant', constant_values=cp.inf)
+
+    #? Am I using the right reshape order?
+    pre_spike_per_neuron = cp.reshape(pre_spike_per_neuron, (batch_size,pre_x, pre_y, pre_c, max_n_spikes))
+    jump_spike_per_neuron = cp.reshape(jump_spike_per_neuron, (jump_batch_size,jump_x, jump_y, jump_c, jump_max_n_spikes))
+    pre_n_spike_per_neuron = cp.reshape(pre_n_spike_per_neuron, (batch_size,pre_x, pre_y, pre_c))
+    jump_n_spike_per_neuron = cp.reshape(jump_n_spike_per_neuron, (jump_batch_size,jump_x, jump_y, jump_c))
+
+    # Now we append pre_spike_per_neuron and jump_spike_per_neuron on the channel dimension
+    new_spike_per_neuron = cp.append(pre_spike_per_neuron, jump_spike_per_neuron, axis=3)
+    new_spike_per_neuron = cp.reshape(new_spike_per_neuron, (batch_size, pre_x*pre_y*(pre_c+jump_c), max_n_spikes))
+
+    new_n_spike_per_neuron = cp.append(pre_n_spike_per_neuron, jump_n_spike_per_neuron, axis=3)
+    new_n_spike_per_neuron = cp.reshape(new_n_spike_per_neuron, (batch_size, pre_x*pre_y*(pre_c+jump_c)))
+    #TODO: finish this function
+    return new_spike_per_neuron, new_n_spike_per_neuron
+    
+
 def add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron, shape, padding):
     if pre_n_spike_per_neuron is None:
         b =''

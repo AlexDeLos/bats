@@ -19,33 +19,25 @@ class ConvLIFLayerResidual(AbstractConvLayer):
                  use_padding: bool,
                  tau_s: float, theta: float,
                  delta_theta: float, # input_channels:,
+                 filter_from_next: cp.ndarray = None,
                  weight_initializer: Callable[[int, int, int, int], cp.ndarray] = None, max_n_spike: int = 32,
                  **kwargs):
         prev_x, prev_y, prev_c = previous_layer._neurons_shape.get()
         prev_x_jump, prev_y_jump, prev_c_jump = jump_layer._neurons_shape.get()
-        filter_x, filter_y, filter_c = filters_shape #? do I need to duplicate this?
+        if prev_x != prev_x_jump or prev_y != prev_y_jump:
+            raise ValueError("The input dimensions of the previous layers are not the same")
+        filter_x, filter_y, filter_c = filters_shape
+        padding= [filter_x-1, filter_y -1]
+        self.__filter_from_next = filter_from_next
         if use_padding:
-            n_x = prev_x
-            n_x_jump = prev_x_jump
-            n_y = prev_y
-            n_y_jump = prev_y_jump
-        else:
-            n_x = prev_x - filter_x + 1
-            n_x_jump = prev_x_jump - filter_x + 1
-            n_y = prev_y - filter_y + 1
-            n_y_jump = prev_y_jump - filter_y + 1
-        if n_x != n_x_jump or n_y != n_y_jump:
-            raise ValueError("The dimensions of the layers do not match")
-        # n_x = prev_x - filter_x + 1
-        # #? why are they connected? couldn't it be whatever?
-        # n_x_jump = prev_x_jump - filter_x + 1
-        # n_y = prev_y - filter_y + 1
-        # n_y_jump = prev_y_jump - filter_y + 1
+            prev_x += padding[0]
+            prev_y += padding[1]
+        self.__pre_shape = (prev_x, prev_y, prev_c)
+        n_x = prev_x - filter_x + 1 # why this equation? -> this is the reduction of dimensions because of the filter
+        n_y = prev_y - filter_y + 1
         neurons_shape: cp.ndarray = cp.array([n_x, n_y, filter_c], dtype=cp.int32)
-        #! neurons_shape just return the normal shape, not the residual shape
-        neurons_shape_jump: cp.ndarray = cp.array([n_x_jump, n_y_jump, filter_c], dtype=cp.int32)
-        if cp.all(neurons_shape != neurons_shape_jump):
-            raise ValueError("The dimensions of the layers do not match 2")
+
+        super().__init__(neurons_shape=neurons_shape, use_padding = use_padding,padding= [filter_x-1, filter_y -1], **kwargs)
 
         # how can I mix it?
         super().__init__(neurons_shape=neurons_shape, use_padding= use_padding, **kwargs)
@@ -54,7 +46,7 @@ class ConvLIFLayerResidual(AbstractConvLayer):
         self.fuse_function = "Append"
         self.jump_layer = jump_layer
         self.__neurons_shape_pre: cp.ndarray = cp.array([n_x, n_y, filter_c], dtype=cp.int32)
-        self.__neurons_shape_jump: cp.ndarray = cp.array([n_x_jump, n_y_jump, filter_c], dtype=cp.int32)
+        self.__neurons_shape_jump: cp.ndarray = cp.array([n_x, n_y, filter_c], dtype=cp.int32)
         self.__number_of_neurons_pre = int(self.__neurons_shape_pre[0] * self.__neurons_shape_pre[1] * self.__neurons_shape_pre[2])
         self.__number_of_neurons_jump = int(self.__neurons_shape_jump[0] * self.__neurons_shape_jump[1] * self.__neurons_shape_jump[2])
         self._n_neurons = self.__number_of_neurons_jump + self.__number_of_neurons_pre
@@ -107,8 +99,6 @@ class ConvLIFLayerResidual(AbstractConvLayer):
         spikes, number = fuse_inputs_append(self.__spike_times_per_neuron, self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron, self.__n_spike_per_neuron_jump, self.__max_n_spike)
         # No NaNs here
         return spikes, number
-
-        return self.__spike_times_per_neuron, self.__n_spike_per_neuron
 
     @property
     def weights(self) -> Optional[cp.ndarray]:
