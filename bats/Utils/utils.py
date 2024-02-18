@@ -3,6 +3,14 @@ import cupy as cp
 from math import sqrt
 # This file contains utility functions that are used in the main code
 
+def split_on_channel_dim(errors, shape):
+    x, y, c = shape.get()
+    errors = cp.reshape(errors, (errors.shape[0], x, y, c*2, errors.shape[2]))
+    errors_pre, errors_jump = cp.split(errors, 2, axis=3)
+    errors_pre = cp.reshape(errors_pre, (errors.shape[0], x*y*c, errors.shape[-1]))
+    errors_jump = cp.reshape(errors_jump, (errors.shape[0], x*y*c, errors.shape[-1]))
+    return errors_pre, errors_jump
+ 
 def aped_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike_per_neuron, jump_n_spike_per_neuron, pre_shape, jump_shape):
     batch_size, spikes, max_n_spikes = pre_spike_per_neuron.shape
     jump_batch_size, jump_spikes, jump_max_n_spikes = jump_spike_per_neuron.shape

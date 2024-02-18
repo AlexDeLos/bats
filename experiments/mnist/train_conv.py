@@ -30,7 +30,7 @@ DATASET_PATH = Path("datasets/mnist.npz")
 CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
-USE_PADDING = False #! residual and padd gives nans, and without it is seems to not learn
+USE_PADDING = True #! residual and padd gives nans, and without it is seems to not learn
 # but silent labels go down and kind of does loss
 #TODO: try to get the non append function to run out of memory
 
@@ -57,7 +57,17 @@ THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 10
 if USE_PADDING:
-    FILTER_FROM_NEXT = np.array([5, 5, 20])
+    FILTER_FROM_NEXT = np.array([3, 3, 15])
+else:
+    FILTER_FROM_NEXT = None
+
+FILTER_1_5 = np.array([3, 3, 15]) #? could it be the size of this filter's channels?
+TAU_S_1_5 = 0.130
+THRESHOLD_HAT_1_5 = 0.04
+DELTA_THRESHOLD_1_5 = 1 * THRESHOLD_HAT_1
+SPIKE_BUFFER_SIZE_1_5 = 10
+if USE_PADDING:
+    FILTER_FROM_NEXT_1_5 = np.array([5, 5, 20])
 else:
     FILTER_FROM_NEXT = None
 
@@ -155,9 +165,9 @@ for run in range(NUMBER_OF_RUNS):
 
     max_int = np.iinfo(np.int32).max
     np_seed = np.random.randint(low=0, high=max_int)
-    # np_seed = 19835382
+    np_seed = 19835382
     cp_seed = np.random.randint(low=0, high=max_int)
-    # cp_seed =  787773187
+    cp_seed =  787773187
     np.random.seed(np_seed)
     cp.random.seed(cp_seed)
     print(f"Numpy seed: {np_seed}, Cupy seed: {cp_seed}")
@@ -186,14 +196,15 @@ for run in range(NUMBER_OF_RUNS):
     # pool_1 = PoolingLayer(conv_1, name="Pooling 1")
     # network.add_layer(pool_1)
 
-    # conv_1_5 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_1_5, use_padding=USE_PADDING,
-    #                       tau_s=TAU_S_1_5,
-    #                       theta=THRESHOLD_HAT_1_5,
-    #                       delta_theta=DELTA_THRESHOLD_1_5,
-    #                       weight_initializer=weight_initializer_conv,
-    #                       max_n_spike=SPIKE_BUFFER_SIZE_1_5,
-    #                       name="Convolution 1_5")
-    # network.add_layer(conv_1_5)
+    conv_1_5 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_1_5, use_padding=USE_PADDING,
+                          filter_from_next = FILTER_FROM_NEXT_1_5,
+                          tau_s=TAU_S_1_5,
+                          theta=THRESHOLD_HAT_1_5,
+                          delta_theta=DELTA_THRESHOLD_1_5,
+                          weight_initializer=weight_initializer_conv,
+                          max_n_spike=SPIKE_BUFFER_SIZE_1_5,
+                          name="Convolution 1_5")
+    network.add_layer(conv_1_5)
 
     # this is an activation layer
     # pool_1_5 = PoolingLayer(conv_1_5, name="Pooling 1_5")
@@ -203,7 +214,8 @@ for run in range(NUMBER_OF_RUNS):
                         #   tau_s=TAU_S_2,
                                   
     # *I can connect it straight to other conv layers
-    conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1, jump_layer= conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+    conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer= conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+    # conv_2 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
                         #   filter_from_next = FILTER_FROM_NEXT_2,
                           tau_s=TAU_S_2,
                           theta=THRESHOLD_HAT_2,

@@ -12,7 +12,7 @@ from bats.CudaKernels.Wrappers.Backpropagation.propagate_errors_to_pre_spikes_co
 from bats.CudaKernels.Wrappers.Inference import *
 from bats.CudaKernels.Wrappers.Backpropagation import *
 from bats.CudaKernels.Wrappers.Inference.compute_spike_times_conv import compute_spike_times_conv
-from bats.Utils.utils import add_padding, trimed_errors, aped_on_channel_dim
+from bats.Utils.utils import add_padding, trimed_errors, aped_on_channel_dim, split_on_channel_dim
 
 class ConvLIFLayerResidual_2(AbstractConvLayer):
     def __init__(self, previous_layer: AbstractConvLayer, jump_layer: AbstractConvLayer, filters_shape: cp.ndarray,
@@ -39,9 +39,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         neurons_shape: cp.ndarray = cp.array([n_x, n_y, filter_c], dtype=cp.int32)
 
         super().__init__(neurons_shape=neurons_shape, use_padding = use_padding,padding= [filter_x-1, filter_y -1], **kwargs)
-
-        # how can I mix it?
-        super().__init__(neurons_shape=neurons_shape, use_padding= use_padding, **kwargs)
+        
         # super().__init__(neurons_shape=neurons_shape, **kwargs)
         self._is_residual = True
         self.fuse_function = "Append"
@@ -115,6 +113,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
                                              self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
                                             self.neurons_shape, self.neurons_shape)
         # No NaNs here
+        return self.__spike_times_per_neuron, self.__n_spike_per_neuron
         return spikes, number
 
     @property
@@ -236,25 +235,26 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
             self.__n_spike_per_neuron_jump, self.__a_jump, self.__x_jump, self.__spike_times_per_neuron_jump, \
             self.__post_exp_tau_jump = compute_spike_times_conv(sorted_spike_indices, sorted_spike_times,
                                                            sorted_pre_exp_tau_s, sorted_pre_exp_tau,
-                                                           self.weights, self.__c, self.__delta_theta_tau,
-                                                           self.__tau, cp.float32(max_simulation), self.__max_n_spike,
+                                                           self.__weights_jump, self.__c_jump, self.__delta_theta_tau_jump,
+                                                           self.__tau_jump, cp.float32(max_simulation), self.__max_n_spike,
                                                            new_shape_previous, self.neurons_shape,
                                                            self.__filters_shape_jump)
 
     def forward(self, max_simulation: float, training: bool = False) -> None:
         self.forward_pre(max_simulation, training)
         self.forward_jump(max_simulation, training)
+        test = ''
 
     def backward_pre(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
         if cp.any(cp.isnan(errors)):
             raise ValueError("NaNs in errors")
-        pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
+        pre_spike_per_neuron, _ = self.__previous_layer.spike_trains
         if self._use_padding: #-> adding this alone seems to have no effect on the loss of the model or anything else
             #? what is I don't use padding in the backward pass?
             
             pre_spike_per_neuron = self.__pre_spike_per_neuron
-            pre_n_spike_per_neuron = self.__pre_n_spike_per_neuron
+            # pre_n_spike_per_neuron = self.__pre_n_spike_per_neuron
             new_shape_previous = (self.__previous_layer.neurons_shape[0]+ self._padding[0], self.__previous_layer.neurons_shape[1] + self._padding[1], self.__previous_layer.neurons_shape[2])
             new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
             padded_pre_exp_tau_s = self.__padded_pre_exp_tau_s
@@ -374,22 +374,21 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         split_index = self.__number_of_neurons_pre
         #if padded this needs to be changed
         split_index_jump = self.__number_of_neurons_jump
-        errors_pre, errors_jump = cp.split(errors, [int(split_index)], axis=1)
-        if split_index != errors_pre.shape[1]:
-            raise ValueError("The split index is not correct")
-        if split_index_jump != errors_jump.shape[1]:
-            raise ValueError("The split index is not correct")
+
+        errors_pre, errors_jump = split_on_channel_dim(errors, self.neurons_shape)
+        # if split_index != errors_pre.shape[1]:
+        #     raise ValueError("The split index is not correct")
+        # if split_index_jump != errors_jump.shape[1]:
+        #     raise ValueError("The split index is not correct")
         # if the error size is to big it gives nans 
         weights_grad_pre, pre_errors_pre = self.backward_pre(errors_pre)
         #! when i put errors I get a similar type nans
         weights_grad_jump, pre_errors_jump = self.backward_jump(errors_jump)
 
-        #? is the problem with the error input?
-        #* if I use the errors_pre here I get NO nans
-
         #problem with the input?
         #! NaNs show up here
         testing_break = "s"
+        # return (weights_grad_pre, weights_grad_pre), (pre_errors_pre,pre_errors_pre)
         return (weights_grad_pre, weights_grad_jump), (pre_errors_pre,pre_errors_jump)
         
 

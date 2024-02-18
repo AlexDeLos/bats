@@ -75,6 +75,8 @@ class LIFLayerResidual(AbstractLayer):
         # testing2 = self.__spike_times_per_neuron_jump
         #first half are residual, second half are jump
         if self.__fuse_function == "Append":
+            if self.__spike_times_per_neuron_res.shape != self.__spike_times_per_neuron_jump.shape:
+                raise ValueError("The shapes of the residual and jump spike trains are not the same")
             res =  fuse_inputs_append(self.__spike_times_per_neuron_res, self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_res, self.__n_spike_per_neuron_jump, self.__max_n_spike)
         else:
             #! shape is different here than in the other option don;t belive it fits with n_neurons
