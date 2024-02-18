@@ -4,6 +4,7 @@ from math import sqrt
 # This file contains utility functions that are used in the main code
 
 def split_on_channel_dim(errors, shape):
+    #! how are the channels saved in the errors?
     x, y, c = shape.get()
     errors = cp.reshape(errors, (errors.shape[0], x, y, c*2, errors.shape[2]))
     errors_pre, errors_jump = cp.split(errors, 2, axis=3)
