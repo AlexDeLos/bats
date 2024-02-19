@@ -1,9 +1,11 @@
+from re import split
 from typing import Optional, Tuple
 import numpy as np
 import cupy as cp
 
 from bats.AbstractConvLayer import AbstractConvLayer
 from bats.AbstractLayer import AbstractLayer
+from bats.Utils.utils import aped_on_channel_dim,split_on_channel_dim
 
 
 class ConvInputLayer(AbstractConvLayer):
@@ -20,7 +22,9 @@ class ConvInputLayer(AbstractConvLayer):
     @property
     def spike_trains(self) -> Tuple[cp.ndarray, cp.ndarray]:
         ret1 = self.__times_per_neuron
+        # ret1_append,ret2_append = aped_on_channel_dim(self.__times_per_neuron, self.__n_spike_per_neuron, self.__times_per_neuron, self.__n_spike_per_neuron, self._neurons_shape, self._neurons_shape)
         ret2 = self.__n_spike_per_neuron
+        # split1,split2 = split_on_channel_dim(ret1_append, ret2_append, self._neurons_shape)
         return ret1, ret2
 
     def set_spike_trains(self, times_per_neuron: np.ndarray, n_times_per_neuron: np.ndarray) -> None:
@@ -43,7 +47,7 @@ class ConvInputLayer(AbstractConvLayer):
         #                     [0.41, 0.041], [0.42, 0.042], [0.43, 0.043], [0.44, 0.044], [0.45, 0.045]]]
         
         # n_times_per_neuron = [[1]*25, [1]*25]
-        #Old shapes = (2, 728 , 1) and (2, 728)
+        # Old shapes = (2, 728 , 1) and (2, 728)
         # times_per_neuron = cp.zeros(times_per_neuron.shape, dtype=cp.float32)
         # n_times_per_neuron = cp.zeros(n_times_per_neuron.shape, dtype=cp.int32)
         self.__times_per_neuron = cp.array(times_per_neuron, dtype=cp.float32)

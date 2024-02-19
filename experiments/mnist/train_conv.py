@@ -28,8 +28,8 @@ DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
 CLUSTER = True
-USE_WANDB = False
-ALTERNATE = False
+USE_WANDB = True
+ALTERNATE = True
 USE_PADDING = True #! residual and padd gives nans, and without it is seems to not learn
 # but silent labels go down and kind of does loss
 #TODO: try to get the non append function to run out of memory
@@ -40,7 +40,7 @@ USE_PADDING = True #! residual and padd gives nans, and without it is seems to n
 # N_HIDDEN_LAYERS = 2
 
 if CLUSTER:
-    NUMBER_OF_RUNS = 10
+    NUMBER_OF_RUNS = 20
 else:
     NUMBER_OF_RUNS = 10
 
@@ -139,7 +139,7 @@ for run in range(NUMBER_OF_RUNS):
         wandb.init(
         # set the wandb project where this run will be logged
         project="Residual-SCNN",
-        name="Residual-SCNN_"+ str(USE_PADDING)+"_run_"+str(run),
+        name="Residual-SCNN_Padding_test_"+ str(USE_PADDING)+"_run_"+str(run),
         
         # track hyperparameters and run metadata4
         config={
@@ -164,9 +164,9 @@ for run in range(NUMBER_OF_RUNS):
 
     max_int = np.iinfo(np.int32).max
     np_seed = np.random.randint(low=0, high=max_int)
-    np_seed = 19835382
+    # np_seed = 19835382
     cp_seed = np.random.randint(low=0, high=max_int)
-    cp_seed =  787773187
+    # cp_seed =  787773187
 
     np.random.seed(np_seed)
     cp.random.seed(cp_seed)
@@ -290,7 +290,7 @@ for run in range(NUMBER_OF_RUNS):
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
-        # dataset.shuffle()
+        dataset.shuffle()
         #! remove the shuffle for testability
 
         # Learning rate decay

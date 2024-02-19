@@ -15,10 +15,17 @@ def split_on_channel_dim(errors, shape):
 def aped_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike_per_neuron, jump_n_spike_per_neuron, pre_shape, jump_shape):
     batch_size, spikes, max_n_spikes = pre_spike_per_neuron.shape
     jump_batch_size, jump_spikes, jump_max_n_spikes = jump_spike_per_neuron.shape
+
     if batch_size != jump_batch_size:
         raise RuntimeError("The batch sizes of the two inputs are not the same")
     pre_x, pre_y, pre_c = pre_shape.get()
     jump_x, jump_y, jump_c = jump_shape.get()
+
+    #! TESTING FOR THE INPUT REMOVE BEFORE USING
+    # pre_c = 1
+    # jump_c = 1
+    #!---------------------------
+
     if pre_x != jump_x or pre_y != jump_y:
         raise RuntimeError("The input shapes are not the same")
     if spikes != pre_x * pre_y * pre_c or jump_spikes != jump_x * jump_y * jump_c:
