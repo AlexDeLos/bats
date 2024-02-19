@@ -28,8 +28,8 @@ DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
 CLUSTER = True
-USE_WANDB = True
-ALTERNATE = True
+USE_WANDB = False
+ALTERNATE = False
 USE_PADDING = True #! residual and padd gives nans, and without it is seems to not learn
 # but silent labels go down and kind of does loss
 #TODO: try to get the non append function to run out of memory
@@ -129,7 +129,8 @@ def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:
 
 
 def weight_initializer_ff(n_post: int, n_pre: int) -> cp.ndarray:
-    return cp.random.uniform(-1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
+    # return cp.random.uniform(-1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
+    return cp.random.uniform(1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
 
 
 for run in range(NUMBER_OF_RUNS):
@@ -214,7 +215,7 @@ for run in range(NUMBER_OF_RUNS):
                         #   tau_s=TAU_S_2,
                                   
     # *I can connect it straight to other conv layers
-    conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer= conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+    conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
     # conv_2 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
                         #   filter_from_next = FILTER_FROM_NEXT_2,
                           tau_s=TAU_S_2,
@@ -291,7 +292,7 @@ for run in range(NUMBER_OF_RUNS):
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
         dataset.shuffle()
-        #! remove the shuffle for testability
+        # ! remove the shuffle for testability
 
         # Learning rate decay
         if epoch > 0 and epoch % LR_DECAY_EPOCH == 0:

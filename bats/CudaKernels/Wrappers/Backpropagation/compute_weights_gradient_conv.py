@@ -43,7 +43,7 @@ def compute_weights_gradient_conv(f1: cp.ndarray, f2: cp.ndarray,
     # test_pre_shape = pre_shape.copy()
     # test_post_shape = post_shape.copy()
     # test_filter_shape = filter_shape.copy()
-    # test_gradient = gradient
+    # test_gradient = gradient.copy()
     # test_n_post_neurons = n_post_neurons
     # test_n_pre_neurons = n_pre_neurons
     # test_max_n_post_spike = max_n_post_spike

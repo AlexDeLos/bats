@@ -24,7 +24,7 @@ class ConvInputLayer(AbstractConvLayer):
         ret1 = self.__times_per_neuron
         # ret1_append,ret2_append = aped_on_channel_dim(self.__times_per_neuron, self.__n_spike_per_neuron, self.__times_per_neuron, self.__n_spike_per_neuron, self._neurons_shape, self._neurons_shape)
         ret2 = self.__n_spike_per_neuron
-        # split1,split2 = split_on_channel_dim(ret1_append, ret2_append, self._neurons_shape)
+        # split1,split2 = split_on_channel_dim(ret2_append, self._neurons_shape)
         return ret1, ret2
 
     def set_spike_trains(self, times_per_neuron: np.ndarray, n_times_per_neuron: np.ndarray) -> None:

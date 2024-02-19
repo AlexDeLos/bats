@@ -113,7 +113,6 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
                                              self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
                                             self.neurons_shape, self.neurons_shape)
         # No NaNs here
-        return self.__spike_times_per_neuron, self.__n_spike_per_neuron
         return spikes, number
 
     @property
@@ -130,13 +129,25 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
 
     def reset(self) -> None:
         self.__n_spike_per_neuron = None
+        self.__n_spike_per_neuron_jump = None
         self.__spike_times_per_neuron = None
+        self.__spike_times_per_neuron_jump = None
         self.__pre_exp_tau_s = None
+        self.__pre_exp_tau_s_jump = None
+        
         self.__pre_exp_tau = None
+        self.__pre_exp_tau_jump = None
+        self.__padded_pre_exp_tau = None
+        self.__padded_pre_exp_tau_jump = None
+
         self.__pre_spike_weights = None
+
         self.__a = None
+        self.__a_jump = None
         self.__x = None
+        self.__x_jump = None
         self.__post_exp_tau = None
+        self.__post_exp_tau_jump = None
 
     def forward_pre(self, max_simulation: float, training: bool = False) -> None:
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
@@ -219,11 +230,11 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         if sorted_indices.size == 0:  # No input spike in the batch
             batch_size = jump_spike_per_neuron.shape[0]
             shape = (batch_size, self.n_neurons, self.__max_n_spike)
-            self.__n_spike_per_neuron = cp.zeros((batch_size, self.n_neurons), dtype=cp.int32)
-            self.__spike_times_per_neuron = cp.full(shape, cp.inf, dtype=cp.float32)
-            self.__post_exp_tau = cp.full(shape, cp.inf, dtype=cp.float32)
-            self.__a = cp.full(shape, cp.inf, dtype=cp.float32)
-            self.__x = cp.full(shape, cp.inf, dtype=cp.float32)
+            self.__n_spike_per_neuron_jump = cp.zeros((batch_size, self.n_neurons), dtype=cp.int32)
+            self.__spike_times_per_neuron_jump = cp.full(shape, cp.inf, dtype=cp.float32)
+            self.__post_exp_tau_jump = cp.full(shape, cp.inf, dtype=cp.float32)
+            self.__a_jump = cp.full(shape, cp.inf, dtype=cp.float32)
+            self.__x_jump = cp.full(shape, cp.inf, dtype=cp.float32)
         else:
             sorted_spike_indices = (sorted_indices.astype(cp.int32) // jump_spike_per_neuron.shape[2])
             sorted_spike_times = cp.take_along_axis(spike_times_reshaped, sorted_indices, axis=1)
@@ -243,7 +254,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
     def forward(self, max_simulation: float, training: bool = False) -> None:
         self.forward_pre(max_simulation, training)
         self.forward_jump(max_simulation, training)
-        test = ''
+        te = ''
 
     def backward_pre(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
@@ -372,6 +383,8 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         if self.__filter_from_next is not None:
             errors = trimed_errors(errors, self.__filter_from_next, self.neurons_shape[2])
         split_index = self.__number_of_neurons_pre
+        jump_spike_per_neuron, jump_n_spike_per_neuron = self.__jump_layer.spike_trains
+        pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
         #if padded this needs to be changed
         split_index_jump = self.__number_of_neurons_jump
 
