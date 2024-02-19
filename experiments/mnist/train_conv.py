@@ -129,8 +129,8 @@ def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:
 
 
 def weight_initializer_ff(n_post: int, n_pre: int) -> cp.ndarray:
-    # return cp.random.uniform(-1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
-    return cp.random.uniform(1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
+    return cp.random.uniform(-1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
+    # return cp.random.uniform(1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
 
 
 for run in range(NUMBER_OF_RUNS):
