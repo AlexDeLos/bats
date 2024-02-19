@@ -27,7 +27,7 @@ from bats.Layers.PoolingLayer import PoolingLayer
 DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
-CLUSTER = False
+CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
 USE_PADDING = True #! residual and padd gives nans, and without it is seems to not learn
@@ -101,8 +101,8 @@ if CLUSTER:
     N_TEST_SAMPLES = 10000
 else:
     N_TRAINING_EPOCHS = 10
-    N_TRAIN_SAMPLES = 6000
-    N_TEST_SAMPLES = 1000
+    N_TRAIN_SAMPLES = 600
+    N_TEST_SAMPLES = 100
 TRAIN_BATCH_SIZE = 20 # 20
 TEST_BATCH_SIZE = 50
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
@@ -214,8 +214,8 @@ for run in range(NUMBER_OF_RUNS):
                         #   tau_s=TAU_S_2,
                                   
     # *I can connect it straight to other conv layers
-    conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer= conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
-    # conv_2 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+    # conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer= conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+    conv_2 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
                         #   filter_from_next = FILTER_FROM_NEXT_2,
                           tau_s=TAU_S_2,
                           theta=THRESHOLD_HAT_2,
