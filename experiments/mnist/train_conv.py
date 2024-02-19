@@ -290,7 +290,7 @@ for run in range(NUMBER_OF_RUNS):
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
-        dataset.shuffle()
+        # dataset.shuffle()
 
         # Learning rate decay
         if epoch > 0 and epoch % LR_DECAY_EPOCH == 0:
