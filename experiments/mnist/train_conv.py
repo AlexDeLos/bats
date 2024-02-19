@@ -57,21 +57,21 @@ THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 10
 if USE_PADDING:
-    FILTER_FROM_NEXT = np.array([3, 3, 10])
+    FILTER_FROM_NEXT = np.array([3, 3, 5])
 else:
     FILTER_FROM_NEXT = None
 
-FILTER_1_5 = np.array([3, 3, 10]) #? could it be the size of this filter's channels?
+FILTER_1_5 = np.array([3, 3, 5]) #? could it be the size of this filter's channels?
 TAU_S_1_5 = 0.130
 THRESHOLD_HAT_1_5 = 0.04
 DELTA_THRESHOLD_1_5 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1_5 = 10
 if USE_PADDING:
-    FILTER_FROM_NEXT_1_5 = np.array([5, 5, 15])
+    FILTER_FROM_NEXT_1_5 = np.array([5, 5, 10])
 else:
     FILTER_FROM_NEXT = None
 
-FILTER_2 = np.array([5, 5, 15]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_2 = np.array([5, 5, 10]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_2 = 0.130
 THRESHOLD_HAT_2 = 0.8
 DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
@@ -291,6 +291,7 @@ for run in range(NUMBER_OF_RUNS):
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
         # dataset.shuffle()
+        #! remove the shuffle for testability
 
         # Learning rate decay
         if epoch > 0 and epoch % LR_DECAY_EPOCH == 0:
