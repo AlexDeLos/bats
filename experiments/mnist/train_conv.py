@@ -27,7 +27,7 @@ from bats.Layers.PoolingLayer import PoolingLayer
 DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
-CLUSTER = False
+CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
 USE_PADDING = True #! residual and padd gives nans, and without it is seems to not learn
@@ -97,8 +97,8 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 # Training parameters
 if CLUSTER:
     N_TRAINING_EPOCHS = 10
-    N_TRAIN_SAMPLES = 6000 #60000
-    N_TEST_SAMPLES = 1000 #10000
+    N_TRAIN_SAMPLES = 60000 #60000
+    N_TEST_SAMPLES = 10000 #10000
 else:
     N_TRAINING_EPOCHS = 10
     N_TRAIN_SAMPLES = 600
