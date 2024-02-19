@@ -21,6 +21,9 @@ HEIGHT_SHIFT = 0
 ZOOM_RANGE = 12 / 100
 ROTATION_RANGE = 12
 
+keras.utils.set_random_seed(1239812730)
+
+
 
 def elastic_transform(image, alpha_range, sigma):
     if np.isscalar(alpha_range):

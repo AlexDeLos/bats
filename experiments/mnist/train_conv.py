@@ -1,6 +1,6 @@
 from pathlib import Path
-from re import T
 import wandb
+# import tensorflow as tf
 import cupy as cp
 import numpy as np
 import sys
@@ -28,7 +28,7 @@ DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
 CLUSTER = True
-USE_WANDB = False
+USE_WANDB = True
 ALTERNATE = False
 USE_PADDING = True #! residual and padd gives nans, and without it is seems to not learn
 # but silent labels go down and kind of does loss
@@ -139,12 +139,11 @@ for run in range(NUMBER_OF_RUNS):
         wandb.init(
         # set the wandb project where this run will be logged
         project="Residual-SCNN",
-        name="Residual-SCNN_"+ str(FUSE_FUNCTION)+"_run_"+str(run),
+        name="Residual-SCNN_"+ str(USE_PADDING)+"_run_"+str(run),
         
         # track hyperparameters and run metadata4
         config={
         "Cluster": CLUSTER,
-        "FUSE_FUNCTION": FUSE_FUNCTION,
         # "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
         "train_batch_size": TRAIN_BATCH_SIZE,
         # "residual_every_n": RESIDUAL_EVERY_N,
@@ -168,6 +167,7 @@ for run in range(NUMBER_OF_RUNS):
     np_seed = 19835382
     cp_seed = np.random.randint(low=0, high=max_int)
     cp_seed =  787773187
+
     np.random.seed(np_seed)
     cp.random.seed(cp_seed)
     print(f"Numpy seed: {np_seed}, Cupy seed: {cp_seed}")
@@ -214,8 +214,8 @@ for run in range(NUMBER_OF_RUNS):
                         #   tau_s=TAU_S_2,
                                   
     # *I can connect it straight to other conv layers
-    # conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer= conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
-    conv_2 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+    conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer= conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+    # conv_2 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
                         #   filter_from_next = FILTER_FROM_NEXT_2,
                           tau_s=TAU_S_2,
                           theta=THRESHOLD_HAT_2,
