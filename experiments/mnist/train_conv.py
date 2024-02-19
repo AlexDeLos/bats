@@ -27,8 +27,8 @@ from bats.Layers.PoolingLayer import PoolingLayer
 DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
-CLUSTER = True
-USE_WANDB = True
+CLUSTER = False
+USE_WANDB = False
 ALTERNATE = False
 USE_PADDING = True #! residual and padd gives nans, and without it is seems to not learn
 # but silent labels go down and kind of does loss
