@@ -111,6 +111,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
     def spike_trains(self) -> Tuple[cp.ndarray, cp.ndarray]:
         spikes, number = aped_on_channel_dim(self.__spike_times_per_neuron, self.__n_spike_per_neuron,
                                              self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
+                                            #  self.__spike_times_per_neuron, self.__n_spike_per_neuron,
                                             self.neurons_shape, self.neurons_shape)
         # No NaNs here
         return spikes, number
@@ -396,13 +397,13 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         # if the error size is to big it gives nans 
         weights_grad_pre, pre_errors_pre = self.backward_pre(errors_pre)
         #! when i put errors I get a similar type nans
-        weights_grad_jump, pre_errors_jump = self.backward_jump(errors_jump)
+        weights_grad_jump, pre_errors_jump = self.backward_jump(errors_pre)
 
         #problem with the input?
         #! NaNs show up here
         testing_break = "s"
         # return (weights_grad_pre, weights_grad_pre), (pre_errors_pre,pre_errors_pre)
-        return (weights_grad_pre, weights_grad_jump), (pre_errors_pre,pre_errors_jump)
+        return (weights_grad_pre, weights_grad_jump), (pre_errors_pre, pre_errors_jump)
         
 
     def add_deltas(self, delta_weights: cp.ndarray) -> None:

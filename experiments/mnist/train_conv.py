@@ -28,8 +28,8 @@ DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
 CLUSTER = True
-USE_WANDB = False
-ALTERNATE = False
+USE_WANDB = True
+ALTERNATE = True
 USE_PADDING = True #! residual and padd gives nans, and without it is seems to not learn
 # but silent labels go down and kind of does loss
 #TODO: try to get the non append function to run out of memory
@@ -69,7 +69,7 @@ SPIKE_BUFFER_SIZE_1_5 = 10
 if USE_PADDING:
     FILTER_FROM_NEXT_1_5 = np.array([5, 5, 10])
 else:
-    FILTER_FROM_NEXT = None
+    FILTER_FROM_NEXT_1_5 = None
 
 FILTER_2 = np.array([5, 5, 10]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_2 = 0.130
@@ -165,9 +165,9 @@ for run in range(NUMBER_OF_RUNS):
 
     max_int = np.iinfo(np.int32).max
     np_seed = np.random.randint(low=0, high=max_int)
-    # np_seed = 19835382
+    np_seed = 19835382
     cp_seed = np.random.randint(low=0, high=max_int)
-    # cp_seed =  787773187
+    cp_seed =  787773187
 
     np.random.seed(np_seed)
     cp.random.seed(cp_seed)
@@ -215,8 +215,8 @@ for run in range(NUMBER_OF_RUNS):
                         #   tau_s=TAU_S_2,
                                   
     # *I can connect it straight to other conv layers
-    conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
-    # conv_2 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+    # conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer=conv_1_5, filters_shape=FILTER_2, use_padding=USE_PADDING,
+    conv_2 = ConvLIFLayer(previous_layer=conv_1_5, filters_shape=FILTER_2, use_padding=USE_PADDING,
                         #   filter_from_next = FILTER_FROM_NEXT_2,
                           tau_s=TAU_S_2,
                           theta=THRESHOLD_HAT_2,
@@ -291,7 +291,7 @@ for run in range(NUMBER_OF_RUNS):
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
-        dataset.shuffle()
+        # dataset.shuffle()
         # ! remove the shuffle for testability
 
         # Learning rate decay
