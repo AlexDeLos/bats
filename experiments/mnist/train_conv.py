@@ -165,9 +165,9 @@ for run in range(NUMBER_OF_RUNS):
 
     max_int = np.iinfo(np.int32).max
     np_seed = np.random.randint(low=0, high=max_int)
-    np_seed = 19835382
+    # np_seed = 19835382
     cp_seed = np.random.randint(low=0, high=max_int)
-    cp_seed =  787773187
+    # cp_seed =  787773187
 
     np.random.seed(np_seed)
     cp.random.seed(cp_seed)
@@ -291,7 +291,7 @@ for run in range(NUMBER_OF_RUNS):
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
-        # dataset.shuffle()
+        dataset.shuffle()
         # ! remove the shuffle for testability
 
         # Learning rate decay

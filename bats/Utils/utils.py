@@ -1,4 +1,3 @@
-import re
 import cupy as cp
 from math import sqrt
 # This file contains utility functions that are used in the main code

@@ -1,3 +1,4 @@
+import re
 from typing import Callable, Tuple
 from typing import Optional
 import cupy as cp
@@ -41,7 +42,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         super().__init__(neurons_shape=neurons_shape, use_padding = use_padding,padding= [filter_x-1, filter_y -1], **kwargs)
         
         # super().__init__(neurons_shape=neurons_shape, **kwargs)
-        self._is_residual = True
+        self._is_residual = False
         self.fuse_function = "Append"
         self.jump_layer = jump_layer
         self.__neurons_shape_pre: cp.ndarray = cp.array([n_x, n_y, filter_c], dtype=cp.int32)
@@ -110,10 +111,11 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
     @property
     def spike_trains(self) -> Tuple[cp.ndarray, cp.ndarray]:
         spikes, number = aped_on_channel_dim(self.__spike_times_per_neuron, self.__n_spike_per_neuron,
-                                             self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
-                                            #  self.__spike_times_per_neuron, self.__n_spike_per_neuron,
-                                            self.neurons_shape, self.neurons_shape)
+                                            #  self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
+                                             self.__spike_times_per_neuron, self.__n_spike_per_neuron,
+                                             self.neurons_shape, self.neurons_shape)
         # No NaNs here
+        # return self.__spike_times_per_neuron, self.__n_spike_per_neuron
         return spikes, number
 
     @property
@@ -402,10 +404,11 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         #problem with the input?
         #! NaNs show up here
         testing_break = "s"
-        # return (weights_grad_pre, weights_grad_pre), (pre_errors_pre,pre_errors_pre)
-        return (weights_grad_pre, weights_grad_jump), (pre_errors_pre, pre_errors_jump)
+        return (weights_grad_pre,weights_grad_pre) , pre_errors_pre
+        # return (weights_grad_pre, weights_grad_jump), (pre_errors_pre, pre_errors_jump)
         
 
     def add_deltas(self, delta_weights: cp.ndarray) -> None:
         self.__weights_pre += delta_weights[0]
         self.__weights_jump += delta_weights[1]
+        # self.__weights_pre += delta_weights
