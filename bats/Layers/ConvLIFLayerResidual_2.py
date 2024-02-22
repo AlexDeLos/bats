@@ -48,7 +48,8 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         self.__neurons_shape_jump: cp.ndarray = cp.array([n_x, n_y, filter_c], dtype=cp.int32)
         self.__number_of_neurons_pre = int(self.__neurons_shape_pre[0] * self.__neurons_shape_pre[1] * self.__neurons_shape_pre[2])
         self.__number_of_neurons_jump = int(self.__neurons_shape_jump[0] * self.__neurons_shape_jump[1] * self.__neurons_shape_jump[2])
-        self._n_neurons = self.__number_of_neurons_pre + self.__number_of_neurons_jump #! TESTING
+        # self._n_neurons = self.__number_of_neurons_pre# + self.__number_of_neurons_jump #! TESTING 
+        #! ALSO ADD PADDING TO THIS I THINK
 
         self.__filters_shape = cp.array([filter_c, filter_x, filter_y, prev_c], dtype=cp.int32)
         self.__filters_shape_jump = cp.array([filter_c, filter_x, filter_y, prev_c_jump], dtype=cp.int32)
@@ -122,7 +123,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         # return self.__weights_pre
         #! this needs to be updated to reflect the real weights of the layer
         # Hypothesis: we should simply add the channels of the weights
-        ret = (self.__weights_pre, self.__weights_pre) #! TESTING
+        ret = (self.__weights_pre, self.__weights_jump) #! TESTING
         return ret
 
     @weights.setter

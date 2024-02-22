@@ -5,10 +5,11 @@ from math import sqrt
 def split_on_channel_dim(errors, shape):
     #! how are the channels saved in the errors?
     x, y, c = shape.get()
+    # errors = cp.reshape(errors, (errors.shape[0], x, y, c, errors.shape[2]))
     errors = cp.reshape(errors, (errors.shape[0], x, y, c*2, errors.shape[2]))
     errors_pre, errors_jump = cp.split(errors, 2, axis=3)
-    errors_pre = cp.reshape(errors_pre, (errors.shape[0], x*y*c, errors.shape[-1]))
-    errors_jump = cp.reshape(errors_jump, (errors.shape[0], x*y*c, errors.shape[-1]))
+    errors_pre = cp.reshape(errors_pre, (errors.shape[0], int(x*y*c), errors.shape[-1]))
+    errors_jump = cp.reshape(errors_jump, (errors.shape[0], int(x*y*c), errors.shape[-1]))
     return errors_pre, errors_jump
  
 def aped_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike_per_neuron, jump_n_spike_per_neuron, pre_shape, jump_shape):
