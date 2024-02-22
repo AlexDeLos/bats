@@ -49,7 +49,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         self.__neurons_shape_jump: cp.ndarray = cp.array([n_x, n_y, filter_c], dtype=cp.int32)
         self.__number_of_neurons_pre = int(self.__neurons_shape_pre[0] * self.__neurons_shape_pre[1] * self.__neurons_shape_pre[2])
         self.__number_of_neurons_jump = int(self.__neurons_shape_jump[0] * self.__neurons_shape_jump[1] * self.__neurons_shape_jump[2])
-        self._n_neurons = self.__number_of_neurons_jump + self.__number_of_neurons_pre
+        self._n_neurons = self.__number_of_neurons_pre# + self.__number_of_neurons_jump #! TESTING
 
         self.__filters_shape = cp.array([filter_c, filter_x, filter_y, prev_c], dtype=cp.int32)
         self.__filters_shape_jump = cp.array([filter_c, filter_x, filter_y, prev_c_jump], dtype=cp.int32)
@@ -115,7 +115,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
                                              self.__spike_times_per_neuron, self.__n_spike_per_neuron,
                                              self.neurons_shape, self.neurons_shape)
         # No NaNs here
-        # return self.__spike_times_per_neuron, self.__n_spike_per_neuron
+        return self.__spike_times_per_neuron, self.__n_spike_per_neuron
         return spikes, number
 
     @property
@@ -123,7 +123,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         # return self.__weights_pre
         #! this needs to be updated to reflect the real weights of the layer
         # Hypothesis: we should simply add the channels of the weights
-        ret = cp.append(self.__weights_pre, self.__weights_jump, axis=3)
+        ret = (self.__weights_pre, self.__weights_jump)
         return ret
 
     @weights.setter
@@ -193,11 +193,11 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
             sorted_pre_exp_tau_s = cp.take_along_axis(cp.reshape(padded_pre_exp_tau_s, new_shape), sorted_indices,
                                                       axis=1)
             sorted_pre_exp_tau = cp.take_along_axis(cp.reshape(padded_pre_exp_tau, new_shape), sorted_indices, axis=1)
-
+            pre_weights = self.weights[0]
             self.__n_spike_per_neuron, self.__a, self.__x, self.__spike_times_per_neuron, \
             self.__post_exp_tau = compute_spike_times_conv(sorted_spike_indices, sorted_spike_times,
                                                            sorted_pre_exp_tau_s, sorted_pre_exp_tau,
-                                                           self.weights, self.__c, self.__delta_theta_tau,
+                                                           pre_weights, self.__c, self.__delta_theta_tau,
                                                            self.__tau, cp.float32(max_simulation), self.__max_n_spike,
                                                            new_shape_previous, self.neurons_shape,
                                                            self.__filters_shape)
@@ -245,18 +245,18 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
             sorted_pre_exp_tau_s = cp.take_along_axis(cp.reshape(padded_pre_exp_tau_s_jump, new_shape), sorted_indices,
                                                       axis=1)
             sorted_pre_exp_tau = cp.take_along_axis(cp.reshape(padded_pre_exp_tau_jump, new_shape), sorted_indices, axis=1)
-
+            jump_weights = self.weights[1]
             self.__n_spike_per_neuron_jump, self.__a_jump, self.__x_jump, self.__spike_times_per_neuron_jump, \
             self.__post_exp_tau_jump = compute_spike_times_conv(sorted_spike_indices, sorted_spike_times,
                                                            sorted_pre_exp_tau_s, sorted_pre_exp_tau,
-                                                           self.__weights_jump, self.__c_jump, self.__delta_theta_tau_jump,
+                                                           jump_weights, self.__c_jump, self.__delta_theta_tau_jump,
                                                            self.__tau_jump, cp.float32(max_simulation), self.__max_n_spike,
                                                            new_shape_previous, self.neurons_shape,
                                                            self.__filters_shape_jump)
 
     def forward(self, max_simulation: float, training: bool = False) -> None:
         self.forward_pre(max_simulation, training)
-        self.forward_jump(max_simulation, training)
+        # self.forward_jump(max_simulation, training)
         te = ''
 
     def backward_pre(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
@@ -266,7 +266,6 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         pre_spike_per_neuron, _ = self.__previous_layer.spike_trains
         if self._use_padding: #-> adding this alone seems to have no effect on the loss of the model or anything else
             #? what is I don't use padding in the backward pass?
-            
             pre_spike_per_neuron = self.__pre_spike_per_neuron
             # pre_n_spike_per_neuron = self.__pre_n_spike_per_neuron
             new_shape_previous = (self.__previous_layer.neurons_shape[0]+ self._padding[0], self.__previous_layer.neurons_shape[1] + self._padding[1], self.__previous_layer.neurons_shape[2])
@@ -289,7 +288,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         propagate_recurrent_errors(new_x, new_post_exp_tau, errors, self.__delta_theta_tau)#! they all have the shape of the current layer
         f1, f2 = compute_factors(new_spike_times_per_neuron, self.__a, self.__c, new_x,
                                  new_post_exp_tau, self.__tau)
-        weights_grad = compute_weights_gradient_conv(f1, f2, self.__spike_times_per_neuron, # this has the shape of the current layer
+        weights_grad = compute_weights_gradient_conv(f1, f2, new_spike_times_per_neuron, # this has the shape of the current layer
                                                      pre_spike_per_neuron,# this has the shape of the previous layer
                                                      padded_pre_exp_tau_s, padded_pre_exp_tau, # these 2 also have the shape of the previous layer
                                                      #! BUT IF i TRY TO run it as is now I get the shape of the current layer
@@ -302,7 +301,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         # Propagate errors
         if self.__previous_layer.trainable:
             # the error shape comes from: 
-            pre_errors = propagate_errors_to_pre_spikes_conv(f1, f2, self.__spike_times_per_neuron, # this has the shape of the current layer
+            pre_errors = propagate_errors_to_pre_spikes_conv(f1, f2, new_spike_times_per_neuron, # this has the shape of the current layer
                                                              pre_spike_per_neuron, # this has the shape of the previous layer
                                                              padded_pre_exp_tau_s, padded_pre_exp_tau, # these 2 also have the shape of the previous layer
                                                              self.__weights_pre,
@@ -346,11 +345,12 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
             raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors.shape}, errors should have already been trimmed")
         
         new_spike_times_per_neuron = self.__spike_times_per_neuron_jump
+
         errors_debug = errors.copy()
         propagate_recurrent_errors(new_x, new_post_exp_tau, errors, self.__delta_theta_tau_jump)#! they all have the shape of the current layer
         f1, f2 = compute_factors(new_spike_times_per_neuron, self.__a_jump, self.__c_jump, new_x,
                                  new_post_exp_tau, self.__tau_jump)
-        weights_grad = compute_weights_gradient_conv(f1, f2, self.__spike_times_per_neuron_jump, # this has the shape of the current layer
+        weights_grad = compute_weights_gradient_conv(f1, f2, new_spike_times_per_neuron, # this has the shape of the current layer
                                                      jump_spike_per_neuron,# this has the shape of the previous layer
                                                      padded_pre_exp_tau_s, padded_pre_exp_tau, # these 2 also have the shape of the previous layer
                                                      #! BUT IF i TRY TO run it as is now I get the shape of the current layer
@@ -363,7 +363,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         # Propagate errors
         if self.__previous_layer.trainable:
             # the error shape comes from: 
-            pre_errors = propagate_errors_to_pre_spikes_conv(f1, f2, self.__spike_times_per_neuron_jump, # this has the shape of the current layer
+            pre_errors = propagate_errors_to_pre_spikes_conv(f1, f2, new_spike_times_per_neuron, # this has the shape of the current layer
                                                              jump_spike_per_neuron, # this has the shape of the previous layer
                                                              padded_pre_exp_tau_s, padded_pre_exp_tau, # these 2 also have the shape of the previous layer
                                                              self.__weights_jump,
@@ -391,24 +391,26 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         #if padded this needs to be changed
         split_index_jump = self.__number_of_neurons_jump
 
-        errors_pre, errors_jump = split_on_channel_dim(errors, self.neurons_shape)
+        # errors_pre, errors_jump = split_on_channel_dim(errors, self.neurons_shape)
+        # teste = errors_pre == errors_jump
+
         # if split_index != errors_pre.shape[1]:
         #     raise ValueError("The split index is not correct")
         # if split_index_jump != errors_jump.shape[1]:
         #     raise ValueError("The split index is not correct")
         # if the error size is to big it gives nans 
-        weights_grad_pre, pre_errors_pre = self.backward_pre(errors_pre)
+        weights_grad_pre, pre_errors_pre = self.backward_pre(errors)
         #! when i put errors I get a similar type nans
-        weights_grad_jump, pre_errors_jump = self.backward_jump(errors_pre)
+        # weights_grad_jump, pre_errors_jump = self.backward_jump(errors_jump)
 
         #problem with the input?
         #! NaNs show up here
-        testing_break = "s"
-        return (weights_grad_pre,weights_grad_pre) , pre_errors_pre
+        testing_break = 's'
+        return weights_grad_pre, pre_errors_pre
         # return (weights_grad_pre, weights_grad_jump), (pre_errors_pre, pre_errors_jump)
         
 
     def add_deltas(self, delta_weights: cp.ndarray) -> None:
-        self.__weights_pre += delta_weights[0]
-        self.__weights_jump += delta_weights[1]
+        self.__weights_pre += delta_weights
+        self.__weights_jump += cp.zeros(self.__weights_jump.shape) #delta_weights #? adding the wrong deltas can cause nans
         # self.__weights_pre += delta_weights

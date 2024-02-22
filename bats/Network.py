@@ -118,10 +118,10 @@ class Network:
         return gradient
 
     def apply_deltas(self, deltas: List[cp.array]) -> None:# type: ignore
-        for layer, deltas in zip(self.__layers, deltas):
-            if deltas is None:
+        for layer, delta in zip(self.__layers, deltas):
+            if delta is None:
                 continue
-            layer.add_deltas(deltas)
+            layer.add_deltas(delta)
 
     def store(self, dir_path: Path) -> None:
         dir_path.mkdir(parents=True, exist_ok=True)

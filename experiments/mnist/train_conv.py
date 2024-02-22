@@ -1,4 +1,5 @@
 from pathlib import Path
+from re import T
 import wandb
 # import tensorflow as tf
 import cupy as cp
@@ -28,9 +29,9 @@ DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
 CLUSTER = True
-USE_WANDB = True
-ALTERNATE = True
-USE_PADDING = True #! residual and padd gives nans, and without it is seems to not learn
+USE_WANDB = False
+ALTERNATE = False
+USE_PADDING = False #! residual and padd gives nans, and without it is seems to not learn
 # but silent labels go down and kind of does loss
 #TODO: try to get the non append function to run out of memory
 
@@ -165,9 +166,9 @@ for run in range(NUMBER_OF_RUNS):
 
     max_int = np.iinfo(np.int32).max
     np_seed = np.random.randint(low=0, high=max_int)
-    # np_seed = 19835382
+    np_seed = 319596201
     cp_seed = np.random.randint(low=0, high=max_int)
-    # cp_seed =  787773187
+    cp_seed =  1457536999
 
     np.random.seed(np_seed)
     cp.random.seed(cp_seed)
@@ -215,8 +216,8 @@ for run in range(NUMBER_OF_RUNS):
                         #   tau_s=TAU_S_2,
                                   
     # *I can connect it straight to other conv layers
-    # conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer=conv_1_5, filters_shape=FILTER_2, use_padding=USE_PADDING,
-    conv_2 = ConvLIFLayer(previous_layer=conv_1_5, filters_shape=FILTER_2, use_padding=USE_PADDING,
+    conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer=conv_1_5, filters_shape=FILTER_2, use_padding=USE_PADDING,
+    # conv_2 = ConvLIFLayer(previous_layer=conv_1_5, filters_shape=FILTER_2, use_padding=USE_PADDING,
                         #   filter_from_next = FILTER_FROM_NEXT_2,
                           tau_s=TAU_S_2,
                           theta=THRESHOLD_HAT_2,
@@ -291,7 +292,7 @@ for run in range(NUMBER_OF_RUNS):
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
-        dataset.shuffle()
+        # dataset.shuffle()
         # ! remove the shuffle for testability
 
         # Learning rate decay
@@ -328,7 +329,7 @@ for run in range(NUMBER_OF_RUNS):
             for g, layer in zip(gradient, network.layers):
                 if g is None:
                     avg_gradient.append(None)
-                elif isinstance(layer, ConvLIFLayerResidual_2):
+                elif isinstance(layer, ConvLIFLayerResidual):#! this was changed to make it non residual for TESTING
                     grad_entry = []
                     for i in range(len(g)):
                         averaged_values = cp.mean(g[i], axis=0)
@@ -440,8 +441,8 @@ for run in range(NUMBER_OF_RUNS):
                 acc = records[test_accuracy_monitor]
                 if acc > best_acc:
                     best_acc = acc
-                    network.store(SAVE_DIR)
-                    print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks save to: {SAVE_DIR}")
+                    # network.store(SAVE_DIR)
+                    print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks NOT save to: {SAVE_DIR}")
     if USE_WANDB:
         wandb.finish()
-    print("Done!: ", run)
+    print("Done!: ", run)   

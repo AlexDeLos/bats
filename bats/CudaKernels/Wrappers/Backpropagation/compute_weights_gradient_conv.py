@@ -67,6 +67,16 @@ def compute_weights_gradient_conv(f1: cp.ndarray, f2: cp.ndarray,
         raise RuntimeError("Found nans in gradient")
     #     num_nans_grad = cp.sum(cp.isnan(gradient))
     #     # with all of shape [3,3,1] I get 3 nan values
+        # __compute_weights_gradient_conv_kernel(grid_dim, block_dim, (test_f1, test_f2, test_post_times, test_pre_times,
+        #                                                          test_pre_exp_tau_s, test_pre_exp_tau, test_errors,
+        #                                                          test_pre_shape, test_post_shape, test_filter_shape,
+        #                                                          test_gradient,
+        #                                                          test_n_post_neurons, test_n_pre_neurons,
+        #                                                          cp.int32(max_n_post_spike),
+        #                                                          cp.int32(max_n_pre_spike)))
+        # if cp.where(cp.isnan(test_gradient)):
+            # print(f"Found nans in test gradient", cp.where(cp.isnan(test_gradient)))
+            # raise RuntimeError("Found nans in test gradient")
         # gradient = cp.nan_to_num(gradient)
         #! problem could be with the channels
     
