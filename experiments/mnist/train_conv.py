@@ -27,11 +27,13 @@ from bats.Layers.PoolingLayer import PoolingLayer
 DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
-CLUSTER = True
+CLUSTER = False
 USE_WANDB = False
 ALTERNATE = False
 FIX_SEED = False
-USE_PADDING = False #! residual and padd gives nans, and without it is seems to not learn
+USE_PADDING = False #! residual and padd gives nans
+# what causes nans:
+#! residual layers with pre = jump and nans
 # but silent labels go down and kind of does loss
 #TODO: try to get the non append function to run out of memory
 
@@ -332,7 +334,7 @@ for run in range(NUMBER_OF_RUNS):
             for g, layer in zip(gradient, network.layers):
                 if g is None:
                     avg_gradient.append(None)
-                elif isinstance(layer, ConvLIFLayerResidual):#! this was changed to make it non residual for TESTING
+                elif layer._is_residual:#! this was changed to make it non residual for TESTING
                     grad_entry = []
                     for i in range(len(g)):
                         averaged_values = cp.mean(g[i], axis=0)

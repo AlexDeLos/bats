@@ -38,11 +38,10 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         n_x = prev_x - filter_x + 1 # why this equation? -> this is the reduction of dimensions because of the filter
         n_y = prev_y - filter_y + 1
         neurons_shape: cp.ndarray = cp.array([n_x, n_y, filter_c], dtype=cp.int32)
-
-        super().__init__(neurons_shape=neurons_shape, use_padding = use_padding,padding= [filter_x-1, filter_y -1], **kwargs)
+        is_residual = True
+        super().__init__(neurons_shape=neurons_shape, use_padding = use_padding,padding= [filter_x-1, filter_y -1], is_residual=is_residual, **kwargs)
         
         # super().__init__(neurons_shape=neurons_shape, **kwargs)
-        self._is_residual = False
         self.fuse_function = "Append"
         self.jump_layer = jump_layer
         self.__neurons_shape_pre: cp.ndarray = cp.array([n_x, n_y, filter_c], dtype=cp.int32)
@@ -406,11 +405,11 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         #problem with the input?
         #! NaNs show up here
         testing_break = 's'
-        return weights_grad_pre, pre_errors_pre
-        # return (weights_grad_pre, weights_grad_jump), (pre_errors_pre, pre_errors_jump)
+        # return weights_grad_pre, pre_errors_pre
+        return (weights_grad_pre, weights_grad_jump), (pre_errors_pre, pre_errors_jump)
         
 
     def add_deltas(self, delta_weights: cp.ndarray) -> None:
-        self.__weights_pre += delta_weights
-        self.__weights_jump += cp.zeros(self.__weights_jump.shape) #delta_weights #? adding the wrong deltas can cause nans
+        self.__weights_pre += delta_weights[0]
+        self.__weights_jump += delta_weights[1] #delta_weights #? adding the wrong deltas can cause nans
         # self.__weights_pre += delta_weights
