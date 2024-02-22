@@ -31,7 +31,7 @@ CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
 FIX_SEED = False
-USE_PADDING = True #! residual and padd gives nans, and without it is seems to not learn
+USE_PADDING = False #! residual and padd gives nans, and without it is seems to not learn
 # but silent labels go down and kind of does loss
 #TODO: try to get the non append function to run out of memory
 
