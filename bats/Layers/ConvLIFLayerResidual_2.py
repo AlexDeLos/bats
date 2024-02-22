@@ -256,7 +256,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
 
     def forward(self, max_simulation: float, training: bool = False) -> None:
         self.forward_pre(max_simulation, training)
-        # self.forward_jump(max_simulation, training)
+        self.forward_jump(max_simulation, training)
         te = ''
 
     def backward_pre(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
@@ -401,7 +401,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         # if the error size is to big it gives nans 
         weights_grad_pre, pre_errors_pre = self.backward_pre(errors)
         #! when i put errors I get a similar type nans
-        # weights_grad_jump, pre_errors_jump = self.backward_jump(errors_jump)
+        weights_grad_jump, pre_errors_jump = self.backward_jump(errors)
 
         #problem with the input?
         #! NaNs show up here
