@@ -167,12 +167,13 @@ for run in range(NUMBER_OF_RUNS):
 
 
     max_int = np.iinfo(np.int32).max
-    np_seed = np.random.randint(low=0, high=max_int)
-    if FIX_SEED:
-        np_seed = 319596201
-    cp_seed = np.random.randint(low=0, high=max_int)
-    if FIX_SEED:
-        cp_seed =  1457536999
+    # np_seed = 319596201
+
+    if not FIX_SEED:
+        np_seed = int(cp.random.randint(low=0, high=max_int))
+    cp_seed = 2082618053
+    if not FIX_SEED:
+        cp_seed = int(cp.random.randint(low=0, high=max_int))
 
     np.random.seed(np_seed)
     cp.random.seed(cp_seed)

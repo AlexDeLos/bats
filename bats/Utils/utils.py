@@ -20,11 +20,6 @@ def aped_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike
     pre_x, pre_y, pre_c = pre_shape.get()
     jump_x, jump_y, jump_c = jump_shape.get()
 
-    #! TESTING FOR THE INPUT REMOVE BEFORE USING
-    # pre_c = 1
-    # jump_c = 1
-    #!---------------------------
-
     if pre_x != jump_x or pre_y != jump_y:
         raise RuntimeError("The input shapes are not the same")
     if spikes != pre_x * pre_y * pre_c or jump_spikes != jump_x * jump_y * jump_c:

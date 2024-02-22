@@ -48,7 +48,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         self.__neurons_shape_jump: cp.ndarray = cp.array([n_x, n_y, filter_c], dtype=cp.int32)
         self.__number_of_neurons_pre = int(self.__neurons_shape_pre[0] * self.__neurons_shape_pre[1] * self.__neurons_shape_pre[2])
         self.__number_of_neurons_jump = int(self.__neurons_shape_jump[0] * self.__neurons_shape_jump[1] * self.__neurons_shape_jump[2])
-        self._n_neurons = self.__number_of_neurons_pre# + self.__number_of_neurons_jump #! TESTING
+        self._n_neurons = self.__number_of_neurons_pre + self.__number_of_neurons_jump #! TESTING
 
         self.__filters_shape = cp.array([filter_c, filter_x, filter_y, prev_c], dtype=cp.int32)
         self.__filters_shape_jump = cp.array([filter_c, filter_x, filter_y, prev_c_jump], dtype=cp.int32)
@@ -110,11 +110,11 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
     @property
     def spike_trains(self) -> Tuple[cp.ndarray, cp.ndarray]:
         spikes, number = aped_on_channel_dim(self.__spike_times_per_neuron, self.__n_spike_per_neuron,
-                                            #  self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
-                                             self.__spike_times_per_neuron, self.__n_spike_per_neuron,
+                                             self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
+                                            #  self.__spike_times_per_neuron, self.__n_spike_per_neuron,
                                              self.neurons_shape, self.neurons_shape)
         # No NaNs here
-        return self.__spike_times_per_neuron, self.__n_spike_per_neuron
+        # return self.__spike_times_per_neuron, self.__n_spike_per_neuron
         return spikes, number
 
     @property
@@ -122,7 +122,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         # return self.__weights_pre
         #! this needs to be updated to reflect the real weights of the layer
         # Hypothesis: we should simply add the channels of the weights
-        ret = (self.__weights_pre, self.__weights_jump)
+        ret = (self.__weights_pre, self.__weights_pre) #! TESTING
         return ret
 
     @weights.setter
@@ -303,7 +303,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
             pre_errors = propagate_errors_to_pre_spikes_conv(f1, f2, new_spike_times_per_neuron, # this has the shape of the current layer
                                                              pre_spike_per_neuron, # this has the shape of the previous layer
                                                              padded_pre_exp_tau_s, padded_pre_exp_tau, # these 2 also have the shape of the previous layer
-                                                             self.__weights_pre,
+                                                             self.weights[0],
                                                              errors, # this has the shape of the current layer
                                                              self.__tau_s, self.__tau,
                                                             #  new_shape_previous,
@@ -327,7 +327,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
             #? what is I don't use padding in the backward pass?
             
             jump_spike_per_neuron = self.__jump_spike_per_neuron
-            jump_n_spike_per_neuron = self.__jump_n_spike_per_neuron
+            # jump_n_spike_per_neuron = self.__jump_n_spike_per_neuron
             new_shape_previous = (self.__jump_layer.neurons_shape[0]+ self._padding[0], self.__jump_layer.neurons_shape[1] + self._padding[1], self.__jump_layer.neurons_shape[2])
             new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
             padded_pre_exp_tau_s = self.__padded_pre_exp_tau_s_jump
@@ -365,7 +365,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
             pre_errors = propagate_errors_to_pre_spikes_conv(f1, f2, new_spike_times_per_neuron, # this has the shape of the current layer
                                                              jump_spike_per_neuron, # this has the shape of the previous layer
                                                              padded_pre_exp_tau_s, padded_pre_exp_tau, # these 2 also have the shape of the previous layer
-                                                             self.__weights_jump,
+                                                             self.weights[1],
                                                              errors, # this has the shape of the current layer
                                                              self.__tau_s_jump, self.__tau_jump,
                                                             #  new_shape_previous,
@@ -390,17 +390,18 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         #if padded this needs to be changed
         split_index_jump = self.__number_of_neurons_jump
 
-        # errors_pre, errors_jump = split_on_channel_dim(errors, self.neurons_shape)
-        # teste = errors_pre == errors_jump
+        errors_pre, errors_jump = split_on_channel_dim(errors, self.neurons_shape)
+        #* the splitting is correct, they both have the same shape and values when the same previous layer is used
+        teste = errors_pre == errors_jump
 
         # if split_index != errors_pre.shape[1]:
         #     raise ValueError("The split index is not correct")
         # if split_index_jump != errors_jump.shape[1]:
         #     raise ValueError("The split index is not correct")
         # if the error size is to big it gives nans 
-        weights_grad_pre, pre_errors_pre = self.backward_pre(errors)
+        weights_grad_pre, pre_errors_pre = self.backward_pre(errors_pre)
         #! when i put errors I get a similar type nans
-        weights_grad_jump, pre_errors_jump = self.backward_jump(errors)
+        weights_grad_jump, pre_errors_jump = self.backward_jump(errors_jump)
 
         #problem with the input?
         #! NaNs show up here
@@ -410,6 +411,6 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         
 
     def add_deltas(self, delta_weights: cp.ndarray) -> None:
+        #* if both layers are the same then the deltas are the same
         self.__weights_pre += delta_weights[0]
         self.__weights_jump += delta_weights[1] #delta_weights #? adding the wrong deltas can cause nans
-        # self.__weights_pre += delta_weights

@@ -92,7 +92,7 @@ class Network:
                     elif errors2 is None:
                         errors = errors1
                     else:
-                        errors = errors1 + errors2
+                        errors = (errors1 + errors2)/2
 
                     if weights_grad_jump is None and weights_grad_pre is None:
                         weights_grad = None
