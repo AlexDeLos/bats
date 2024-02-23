@@ -4,8 +4,6 @@ import numpy as np
 import cupy as cp
 
 from bats.AbstractConvLayer import AbstractConvLayer
-from bats.AbstractLayer import AbstractLayer
-from bats.Utils.utils import aped_on_channel_dim,split_on_channel_dim
 
 
 class ConvInputLayer(AbstractConvLayer):

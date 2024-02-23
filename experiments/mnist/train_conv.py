@@ -34,6 +34,8 @@ FIX_SEED = False
 USE_PADDING = False #! residual and padd gives nans
 # what causes nans:
 #! residual layers with pre = jump and nans
+# Why is it not learning?
+
 # but silent labels go down and kind of does loss
 #TODO: try to get the non append function to run out of memory
 
@@ -74,7 +76,7 @@ if USE_PADDING:
 else:
     FILTER_FROM_NEXT_1_5 = None
 
-FILTER_2 = np.array([5, 5, 10]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_2 = np.array([5, 5, 3]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_2 = 0.130
 THRESHOLD_HAT_2 = 0.8
 DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
@@ -242,10 +244,10 @@ for run in range(NUMBER_OF_RUNS):
     # network.add_layer(conv_3)
 
 
-    pool_2 = PoolingLayer(conv_2, name="Pooling 2")
-    network.add_layer(pool_2)
+    # pool_2 = PoolingLayer(conv_2, name="Pooling 2")
+    # network.add_layer(pool_2)
 
-    feedforward = LIFLayer(previous_layer=pool_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+    feedforward = LIFLayer(previous_layer=conv_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
                            theta=THRESHOLD_HAT_FC,
                            delta_theta=DELTA_THRESHOLD_FC,
                            weight_initializer=weight_initializer_ff,

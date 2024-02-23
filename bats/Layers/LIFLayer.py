@@ -126,6 +126,7 @@ class LIFLayer(AbstractLayer):
         else:
             pre_errors = None
 
+        asddas= ''
         return weights_grad, pre_errors
 
     def add_deltas(self, delta_weights: cp.ndarray) -> None:

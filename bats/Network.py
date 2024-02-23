@@ -85,6 +85,8 @@ class Network:
                     #! this is never used, how should we deal with the layer that recieves the jump?
                     #! error shape in conv can be wrong
                     weights_grad_jump, errors2 = layer.backward(errors_jump_array[index])
+                    #! TESTING
+                    weights_grad_jump = weights_grad_pre
                     jump_layers.pop(index)
                     errors_jump_array.pop(index)
                     if errors1 is None:
@@ -93,6 +95,7 @@ class Network:
                         errors = errors1
                     else:
                         errors = (errors1 + errors2)/2
+                        # errors = errors1
 
                     if weights_grad_jump is None and weights_grad_pre is None:
                         weights_grad = None
@@ -104,8 +107,8 @@ class Network:
                 if errors_jump is None:
                     jump_layer_is_input = True
 
-                errors_jump_array.append(errors_jump)
-                jump_layers.append(layer.jump_layer)# type: ignore
+                # errors_jump_array.append(errors_jump)
+                # jump_layers.append(layer.jump_layer)# type: ignore
             else:
                 #? how on earth is the gradient flowing in the residual?
                 weights_grad, errors = layer.backward(errors) # type: ignore
