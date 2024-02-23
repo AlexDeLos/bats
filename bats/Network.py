@@ -107,8 +107,8 @@ class Network:
                 if errors_jump is None:
                     jump_layer_is_input = True
 
-                # errors_jump_array.append(errors_jump)
-                # jump_layers.append(layer.jump_layer)# type: ignore
+                errors_jump_array.append(errors_jump)
+                jump_layers.append(layer.jump_layer)# type: ignore
             else:
                 #? how on earth is the gradient flowing in the residual?
                 weights_grad, errors = layer.backward(errors) # type: ignore
