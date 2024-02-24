@@ -30,7 +30,7 @@ DATASET_PATH = Path("datasets/mnist.npz")
 CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
-FIX_SEED = True
+FIX_SEED = False
 USE_PADDING = True #! residual and padd gives nans
 # what causes nans:
 #! residual layers with pre = jump and nans
@@ -173,14 +173,14 @@ for run in range(NUMBER_OF_RUNS):
 
     if not FIX_SEED:
         np_seed = int(cp.random.randint(low=0, high=max_int))
-        print('fixing seed np', np_seed)
     else:
+        print('fixing seed np', np_seed)
         np_seed = 319596201
     if not FIX_SEED:
         cp_seed = int(cp.random.randint(low=0, high=max_int))
-        print('fixing seed cp', cp_seed)
     else:
         cp_seed = 2082618053
+        print('fixing seed cp', cp_seed)
 
     np.random.seed(np_seed)
     cp.random.seed(cp_seed)

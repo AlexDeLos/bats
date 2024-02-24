@@ -1,3 +1,4 @@
+from calendar import c
 import cupy as cp
 
 from bats.CudaKernels.load_kernel import load_kernel
@@ -43,7 +44,7 @@ def compute_weights_gradient_conv(f1: cp.ndarray, f2: cp.ndarray,
     # test_pre_shape = pre_shape.copy()
     # test_post_shape = post_shape.copy()
     # test_filter_shape = filter_shape.copy()
-    # test_gradient = gradient.copy()
+    og_grad = gradient.copy()
     # test_n_post_neurons = n_post_neurons
     # test_n_pre_neurons = n_pre_neurons
     # test_max_n_post_spike = max_n_post_spike
@@ -64,20 +65,21 @@ def compute_weights_gradient_conv(f1: cp.ndarray, f2: cp.ndarray,
     #     #! maybe something with the max spikes?
     #     #* errors are not the problem
         print(f"Found nans in gradient", cp.where(cp.isnan(gradient)))
-        raise RuntimeError("Found nans in gradient")
     #     num_nans_grad = cp.sum(cp.isnan(gradient))
     #     # with all of shape [3,3,1] I get 3 nan values
-        # __compute_weights_gradient_conv_kernel(grid_dim, block_dim, (test_f1, test_f2, test_post_times, test_pre_times,
-        #                                                          test_pre_exp_tau_s, test_pre_exp_tau, test_errors,
-        #                                                          test_pre_shape, test_post_shape, test_filter_shape,
-        #                                                          test_gradient,
-        #                                                          test_n_post_neurons, test_n_pre_neurons,
-        #                                                          cp.int32(max_n_post_spike),
-        #                                                          cp.int32(max_n_pre_spike)))
-        # if cp.where(cp.isnan(test_gradient)):
-            # print(f"Found nans in test gradient", cp.where(cp.isnan(test_gradient)))
-            # raise RuntimeError("Found nans in test gradient")
-        # gradient = cp.nan_to_num(gradient)
+        out_grad = gradient.copy()
+        count = 0
+        while cp.any(cp.isnan(out_grad)):
+            out_grad = og_grad.copy()
+            count += 1
+            __compute_weights_gradient_conv_kernel(grid_dim, block_dim, (f1, f2, post_times, pre_times,
+                                                                        pre_exp_tau_s, pre_exp_tau, errors,
+                                                                        pre_shape, post_shape, filter_shape,
+                                                                        out_grad,
+                                                                        n_post_neurons, n_pre_neurons,
+                                                                        cp.int32(max_n_post_spike),
+                                                                        cp.int32(max_n_pre_spike)))
+            print(f"Found nans in gradient,trying again: ", count, cp.where(cp.isnan(out_grad)))
         #! problem could be with the channels
     
     return gradient
