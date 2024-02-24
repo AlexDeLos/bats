@@ -27,7 +27,7 @@ from bats.Layers.PoolingLayer import PoolingLayer
 DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
-CLUSTER = True
+CLUSTER = False
 USE_WANDB = False
 ALTERNATE = False
 FIX_SEED = False
@@ -116,7 +116,7 @@ TRAIN_PRINT_PERIOD = 0.1
 TRAIN_PRINT_PERIOD_STEP = int(N_TRAIN_SAMPLES * TRAIN_PRINT_PERIOD / TRAIN_BATCH_SIZE)
 TEST_PERIOD = 1.0  # Evaluate on test batch every TEST_PERIOD epochs
 TEST_PERIOD_STEP = int(N_TRAIN_SAMPLES * TEST_PERIOD / TRAIN_BATCH_SIZE)
-LEARNING_RATE = 0.0003
+LEARNING_RATE = 0.003
 LR_DECAY_EPOCH = 10  # Perform decay very n epochs
 LR_DECAY_FACTOR = 0.5
 MIN_LEARNING_RATE = 1e-4
