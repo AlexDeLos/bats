@@ -116,7 +116,7 @@ TRAIN_PRINT_PERIOD = 0.1
 TRAIN_PRINT_PERIOD_STEP = int(N_TRAIN_SAMPLES * TRAIN_PRINT_PERIOD / TRAIN_BATCH_SIZE)
 TEST_PERIOD = 1.0  # Evaluate on test batch every TEST_PERIOD epochs
 TEST_PERIOD_STEP = int(N_TRAIN_SAMPLES * TEST_PERIOD / TRAIN_BATCH_SIZE)
-LEARNING_RATE = 0.0003
+LEARNING_RATE = 0.003
 LR_DECAY_EPOCH = 10  # Perform decay very n epochs
 LR_DECAY_FACTOR = 0.5
 MIN_LEARNING_RATE = 1e-4
@@ -346,6 +346,8 @@ for run in range(NUMBER_OF_RUNS):
                 else:
                     averaged_values = cp.mean(g, axis=0)
                     avg_gradient.append(averaged_values)
+            print("Gradient_avg: ", cp.max(avg_gradient), cp.min(avg_gradient), cp.mean(avg_gradient))
+            print("Gradient: ", cp.max(gradient), cp.min(gradient), cp.mean(gradient))
             del gradient
 
             if USE_WANDB:
@@ -368,6 +370,7 @@ for run in range(NUMBER_OF_RUNS):
                                 tracker = [0.0]* len(network.layers)
             # Apply step
             deltas = optimizer.step(avg_gradient)
+            print("Deltas: ", cp.max(deltas), cp.min(deltas), cp.mean(deltas))
             del avg_gradient
 
             network.apply_deltas(deltas)
