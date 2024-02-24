@@ -30,7 +30,7 @@ DATASET_PATH = Path("datasets/mnist.npz")
 CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
-FIX_SEED = False
+FIX_SEED = True
 USE_PADDING = True #! residual and padd gives nans
 # what causes nans:
 #! residual layers with pre = jump and nans
