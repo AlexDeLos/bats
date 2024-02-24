@@ -174,10 +174,13 @@ for run in range(NUMBER_OF_RUNS):
     if not FIX_SEED:
         np_seed = int(cp.random.randint(low=0, high=max_int))
         print('fixing seed np', np_seed)
-    cp_seed = 2082618053
+    else:
+        np_seed = 319596201
     if not FIX_SEED:
         cp_seed = int(cp.random.randint(low=0, high=max_int))
         print('fixing seed cp', cp_seed)
+    else:
+        cp_seed = 2082618053
 
     np.random.seed(np_seed)
     cp.random.seed(cp_seed)
