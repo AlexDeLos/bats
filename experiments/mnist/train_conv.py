@@ -347,8 +347,9 @@ for run in range(NUMBER_OF_RUNS):
                     averaged_values = cp.mean(g, axis=0)
                     avg_gradient.append(averaged_values)
             for i in range(len(avg_gradient)):
-                print("Gradient_avg: ", cp.max(avg_gradient[i]), cp.min(avg_gradient[i]), cp.mean(avg_gradient[i]))
-                print("Gradient: ", cp.max(gradient[i]), cp.min(gradient[i]), cp.mean(gradient[i]))
+                if i == 3:
+                    print("Gradient_avg: ", cp.max(avg_gradient[i][1]), cp.min(avg_gradient[i][1]), cp.mean(avg_gradient[i][1]))
+                    print("Gradient: ", cp.max(gradient[i][1]), cp.min(gradient[i][1]), cp.mean(gradient[i][1]))
             del gradient
 
             if USE_WANDB:
@@ -372,7 +373,8 @@ for run in range(NUMBER_OF_RUNS):
             # Apply step
             deltas = optimizer.step(avg_gradient)
             for i in range(len(deltas)):
-                print("Deltas: ", cp.max(deltas[i]), cp.min(deltas[i]), cp.mean(deltas[i]))
+                if i == 3:
+                    print("Deltas: ", cp.max(deltas[i][1]), cp.min(deltas[i][1]), cp.mean(deltas[i][1]))
             del avg_gradient
 
             network.apply_deltas(deltas)
