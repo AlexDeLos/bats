@@ -346,8 +346,9 @@ for run in range(NUMBER_OF_RUNS):
                 else:
                     averaged_values = cp.mean(g, axis=0)
                     avg_gradient.append(averaged_values)
-            print("Gradient_avg: ", cp.max(avg_gradient), cp.min(avg_gradient), cp.mean(avg_gradient))
-            print("Gradient: ", cp.max(gradient), cp.min(gradient), cp.mean(gradient))
+            for i in range(len(avg_gradient)):
+                print("Gradient_avg: ", cp.max(avg_gradient[i]), cp.min(avg_gradient[i]), cp.mean(avg_gradient[i]))
+                print("Gradient: ", cp.max(gradient[i]), cp.min(gradient[i]), cp.mean(gradient[i]))
             del gradient
 
             if USE_WANDB:
@@ -370,7 +371,8 @@ for run in range(NUMBER_OF_RUNS):
                                 tracker = [0.0]* len(network.layers)
             # Apply step
             deltas = optimizer.step(avg_gradient)
-            print("Deltas: ", cp.max(deltas), cp.min(deltas), cp.mean(deltas))
+            for i in range(len(deltas)):
+                print("Deltas: ", cp.max(deltas[i]), cp.min(deltas[i]), cp.mean(deltas[i]))
             del avg_gradient
 
             network.apply_deltas(deltas)
