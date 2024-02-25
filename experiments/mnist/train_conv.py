@@ -16,9 +16,7 @@ from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *
 from bats.Layers.ConvInputLayer import ConvInputLayer
-from bats.Layers.ConvLIFLayerResidual import ConvLIFLayerResidual
 from bats.Layers.ConvLIFLayer import ConvLIFLayer
-from bats.Layers.ConvLIFLayer_new_Residual import ConvLIFLayer_new_Residual
 from bats.Layers.ConvLIFLayerResidual_2 import ConvLIFLayerResidual_2
 
 from bats.Layers.PoolingLayer import PoolingLayer
@@ -228,7 +226,7 @@ for run in range(NUMBER_OF_RUNS):
                         #   tau_s=TAU_S_2,
                                   
     # *I can connect it straight to other conv layers
-    conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer=conv_1_5, filters_shape=FILTER_2, use_padding=USE_PADDING,
+    conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
     # conv_2 = ConvLIFLayer(previous_layer=conv_1_5, filters_shape=FILTER_2, use_padding=USE_PADDING,
                         #   filter_from_next = FILTER_FROM_NEXT_2,
                           tau_s=TAU_S_2,
