@@ -26,8 +26,8 @@ DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
 CLUSTER = True
-USE_WANDB = False
-ALTERNATE = False
+USE_WANDB = True
+ALTERNATE = True
 FIX_SEED = False
 USE_PADDING = True #! residual and padd gives nans
 # what causes nans:
@@ -54,7 +54,7 @@ INPUT_SHAPE = np.array([28, 28, 1])
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
-FILTER_1 = np.array([5, 5, 5]) #? could it be the size of this filter's channels?
+FILTER_1 = np.array([3, 3, 5]) #? could it be the size of this filter's channels?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
