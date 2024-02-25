@@ -148,9 +148,9 @@ class ConvLIFLayer(AbstractConvLayer):
             # ewrwe = 0
             # sad = ""
 
-    def backward(self, errors: cp.array, from_res = False) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
+    def backward(self, errors_in: cp.array, from_res = False) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
-        if cp.any(cp.isnan(errors)):
+        if cp.any(cp.isnan(errors_in)):
             raise ValueError("NaNs in errors")
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
         if self._use_padding: #-> adding this alone seems to have no effect on the loss of the model or anything else
@@ -170,8 +170,8 @@ class ConvLIFLayer(AbstractConvLayer):
 
         new_x = self.__x
         new_post_exp_tau = self.__post_exp_tau
-        if new_x.shape != errors.shape:
-            errors = trimed_errors(errors, self.__filter_from_next, self.neurons_shape[2])
+        if new_x.shape != errors_in.shape:
+            errors = trimed_errors(errors_in, self.__filter_from_next, self.neurons_shape[2])
             # print("errors shape is not the same as the x shape")
             if new_x.shape != errors.shape:
                 raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors.shape}")
