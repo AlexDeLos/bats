@@ -4,11 +4,11 @@
 
 #SBATCH --qos=medium
 
-#SBATCH --time=38:00:00
+#SBATCH --time=30:00:00
 
 #SBATCH --ntasks=1
 
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task=2
 
 #SBATCH --mem=16384
 
