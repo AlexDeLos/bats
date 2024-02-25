@@ -408,7 +408,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
 
         weights_grad_pre, pre_errors_pre = self.backward_pre(errors_pre)
         #! when i put errors I get a similar type nans
-        weights_grad_jump, pre_errors_jump = self.backward_jump(errors_pre)
+        weights_grad_jump, pre_errors_jump = self.backward_jump(errors_jump)
 
         #problem with the input?
         #! NaNs show up here
