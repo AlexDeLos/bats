@@ -30,7 +30,7 @@ DATASET_PATH = Path("datasets/mnist.npz")
 CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
-FIX_SEED = False
+FIX_SEED = True
 USE_PADDING = True #! residual and padd gives nans
 # what causes nans:
 #! residual layers with pre = jump and nans
@@ -106,8 +106,8 @@ if CLUSTER:
     N_TEST_SAMPLES = 10000 #10000
 else:
     N_TRAINING_EPOCHS = 10
-    N_TRAIN_SAMPLES = 600
-    N_TEST_SAMPLES = 100
+    N_TRAIN_SAMPLES = 6000
+    N_TEST_SAMPLES = 1000
 TRAIN_BATCH_SIZE = 20 # 20
 TEST_BATCH_SIZE = 50
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
@@ -174,12 +174,12 @@ for run in range(NUMBER_OF_RUNS):
     if not FIX_SEED:
         np_seed = int(cp.random.randint(low=0, high=max_int))
     else:
+        np_seed = 733255843
         print('fixing seed np', np_seed)
-        np_seed = 319596201
     if not FIX_SEED:
         cp_seed = int(cp.random.randint(low=0, high=max_int))
     else:
-        cp_seed = 2082618053
+        cp_seed = 1598833012
         print('fixing seed cp', cp_seed)
 
     np.random.seed(np_seed)
@@ -228,7 +228,7 @@ for run in range(NUMBER_OF_RUNS):
                         #   tau_s=TAU_S_2,
                                   
     # *I can connect it straight to other conv layers
-    conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+    conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer=conv_1_5, filters_shape=FILTER_2, use_padding=USE_PADDING,
     # conv_2 = ConvLIFLayer(previous_layer=conv_1_5, filters_shape=FILTER_2, use_padding=USE_PADDING,
                         #   filter_from_next = FILTER_FROM_NEXT_2,
                           tau_s=TAU_S_2,
