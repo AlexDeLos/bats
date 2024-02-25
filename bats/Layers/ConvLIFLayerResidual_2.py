@@ -30,6 +30,8 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         if use_padding:
             prev_x += padding[0]
             prev_y += padding[1]
+            prev_x_jump += padding[0]
+            prev_y_jump += padding[1]
         self.__pre_shape = (prev_x, prev_y, prev_c)
         self.__jump_shape = (prev_x_jump, prev_y_jump, prev_c_jump)
         n_x = prev_x - filter_x + 1 # why this equation? -> this is the reduction of dimensions because of the filter
@@ -218,10 +220,9 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         #? what is I don't use padding in the forward pass?
             self.__jump_spike_per_neuron, self.__jump_n_spike_per_neuron = add_padding(jump_spike_per_neuron, jump_n_spike_per_neuron,
                                                                        self.__jump_shape, self._padding)
-            
             jump_spike_per_neuron = self.__jump_spike_per_neuron
             jump_n_spike_per_neuron = self.__jump_n_spike_per_neuron
-            self.__padded_pre_exp_tau_s_jump, self.__padded_pre_exp_tau_jump = compute_pre_exps(jump_spike_per_neuron, self.__tau_s, self.__tau)
+            self.__padded_pre_exp_tau_s_jump, self.__padded_pre_exp_tau_jump = compute_pre_exps(jump_spike_per_neuron, self.__tau_s_jump, self.__tau_jump)
             padded_pre_exp_tau_s_jump = self.__padded_pre_exp_tau_s_jump
             padded_pre_exp_tau_jump = self.__padded_pre_exp_tau_jump
             new_shape_previous = (self.__jump_layer.neurons_shape[0]+ self._padding[0], self.__jump_layer.neurons_shape[1] + self._padding[1], self.__jump_layer.neurons_shape[2])
@@ -232,6 +233,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
             padded_pre_exp_tau_s_jump = self.__pre_exp_tau_s_jump
             padded_pre_exp_tau_jump = self.__pre_exp_tau_jump
             new_shape_previous = self.__jump_layer.neurons_shape
+            
 
         # Sort spikes for inference
         #? what if I add padding to the indeces? increase theyr number to what they should be?
@@ -330,7 +332,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         # Compute gradient
         if cp.any(cp.isnan(errors)):
             raise ValueError("NaNs in errors")
-        jump_spike_per_neuron, jump_n_spike_per_neuron = self.__jump_layer.spike_trains
+        jump_spike_per_neuron, _ = self.__jump_layer.spike_trains
         if self._use_padding: #-> adding this alone seems to have no effect on the loss of the model or anything else
             #? what is I don't use padding in the backward pass?
             
@@ -339,7 +341,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
             new_shape_previous = (self.__jump_layer.neurons_shape[0]+ self._padding[0], self.__jump_layer.neurons_shape[1] + self._padding[1], self.__jump_layer.neurons_shape[2])
             new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
             padded_pre_exp_tau_s = self.__padded_pre_exp_tau_s_jump
-            padded_pre_exp_tau = self.__padded_pre_exp_tau_s_jump
+            padded_pre_exp_tau = self.__padded_pre_exp_tau_jump
         else:
             padded_pre_exp_tau_s = self.__pre_exp_tau_s_jump
             padded_pre_exp_tau = self.__pre_exp_tau_jump
