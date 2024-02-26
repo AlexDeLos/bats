@@ -74,7 +74,7 @@ if USE_PADDING:
 else:
     FILTER_FROM_NEXT_1_5 = None
 
-FILTER_2 = np.array([3, 3, 10]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_2 = np.array([3, 3, 5]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_2 = 0.130
 THRESHOLD_HAT_2 = 0.8
 DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
