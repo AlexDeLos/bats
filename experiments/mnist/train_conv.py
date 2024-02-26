@@ -26,8 +26,8 @@ DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
 CLUSTER = True
-USE_WANDB = False
-ALTERNATE = False
+USE_WANDB = True
+ALTERNATE = True
 FIX_SEED = False
 USE_PADDING = True #! residual and padd gives nans
 # what causes nans:
