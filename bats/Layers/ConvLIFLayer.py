@@ -141,12 +141,11 @@ class ConvLIFLayer(AbstractConvLayer):
                                                            self.__filters_shape)
             # self.neurons_shape = new_shape_neuron
 
-            # spikes = self.__spike_times_per_neuron
-            # count = self.__n_spike_per_neuron #! they no longer have the 28*28 size
-            # new_x = self.__x #-> the X here is always the same size as the spikes
+            spikes = self.__spike_times_per_neuron
+            count = self.__n_spike_per_neuron #! they no longer have the 28*28 size
+            new_x = self.__x #-> the X here is always the same size as the spikes
             # #? what does the X represent?
-            # ewrwe = 0
-            # sad = ""
+            ewrwe = 0
 
     def backward(self, errors_in: cp.array, from_res = False) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
@@ -174,6 +173,7 @@ class ConvLIFLayer(AbstractConvLayer):
             errors = trimed_errors(errors_in, self.__filter_from_next, self.neurons_shape[2])
             # print("errors shape is not the same as the x shape")
             if new_x.shape != errors.shape:
+                #* here I could check on a list of filters_from_next - Talk to supervisors about this
                 raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors.shape}")
         
         new_spike_times_per_neuron = self.__spike_times_per_neuron #? what is this?
