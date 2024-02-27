@@ -26,7 +26,7 @@ DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
 CLUSTER = True
-USE_WANDB = True
+USE_WANDB = False
 ALTERNATE = True
 USE_RESIDUAL = True
 FIX_SEED = False
@@ -81,7 +81,7 @@ THRESHOLD_HAT_2 = 0.8
 DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
 SPIKE_BUFFER_SIZE_2 = 21
 if USE_PADDING:
-    FILTER_FROM_NEXT_2 = FILTER_FROM_NEXT
+    FILTER_FROM_NEXT_2 = None
 else:
     FILTER_FROM_NEXT_2 = None
 
