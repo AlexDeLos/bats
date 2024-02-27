@@ -139,6 +139,7 @@ def weight_initializer_ff(n_post: int, n_pre: int) -> cp.ndarray:
 for run in range(NUMBER_OF_RUNS):
     if ALTERNATE and CLUSTER:
         USE_PADDING = run%2 == 0
+        print("Using padding: ", USE_PADDING)
     if USE_WANDB:
         wandb.init(
         # set the wandb project where this run will be logged
