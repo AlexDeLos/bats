@@ -23,7 +23,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         prev_x, prev_y, prev_c = previous_layer._neurons_shape.get()
         prev_x_jump, prev_y_jump, prev_c_jump = jump_layer._neurons_shape.get()
         if prev_x != prev_x_jump or prev_y != prev_y_jump:
-            raise ValueError("The input dimensions of the previous layers are not the same")
+            raise ValueError("The input dimensions of the previous layers are not the same", prev_x, prev_y, prev_x_jump, prev_y_jump)
         filter_x, filter_y, filter_c = filters_shape
         padding= [filter_x-1, filter_y -1]
         self.__filter_from_next = filter_from_next
