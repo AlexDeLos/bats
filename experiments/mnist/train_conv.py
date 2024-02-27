@@ -26,7 +26,7 @@ DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
 CLUSTER = True
-USE_WANDB = False
+USE_WANDB = True
 ALTERNATE = True
 USE_RESIDUAL = True
 FIX_SEED = False
