@@ -26,7 +26,7 @@ DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
 CLUSTER = True
-USE_WANDB = False
+USE_WANDB = True
 ALTERNATE = True
 USE_RESIDUAL = True
 FIX_SEED = False
@@ -246,10 +246,10 @@ for run in range(NUMBER_OF_RUNS):
                             name="Convolution 2")
     network.add_layer(conv_2)
 
-    pool_2 = PoolingLayer(conv_2, name="Pooling 2")
-    network.add_layer(pool_2)
+    # pool_2 = PoolingLayer(conv_2, name="Pooling 2")
+    # network.add_layer(pool_2)
 
-    feedforward = LIFLayer(previous_layer=pool_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+    feedforward = LIFLayer(previous_layer=conv_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
                            theta=THRESHOLD_HAT_FC,
                            delta_theta=DELTA_THRESHOLD_FC,
                            weight_initializer=weight_initializer_ff,
