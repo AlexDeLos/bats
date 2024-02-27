@@ -9,7 +9,9 @@ import sys
 
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from Dataset import Dataset
+# from Dataset import Dataset
+from Dataset_fashion import Dataset
+
 from bats.Monitors import *
 from bats.Layers import LIFLayer
 from bats.Losses import *
@@ -22,12 +24,13 @@ from bats.Layers.ConvLIFLayerResidual_2 import ConvLIFLayerResidual_2
 from bats.Layers.PoolingLayer import PoolingLayer
 
 # Dataset
-DATASET_PATH = Path("datasets/mnist.npz")
+# DATASET_PATH = Path("datasets/mnist.npz")
+DATASET_PATH = Path("datasets/")
 
 # Change from small test on computer to big test on cluster
 CLUSTER = True
-USE_WANDB = True
-ALTERNATE = True
+USE_WANDB = False
+ALTERNATE = False
 USE_RESIDUAL = True
 FIX_SEED = False
 USE_PADDING = True #! residual and padd gives nans

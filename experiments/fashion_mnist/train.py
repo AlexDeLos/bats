@@ -2,9 +2,12 @@ from pathlib import Path
 import cupy as cp
 import numpy as np
 
+import os
 import sys
 
 sys.path.insert(0, "../../")  # Add repository root to python path
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from Dataset import Dataset
 from bats.Monitors import *
@@ -14,7 +17,7 @@ from bats.Network import Network
 from bats.Optimizers import *
 
 # Dataset
-DATASET_PATH = Path("../../datasets/")
+DATASET_PATH = Path("./datasets/")
 
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
