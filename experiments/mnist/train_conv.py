@@ -7,6 +7,8 @@ import sys
 import os
 import sys
 
+from experiments.mnist.train_spike_count import USE_RESIDUAL
+
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from Dataset import Dataset
@@ -25,9 +27,10 @@ from bats.Layers.PoolingLayer import PoolingLayer
 DATASET_PATH = Path("datasets/mnist.npz")
 
 # Change from small test on computer to big test on cluster
-CLUSTER = True
+CLUSTER = False
 USE_WANDB = True
-ALTERNATE = False
+ALTERNATE = True
+USE_RESIDUAL = True
 FIX_SEED = False
 USE_PADDING = True #! residual and padd gives nans
 # what causes nans:
@@ -138,8 +141,8 @@ def weight_initializer_ff(n_post: int, n_pre: int) -> cp.ndarray:
 
 for run in range(NUMBER_OF_RUNS):
     if ALTERNATE and CLUSTER:
-        USE_PADDING = run%2 == 0
-        print("Using padding: ", USE_PADDING)
+        USE_RESIDUAL = run%2 == 0
+        print("Using Residual: ", USE_RESIDUAL)
     if USE_WANDB:
         wandb.init(
         # set the wandb project where this run will be logged
@@ -149,6 +152,7 @@ for run in range(NUMBER_OF_RUNS):
         # track hyperparameters and run metadata4
         config={
         "Cluster": CLUSTER,
+        "Use_residual": USE_RESIDUAL,
         # "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
         "train_batch_size": TRAIN_BATCH_SIZE,
         # "residual_every_n": RESIDUAL_EVERY_N,
@@ -225,33 +229,29 @@ for run in range(NUMBER_OF_RUNS):
     #! the is a problem after a few iterations, nans appear
     # conv_2 = ConvLIFLayerResidual(previous_layer=conv_1_5, jump_layer= conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
                         #   tau_s=TAU_S_2,
-                                  
+    if USE_RESIDUAL:
     # *I can connect it straight to other conv layers
-    conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
-    # conv_2 = ConvLIFLayer(previous_layer=conv_1_5, filters_shape=FILTER_2, use_padding=USE_PADDING,
-                        #   filter_from_next = FILTER_FROM_NEXT_2,
-                          tau_s=TAU_S_2,
-                          theta=THRESHOLD_HAT_2,
-                          delta_theta=DELTA_THRESHOLD_2,
-                          weight_initializer=weight_initializer_conv,
-                          max_n_spike=SPIKE_BUFFER_SIZE_2,
-                          name="Convolution 2")
+        conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+                            tau_s=TAU_S_2,
+                            theta=THRESHOLD_HAT_2,
+                            delta_theta=DELTA_THRESHOLD_2,
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=SPIKE_BUFFER_SIZE_2,
+                            name="Convolution 2")
+    else:
+        conv_2 = ConvLIFLayer(previous_layer=conv_1_5, filters_shape=FILTER_2, use_padding=USE_PADDING,
+                            tau_s=TAU_S_2,
+                            theta=THRESHOLD_HAT_2,
+                            delta_theta=DELTA_THRESHOLD_2,
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=SPIKE_BUFFER_SIZE_2,
+                            name="Convolution 2")
     network.add_layer(conv_2)
 
-    # conv_3 = ConvLIFLayer(previous_layer=conv_2, filters_shape=FILTER_3, use_padding=USE_PADDING,
-    #                       tau_s=TAU_S_3,
-    #                       theta=THRESHOLD_HAT_3,
-    #                       delta_theta=DELTA_THRESHOLD_3,
-    #                       weight_initializer=weight_initializer_conv,
-    #                       max_n_spike=SPIKE_BUFFER_SIZE_3,
-    #                       name="Convolution 3")
-    # network.add_layer(conv_3)
+    pool_2 = PoolingLayer(conv_2, name="Pooling 2")
+    network.add_layer(pool_2)
 
-
-    # pool_2 = PoolingLayer(conv_2, name="Pooling 2")
-    # network.add_layer(pool_2)
-
-    feedforward = LIFLayer(previous_layer=conv_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+    feedforward = LIFLayer(previous_layer=pool_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
                            theta=THRESHOLD_HAT_FC,
                            delta_theta=DELTA_THRESHOLD_FC,
                            weight_initializer=weight_initializer_ff,
