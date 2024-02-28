@@ -24,16 +24,22 @@ from bats.Optimizers import *
 # DATASET_PATH = Path("../../datasets/mnist.npz")
 DATASET_PATH = Path("./datasets/mnist.npz")
 
-N_INPUTS = 32 * 32
-SIMULATION_TIME = 0.2
+
+
 
 # Change from small test on computer to big test on cluster
 CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
 USE_COURSE_LABELS = True
+USE_3_CHANNELS = True
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
+if USE_3_CHANNELS:
+    N_INPUTS = 32 * 32 * 3
+else:
+    N_INPUTS = 32 * 32
+SIMULATION_TIME = 0.2
 
 #Residual parameters
 USE_RESIDUAL = True
@@ -160,7 +166,7 @@ for run in range(NUMBER_OF_RUNS):
 
     # Dataset
     print("Loading datasets...")
-    dataset = Dataset(path=DATASET_PATH)
+    dataset = Dataset(path=DATASET_PATH, use_multi_channel=USE_3_CHANNELS)
 
 
     

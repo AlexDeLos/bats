@@ -49,8 +49,9 @@ def elastic_transform(image, alpha_range, sigma):
 
 
 class Dataset:
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, use_multi_channel: bool = False):
         (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar100.load_data()
+        self.__use_multi_channel = use_multi_channel
         self.__train_X = x_train
         self.__train_labels = y_train
         self.__test_X = x_test
@@ -77,9 +78,15 @@ class Dataset:
         spike_times = samples.reshape((samples.shape[0], N_NEURONS, 3))# now this assumes 3 channels
         spike_times = TIME_WINDOW * (1 - (spike_times / MAX_VALUE))
         spike_times[spike_times == TIME_WINDOW] = np.inf
-        avaraged_spike_times = np.mean(spike_times, axis=2, keepdims=True) # Here I take the mean of the 3 channels, it is also worth to try just running the 3 channels separately
-        n_spike_per_neuron = np.isfinite(avaraged_spike_times).astype('int').reshape((samples.shape[0], N_NEURONS))
-        return avaraged_spike_times, n_spike_per_neuron
+        if self.__use_multi_channel:
+            spike_times = spike_times.reshape((samples.shape[0], N_NEURONS*3, 1))
+            n_spike_per_neuron_3_channels = np.isfinite(spike_times).astype('int').reshape((samples.shape[0], N_NEURONS*3))
+            return spike_times, n_spike_per_neuron_3_channels
+
+        else:
+            avaraged_spike_times = np.mean(spike_times, axis=2, keepdims=True) # Here I take the mean of the 3 channels, it is also worth to try just running the 3 channels separately
+            n_spike_per_neuron = np.isfinite(avaraged_spike_times).astype('int').reshape((samples.shape[0], N_NEURONS))
+            return avaraged_spike_times, n_spike_per_neuron
 
     def shuffle(self) -> None:
         shuffled_indices = np.arange(len(self.__train_labels))
