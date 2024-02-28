@@ -30,7 +30,7 @@ DATASET_PATH = Path("./datasets/mnist.npz")
 # Change from small test on computer to big test on cluster
 CLUSTER = True
 USE_WANDB = False
-ALTERNATE = False
+ALTERNATE = True
 USE_COURSE_LABELS = True
 USE_3_CHANNELS = True
 FUSE_FUNCTION = "Append"
@@ -44,7 +44,7 @@ SIMULATION_TIME = 0.2
 #Residual parameters
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = 2
-N_HIDDEN_LAYERS = 3
+N_HIDDEN_LAYERS = 5
 
 if CLUSTER:
     NUMBER_OF_RUNS = 20
