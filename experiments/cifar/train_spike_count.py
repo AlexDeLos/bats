@@ -29,8 +29,8 @@ SIMULATION_TIME = 0.2
 
 # Change from small test on computer to big test on cluster
 CLUSTER = True
-USE_WANDB = True
-ALTERNATE = True
+USE_WANDB = False
+ALTERNATE = False
 USE_COURSE_LABELS = True
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
