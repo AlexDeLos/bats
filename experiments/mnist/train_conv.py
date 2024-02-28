@@ -28,7 +28,7 @@ from bats.Layers.PoolingLayer import PoolingLayer
 DATASET_PATH = Path("datasets/")
 
 # Change from small test on computer to big test on cluster
-CLUSTER = True
+CLUSTER = False
 USE_WANDB = False
 ALTERNATE = False
 USE_RESIDUAL = True

@@ -1,3 +1,11 @@
+import tensorflow as tf 
+from tensorflow import keras 
+
+import numpy as np
+
+import warnings 
+warnings.filterwarnings('ignore')
+
 from pathlib import Path
 from typing import Tuple
 # from elasticdeform import deform_random_grid
@@ -12,7 +20,7 @@ import numpy as np
 
 TIME_WINDOW = 100e-3
 MAX_VALUE = 255
-RESOLUTION = 28
+RESOLUTION = 32
 N_NEURONS = RESOLUTION * RESOLUTION
 ELASTIC_ALPHA_RANGE = [8, 10]
 ELASTIC_SIGMA = 3
@@ -42,11 +50,11 @@ def elastic_transform(image, alpha_range, sigma):
 
 class Dataset:
     def __init__(self, path: Path):
-        loaded_data = np.load(path, allow_pickle=True)
-        self.__train_X = loaded_data['x_train']
-        self.__train_labels = loaded_data['y_train']
-        self.__test_X = loaded_data['x_test']
-        self.__test_labels = loaded_data['y_test']
+        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar100.load_data()
+        self.__train_X = x_train
+        self.__train_labels = y_train
+        self.__test_X = x_test
+        self.__test_labels = y_test
         self.__datagen = keras.preprocessing.image.ImageDataGenerator(width_shift_range=WIDTH_SHIFT,
                                                                       height_shift_range=HEIGHT_SHIFT,
                                                                       zoom_range=ZOOM_RANGE,
@@ -66,11 +74,12 @@ class Dataset:
         return self.__test_labels
 
     def __to_spikes(self, samples):
-        spike_times = samples.reshape((samples.shape[0], N_NEURONS, 1))
+        spike_times = samples.reshape((samples.shape[0], N_NEURONS, 3))# now this assumes 3 channels
         spike_times = TIME_WINDOW * (1 - (spike_times / MAX_VALUE))
         spike_times[spike_times == TIME_WINDOW] = np.inf
-        n_spike_per_neuron = np.isfinite(spike_times).astype('int').reshape((samples.shape[0], N_NEURONS))
-        return spike_times, n_spike_per_neuron
+        avaraged_spike_times = np.mean(spike_times, axis=2, keepdims=True) # Here I take the mean of the 3 channels, it is also worth to try just running the 3 channels separately
+        n_spike_per_neuron = np.isfinite(avaraged_spike_times).astype('int').reshape((samples.shape[0], N_NEURONS))
+        return avaraged_spike_times, n_spike_per_neuron
 
     def shuffle(self) -> None:
         shuffled_indices = np.arange(len(self.__train_labels))

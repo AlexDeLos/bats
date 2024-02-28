@@ -12,7 +12,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 # sys.path.insert(0, "../../")  # Add repository root to python path
 
-from Dataset import Dataset
+from Dataset_cifar import Dataset
 from bats.Monitors import *
 from bats.Layers import InputLayer, LIFLayer, LIFLayerResidual
 from bats.Losses import *
@@ -24,11 +24,11 @@ from bats.Optimizers import *
 # DATASET_PATH = Path("../../datasets/mnist.npz")
 DATASET_PATH = Path("./datasets/mnist.npz")
 
-N_INPUTS = 28 * 28
+N_INPUTS = 32 * 32
 SIMULATION_TIME = 0.2
 
 # Change from small test on computer to big test on cluster
-CLUSTER = False
+CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
 FUSE_FUNCTION = "Append"
@@ -65,7 +65,7 @@ DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES
 SPIKE_BUFFER_SIZE_RES = 20
 
 # Output_layer
-N_OUTPUTS = 10
+N_OUTPUTS = 100
 TAU_S_OUTPUT = 0.130
 THRESHOLD_HAT_OUTPUT = 1.3
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
@@ -260,6 +260,7 @@ for run in range(NUMBER_OF_RUNS):
             # print("batch_idx: ", batch_idx)
             # Get next batch
             spikes, n_spikes, labels = dataset.get_train_batch(batch_idx, TRAIN_BATCH_SIZE)
+            labels = cp.squeeze(labels)
 
             # Inference
             network.reset()
