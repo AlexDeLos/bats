@@ -76,7 +76,7 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
 if CLUSTER:
-    N_TRAIN_SAMPLES = 60000 #! used to be 60000
+    N_TRAIN_SAMPLES = 50000 
     N_TEST_SAMPLES = 10000 #! used to be 10000
     TRAIN_BATCH_SIZE = 50 #! used to be 50 -> putting it at 50 crashes the cluster when using append
     TEST_BATCH_SIZE = 100
