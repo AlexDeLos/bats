@@ -29,8 +29,9 @@ SIMULATION_TIME = 0.2
 
 # Change from small test on computer to big test on cluster
 CLUSTER = True
-USE_WANDB = False
-ALTERNATE = False
+USE_WANDB = True
+ALTERNATE = True
+USE_COURSE_LABELS = True
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 
@@ -65,7 +66,10 @@ DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES
 SPIKE_BUFFER_SIZE_RES = 20
 
 # Output_layer
-N_OUTPUTS = 100
+if USE_COURSE_LABELS:
+    N_OUTPUTS = 20
+else:
+    N_OUTPUTS = 100
 TAU_S_OUTPUT = 0.130
 THRESHOLD_HAT_OUTPUT = 1.3
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
@@ -76,7 +80,7 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
 if CLUSTER:
-    N_TRAIN_SAMPLES = 50000 
+    N_TRAIN_SAMPLES = 50000
     N_TEST_SAMPLES = 10000 #! used to be 10000
     TRAIN_BATCH_SIZE = 50 #! used to be 50 -> putting it at 50 crashes the cluster when using append
     TEST_BATCH_SIZE = 100
@@ -260,7 +264,11 @@ for run in range(NUMBER_OF_RUNS):
             # print("batch_idx: ", batch_idx)
             # Get next batch
             spikes, n_spikes, labels = dataset.get_train_batch(batch_idx, TRAIN_BATCH_SIZE)
-            labels = cp.squeeze(labels)
+            if USE_COURSE_LABELS:
+                labels = cp.squeeze(labels) // 5
+            else:
+                labels = cp.squeeze(labels)
+            
 
             # Inference
             network.reset()
@@ -366,6 +374,11 @@ for run in range(NUMBER_OF_RUNS):
 
                 for batch_idx in range(N_TEST_BATCH):
                     spikes, n_spikes, labels = dataset.get_test_batch(batch_idx, TEST_BATCH_SIZE)
+                    if USE_COURSE_LABELS:
+                        labels = cp.squeeze(labels) // 5
+                    else:
+                        labels = cp.squeeze(labels)
+
                     network.reset()
                     network.forward(spikes, n_spikes, max_simulation=SIMULATION_TIME)
                     out_spikes, n_out_spikes = network.output_spike_trains
