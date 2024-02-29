@@ -49,8 +49,11 @@ def elastic_transform(image, alpha_range, sigma):
 
 
 class Dataset:
-    def __init__(self, path: Path, use_multi_channel: bool = False):
-        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar100.load_data()
+    def __init__(self, path: Path, use_multi_channel: bool = False, cifar100: bool = False):
+        if cifar100:
+            (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar100.load_data()
+        else:
+            (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
         self.__use_multi_channel = use_multi_channel
         self.__train_X = x_train
         self.__train_labels = y_train

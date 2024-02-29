@@ -31,6 +31,7 @@ DATASET_PATH = Path("./datasets/mnist.npz")
 CLUSTER = True
 USE_WANDB = False
 ALTERNATE = True
+USE_CIFAR100 = False
 USE_COURSE_LABELS = True
 USE_3_CHANNELS = True
 FUSE_FUNCTION = "Append"
@@ -72,10 +73,12 @@ DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES
 SPIKE_BUFFER_SIZE_RES = 20
 
 # Output_layer
-if USE_COURSE_LABELS:
+if USE_COURSE_LABELS and USE_CIFAR100:
     N_OUTPUTS = 20
-else:
+elif USE_CIFAR100:
     N_OUTPUTS = 100
+else:
+    N_OUTPUTS = 10
 TAU_S_OUTPUT = 0.130
 THRESHOLD_HAT_OUTPUT = 1.3
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
@@ -131,7 +134,7 @@ for run in range(NUMBER_OF_RUNS):
         wandb.init(
         # set the wandb project where this run will be logged
         project="Residual-SNN",
-        name="Residual-SNN_"+ str(FUSE_FUNCTION)+"_run_"+str(run),
+        name="Residual-SNN_"+ str(FUSE_FUNCTION)+"_run_CIFAR_"+str(run),
         
         # track hyperparameters and run metadata4
         config={
