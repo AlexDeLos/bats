@@ -38,7 +38,7 @@ FUSE_FUNCTION = "Append"
 if USE_CIFAR100:
     DATASET_PATH = "./datasets/cifar-100-python/"
 else:
-    DATASET_PATH = "./datasets/cifar-10-python/"
+    DATASET_PATH = "./datasets/cifar-10-batches-py/"
 
 
 if USE_3_CHANNELS:
