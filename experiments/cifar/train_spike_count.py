@@ -22,7 +22,6 @@ from bats.Optimizers import *
 
 # Dataset
 # DATASET_PATH = Path("../../datasets/mnist.npz")
-DATASET_PATH = Path("./datasets/mnist.npz")
 
 
 
@@ -32,10 +31,16 @@ CLUSTER = True
 USE_WANDB = False
 ALTERNATE = True
 USE_CIFAR100 = False
-USE_COURSE_LABELS = True
+USE_COURSE_LABELS = False
 USE_3_CHANNELS = True
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
+if USE_CIFAR100:
+    DATASET_PATH = "./datasets/cifar-100-python/"
+else:
+    DATASET_PATH = "./datasets/cifar-10-python/"
+
+
 if USE_3_CHANNELS:
     N_INPUTS = 32 * 32 * 3
 else:
@@ -109,7 +114,7 @@ LEARNING_RATE = 0.003
 LR_DECAY_EPOCH = int(N_TRAINING_EPOCHS/10)  # Perform decay very n epochs
 LR_DECAY_FACTOR = 1.0
 MIN_LEARNING_RATE = 0
-TARGET_FALSE = 3
+TARGET_FALSE = 3#? what are these?
 TARGET_TRUE = 15
 
 # Plot parameters
@@ -149,7 +154,7 @@ for run in range(NUMBER_OF_RUNS):
         "n_neurons": N_NEURONS_1,
         "learning_rate": LEARNING_RATE,
         "architecture": "SNN",
-        "dataset": "MNIST",
+        "dataset": "CIFAR",
         "epochs": N_TRAINING_EPOCHS,
         "version": "4.0.0_cluster_" + str(CLUSTER),
         }
@@ -169,7 +174,7 @@ for run in range(NUMBER_OF_RUNS):
 
     # Dataset
     print("Loading datasets...")
-    dataset = Dataset(path=DATASET_PATH, use_multi_channel=USE_3_CHANNELS)
+    dataset = Dataset(target_dir=DATASET_PATH, use_multi_channel=USE_3_CHANNELS, cifar100=USE_CIFAR100, use_coarse_labels=USE_COURSE_LABELS)
 
 
     
@@ -263,7 +268,7 @@ for run in range(NUMBER_OF_RUNS):
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
-        dataset.shuffle()
+        # dataset.shuffle()
 
         # Learning rate decay
         if epoch > 0 and epoch % LR_DECAY_EPOCH == 0:
@@ -273,10 +278,10 @@ for run in range(NUMBER_OF_RUNS):
             # print("batch_idx: ", batch_idx)
             # Get next batch
             spikes, n_spikes, labels = dataset.get_train_batch(batch_idx, TRAIN_BATCH_SIZE)
-            if USE_COURSE_LABELS:
-                labels = cp.squeeze(labels) // 5
-            else:
-                labels = cp.squeeze(labels)
+            # if USE_COURSE_LABELS and USE_CIFAR100:
+            #     labels = cp.squeeze(labels) // 5
+            # else:
+            #     labels = cp.squeeze(labels)
             
 
             # Inference

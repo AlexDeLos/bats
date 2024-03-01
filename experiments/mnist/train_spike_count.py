@@ -28,7 +28,7 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Change from small test on computer to big test on cluster
-CLUSTER = False
+CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
 FUSE_FUNCTION = "Append"
@@ -97,7 +97,7 @@ LR_DECAY_EPOCH = int(N_TRAINING_EPOCHS/10)  # Perform decay very n epochs
 LR_DECAY_FACTOR = 1.0
 MIN_LEARNING_RATE = 0
 TARGET_FALSE = 3
-TARGET_TRUE = 15
+TARGET_TRUE = 30
 
 # Plot parameters
 EXPORT_METRICS = False

@@ -1,6 +1,8 @@
 import tensorflow as tf 
 from tensorflow import keras 
-
+import gzip
+import os
+import tarfile
 import numpy as np
 
 import warnings 
@@ -48,12 +50,40 @@ def elastic_transform(image, alpha_range, sigma):
     return map_coordinates(image, indices, order=0, mode='reflect').reshape(shape)
 
 
+def unpickle(file):
+    import pickle
+    with open(file, 'rb') as fo:
+        dict = pickle.load(fo, encoding='bytes')
+    return dict
+
 class Dataset:
-    def __init__(self, path: Path, use_multi_channel: bool = False, cifar100: bool = False):
+    def __init__(self, target_dir: str, use_multi_channel: bool = False, cifar100: bool = False, use_coarse_labels: bool = False):
         if cifar100:
-            (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar100.load_data()
+            train = unpickle(os.path.join(target_dir, "train"))
+            x_train = train[b'data']
+            if use_coarse_labels:
+                y_train = np.array(train[b'coarse_labels'])
+            else:
+                y_train = np.array(train[b'fine_labels'])
+
+            test = unpickle(os.path.join(target_dir, "test"))
+            x_test = test[b'data']
+            if use_coarse_labels:
+                y_test = np.array(test[b'coarse_labels'])
+            else:
+                y_test = np.array(test[b'fine_labels'])
         else:
-            (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+            data_batch_1 = unpickle(os.path.join(target_dir, "data_batch_1"))
+            data_batch_2 = unpickle(os.path.join(target_dir, "data_batch_2"))
+            data_batch_3 = unpickle(os.path.join(target_dir, "data_batch_3"))
+            data_batch_4 = unpickle(os.path.join(target_dir, "data_batch_4"))
+            data_batch_5 = unpickle(os.path.join(target_dir, "data_batch_5"))
+            test_batch = unpickle(os.path.join(target_dir, "test_batch"))
+            x_train = np.concatenate([data_batch_1[b'data'], data_batch_2[b'data'], data_batch_3[b'data'], data_batch_4[b'data'], data_batch_5[b'data']])
+            y_train = np.concatenate([data_batch_1[b'labels'], data_batch_2[b'labels'], data_batch_3[b'labels'], data_batch_4[b'labels'], data_batch_5[b'labels']])
+            x_test = test_batch[b'data']
+            y_test = np.array(test_batch[b'labels'])
+            
         self.__use_multi_channel = use_multi_channel
         self.__train_X = x_train
         self.__train_labels = y_train
@@ -78,7 +108,7 @@ class Dataset:
         return self.__test_labels
 
     def __to_spikes(self, samples):
-        spike_times = samples.reshape((samples.shape[0], N_NEURONS, 3))# now this assumes 3 channels
+        spike_times = samples.reshape((samples.shape[0], N_NEURONS * 3))# now this assumes 3 channels
         spike_times = TIME_WINDOW * (1 - (spike_times / MAX_VALUE))
         spike_times[spike_times == TIME_WINDOW] = np.inf
         if self.__use_multi_channel:
