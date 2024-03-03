@@ -50,7 +50,7 @@ SIMULATION_TIME = 0.2
 #Residual parameters
 USE_RESIDUAL = True
 RESIDUAL_EVERY_N = 2
-N_HIDDEN_LAYERS = 5
+N_HIDDEN_LAYERS = 50
 
 if CLUSTER:
     NUMBER_OF_RUNS = 20
@@ -59,7 +59,7 @@ else:
 
 # Hidden layer
 if CLUSTER:
-    N_NEURONS_1 = 750 #!800 #? Should I lower it?
+    N_NEURONS_1 =1000 #!800 #? Should I lower it?
 else:
     N_NEURONS_1 = 750
 TAU_S_1 = 0.130
@@ -69,7 +69,7 @@ SPIKE_BUFFER_SIZE_1 = 30
 
 # Residual layer
 if CLUSTER:
-    N_NEURONS_RES = 800 #!800 #? Should I lower it?
+    N_NEURONS_RES = 1000 #!800 #? Should I lower it?
 else:
     N_NEURONS_RES = 750
 TAU_S_RES = 0.130
