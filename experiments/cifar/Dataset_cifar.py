@@ -82,22 +82,13 @@ class Dataset:
             x_train = np.concatenate([data_batch_1[b'data'], data_batch_2[b'data'], data_batch_3[b'data'], data_batch_4[b'data'], data_batch_5[b'data']])
             y_train = np.concatenate([data_batch_1[b'labels'], data_batch_2[b'labels'], data_batch_3[b'labels'], data_batch_4[b'labels'], data_batch_5[b'labels']])
             x_test = test_batch[b'data']
-            y_test = np.array(test_batch[b'labels'])
-            
+            y_test = np.array(test_batch[b'labels'], dtype= 'uint8')
+        
         self.__use_multi_channel = use_multi_channel
         self.__train_X = x_train
         self.__train_labels = y_train
         self.__test_X = x_test
         self.__test_labels = y_test
-        self.__datagen = keras.preprocessing.image.ImageDataGenerator(width_shift_range=WIDTH_SHIFT,
-                                                                      height_shift_range=HEIGHT_SHIFT,
-                                                                      zoom_range=ZOOM_RANGE,
-                                                                      rotation_range=ROTATION_RANGE,
-                                                                      fill_mode="nearest",
-                                                                      preprocessing_function=lambda x:
-                                                                      elastic_transform(x,
-                                                                                        alpha_range=ELASTIC_ALPHA_RANGE,
-                                                                                        sigma=ELASTIC_SIGMA))
 
     @property
     def train_labels(self) -> np.ndarray:
@@ -108,11 +99,29 @@ class Dataset:
         return self.__test_labels
 
     def __to_spikes(self, samples):
-        spike_times = samples.reshape((samples.shape[0], N_NEURONS * 3))# now this assumes 3 channels
-        spike_times = TIME_WINDOW * (1 - (spike_times / MAX_VALUE))
+        red = samples[:,:1024]
+        green = samples[:,1024:2048]
+        blue = samples[:,-1024:]
+        average_red = np.mean(red)
+        average_green = np.mean(green)
+        average_blue = np.mean(blue)
+
+        # how does it work without this thresholding?
+        average_red = 0
+        average_green = 0
+        average_blue = 0
+
+        # we turn all of the ones below the average to 0
+        red[red < average_red] = 0
+        green[green < average_green] = 0
+        blue[blue < average_blue] = 0
+        new_samples = np.concatenate([red, green, blue], axis=1)
+        # spike_times = samples.reshape((samples.shape[0], N_NEURONS, 3))# now this assumes 3 channels
+        spike_times = TIME_WINDOW * (1 - (new_samples / MAX_VALUE))
         spike_times[spike_times == TIME_WINDOW] = np.inf
         if self.__use_multi_channel:
             spike_times = spike_times.reshape((samples.shape[0], N_NEURONS*3, 1))
+            #! all of them have 1s how can I stop this?
             n_spike_per_neuron_3_channels = np.isfinite(spike_times).astype('int').reshape((samples.shape[0], N_NEURONS*3))
             return spike_times, n_spike_per_neuron_3_channels
 

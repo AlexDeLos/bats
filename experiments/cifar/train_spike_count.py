@@ -27,12 +27,12 @@ from bats.Optimizers import *
 
 
 # Change from small test on computer to big test on cluster
-CLUSTER = True
+CLUSTER = False
 USE_WANDB = False
 ALTERNATE = True
 USE_CIFAR100 = False
 USE_COURSE_LABELS = False
-USE_3_CHANNELS = True
+USE_3_CHANNELS = True #! false could be broken
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 if USE_CIFAR100:
@@ -61,9 +61,9 @@ else:
 if CLUSTER:
     N_NEURONS_1 = 750 #!800 #? Should I lower it?
 else:
-    N_NEURONS_1 = 400
+    N_NEURONS_1 = 750
 TAU_S_1 = 0.130
-THRESHOLD_HAT_1 = 0.2
+THRESHOLD_HAT_1 = 0.5
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 30
 
@@ -71,9 +71,9 @@ SPIKE_BUFFER_SIZE_1 = 30
 if CLUSTER:
     N_NEURONS_RES = 800 #!800 #? Should I lower it?
 else:
-    N_NEURONS_RES = 260
+    N_NEURONS_RES = 750
 TAU_S_RES = 0.130
-THRESHOLD_HAT_RES = 0.2
+THRESHOLD_HAT_RES = 0.5
 DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES
 SPIKE_BUFFER_SIZE_RES = 20
 
@@ -110,11 +110,11 @@ TRAIN_PRINT_PERIOD = 0.1
 TRAIN_PRINT_PERIOD_STEP = int(N_TRAIN_SAMPLES * TRAIN_PRINT_PERIOD / TRAIN_BATCH_SIZE)
 TEST_PERIOD = 1.0  # Evaluate on test batch every TEST_PERIOD epochs
 TEST_PERIOD_STEP = int(N_TRAIN_SAMPLES * TEST_PERIOD / TRAIN_BATCH_SIZE)
-LEARNING_RATE = 0.03
+LEARNING_RATE = 0.0003
 LR_DECAY_EPOCH = int(N_TRAINING_EPOCHS/10)  # Perform decay very n epochs
 LR_DECAY_FACTOR = 1.0
 MIN_LEARNING_RATE = 0
-TARGET_FALSE = 3#? what are these?
+TARGET_FALSE = 3
 TARGET_TRUE = 15
 
 # Plot parameters
