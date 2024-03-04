@@ -205,18 +205,18 @@ for run in range(NUMBER_OF_RUNS):
             hidden_layers.append(conv)
             network.add_layer(conv)
         elif i % RESIDUAL_EVERY_N == 0 or i == N_HIDDEN_LAYERS-1:
-            if USE_RESIDUAL:
+            if USE_RESIDUAL and i == N_HIDDEN_LAYERS-1:
                 conv = ConvLIFLayerResidual_2(previous_layer=conv, jump_layer=hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_1, use_padding=USE_PADDING,
                             tau_s=TAU_S_1,
-                            filter_from_next=FILTER_1,
                             theta=THRESHOLD_HAT_1,
                             delta_theta=DELTA_THRESHOLD_1,
                             weight_initializer=weight_initializer_conv,
                             max_n_spike=SPIKE_BUFFER_SIZE_1,
                             name="Convolution "+str(i))
-            elif USE_RESIDUAL and i == N_HIDDEN_LAYERS-1:
+            elif USE_RESIDUAL:
                 conv = ConvLIFLayerResidual_2(previous_layer=conv, jump_layer=hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_1, use_padding=USE_PADDING,
                             tau_s=TAU_S_1,
+                            filter_from_next=FILTER_1,
                             theta=THRESHOLD_HAT_1,
                             delta_theta=DELTA_THRESHOLD_1,
                             weight_initializer=weight_initializer_conv,

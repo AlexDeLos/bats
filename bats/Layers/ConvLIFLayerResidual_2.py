@@ -393,8 +393,8 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
     def backward(self, errors: cp.array) -> Tuple:
         #TODO: split the errors into pre and jump
         filter_from_next = self.__filter_from_next
-        if self.__filter_from_next is not None:
-            errors = trimed_errors(errors, self.__filter_from_next, self.neurons_shape[2])
+        # if self.__filter_from_next is not None:
+        #     errors = trimed_errors(errors, self.__filter_from_next, self.neurons_shape[2])
         jump_spike_per_neuron, jump_n_spike_per_neuron = self.__jump_layer.spike_trains
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
         #if padded this needs to be changed
