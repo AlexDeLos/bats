@@ -1,6 +1,38 @@
 import cupy as cp
 from math import sqrt
+import argparse
+import os
 # This file contains utility functions that are used in the main code
+def get_arguments():
+    parser = argparse.ArgumentParser(prog="SNN script",
+                                     description="Run a Spiking Neural Network (SNN) on the given dataset")
+    # parser.add_argument("gnn", choices=["GAT", "MessagePassing", "GraphSAGE", "GINE", "HeteroGNN"], default="GAT")
+    # if file is moved in another directory level relative to the root (currently in root/utils/src), this needs to be changed
+    root_directory = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    parser.add_argument("--cluster", default=False, type=bool)
+    parser.add_argument("--runs", default=1, type=int)
+    parser.add_argument("--n_neurons", default=500, type=int)
+    parser.add_argument("--alternate", default=False, type=bool)
+    parser.add_argument("--residual_every_n", default=2, type=int)
+    parser.add_argument("--n_hidden_layers", default=5, type=int)
+    parser.add_argument("--use_residual",default=False, type=bool)
+    parser.add_argument("--use_wanb", default=False, type=bool)
+    parser.add_argument("--use_3_channels", default=True, type=bool)
+    parser.add_argument("-s", "--save_model", action="store_true", default=False)
+    parser.add_argument("-b", "--batch_size", default=20, type=int)
+    parser.add_argument("-n", "--n_epochs", default=10, type=int)
+    parser.add_argument("-l", "--learning_rate", default=5e-3, type=float)
+    parser.add_argument("--n_test_samples", default=10000, type=int)
+    parser.add_argument("--n_train_samples", default=50000, type=int)
+    parser.add_argument("--use_multi_channel", default=False, type=bool)
+    parser.add_argument("--cifar100", default=False, type=bool)
+    parser.add_argument("--batch_size_test", default=50, type=int)
+    parser.add_argument("--use_coarse_labels", default=False, type=bool)
+
+
+    args = parser.parse_args()
+    return args
+
 
 def split_errors_on_channel_dim(errors, shape):
     #! how are the channels saved in the errors?

@@ -1,4 +1,5 @@
 from pathlib import Path
+from click import argument
 import wandb
 # import tensorflow as tf
 import cupy as cp
@@ -19,20 +20,28 @@ from bats.Network import Network
 from bats.Optimizers import *
 from bats.Layers.ConvInputLayer import ConvInputLayer
 from bats.Layers.ConvLIFLayer import ConvLIFLayer
+
 from bats.Layers.ConvLIFLayerResidual_2 import ConvLIFLayerResidual_2
+from bats.Utils.utils import get_arguments
 
 from bats.Layers.PoolingLayer import PoolingLayer
 
+arguments = get_arguments()
+# Residual arguments
+N_HIDDEN_LAYERS = arguments.n_hidden_layers
+USE_RESIDUAL = arguments.use_residual
+RESIDUAL_EVERY_N = arguments.residual_every_n
+
 # Change from small test on computer to big test on cluster
-CLUSTER = True
-USE_WANDB = False
-ALTERNATE = False
-USE_RESIDUAL = True
+CLUSTER = arguments.cluster
+USE_WANDB = arguments.use_wanb
+ALTERNATE = arguments.alternate
+USE_RESIDUAL = arguments.use_residual
 FIX_SEED = False
 USE_PADDING = True #! residual and padd gives nans
-USE_CIFAR100 = False
-USE_COURSE_LABELS = False
-USE_3_CHANNELS = False #! false could be broken
+USE_CIFAR100 = arguments.cifar100	
+USE_COURSE_LABELS = arguments.use_coarse_labels
+USE_3_CHANNELS = arguments.use_3_channels #! false could be broken
 #TODO: try to get the non append function to run out of memory
 if USE_CIFAR100:
     DATASET_PATH = "./datasets/cifar-100-python/"
@@ -45,15 +54,7 @@ else:
 # but silent labels go down and kind of does loss
 #TODO: try to get the non append function to run out of memory
 
-#Residual parameters
-# USE_RESIDUAL = True
-# RESIDUAL_EVERY_N = 500
-# N_HIDDEN_LAYERS = 2
-
-if CLUSTER:
-    NUMBER_OF_RUNS = 20
-else:
-    NUMBER_OF_RUNS = 10
+NUMBER_OF_RUNS = arguments.runs
 
 
 if USE_3_CHANNELS:
@@ -61,38 +62,13 @@ if USE_3_CHANNELS:
 else:
     INPUT_SHAPE = np.array([32, 32, 1])
 # INPUT_SHAPE = np.array([5,5,2])
-N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
-FILTER_1 = np.array([3, 3, 5]) #? could it be the size of this filter's channels?
+FILTER_1 = np.array([3, 3, 10]) #? could it be the size of this filter's channels?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 10
-if USE_PADDING:
-    FILTER_FROM_NEXT = np.array([3, 3, 10])
-else:
-    FILTER_FROM_NEXT = None
-
-FILTER_1_5 = np.array([3, 3, 10]) #? could it be the size of this filter's channels?
-TAU_S_1_5 = 0.130
-THRESHOLD_HAT_1_5 = 0.04
-DELTA_THRESHOLD_1_5 = 1 * THRESHOLD_HAT_1
-SPIKE_BUFFER_SIZE_1_5 = 10
-if USE_PADDING:
-    FILTER_FROM_NEXT_1_5 = np.array([3, 3, 10])
-else:
-    FILTER_FROM_NEXT_1_5 = None
-
-FILTER_2 = np.array([3, 3, 10]) # used to be [5,5,40] -> is the 40 the channels?
-TAU_S_2 = 0.130
-THRESHOLD_HAT_2 = 0.8
-DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
-SPIKE_BUFFER_SIZE_2 = 21
-if USE_PADDING:
-    FILTER_FROM_NEXT_2 = None
-else:
-    FILTER_FROM_NEXT_2 = None
 
 N_NEURONS_FC = 100
 TAU_S_FC = 0.130
@@ -115,27 +91,27 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 # Training parameters
 N_TRAINING_EPOCHS = 10 #! used to  be 100
 if CLUSTER:
-    N_TRAIN_SAMPLES = 50000
-    N_TEST_SAMPLES = 10000 #! used to be 10000
-    TRAIN_BATCH_SIZE = 50 #! used to be 50 -> putting it at 50 crashes the cluster when using append
-    TEST_BATCH_SIZE = 100
+    N_TRAIN_SAMPLES = arguments.n_train_samples
+    N_TEST_SAMPLES = arguments.n_test_samples #! used to be 10000
+    TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
+    TEST_BATCH_SIZE = arguments.batch_size_test
 else:
-    N_TRAIN_SAMPLES = 10000
-    N_TEST_SAMPLES = 10000
+    N_TRAIN_SAMPLES = 1000
+    N_TEST_SAMPLES = 1000
     TRAIN_BATCH_SIZE = 20
     TEST_BATCH_SIZE = 40
-TRAIN_BATCH_SIZE = 20 # 20
-TEST_BATCH_SIZE = 50
+    TRAIN_BATCH_SIZE = 20 # 20
+    TEST_BATCH_SIZE = 50
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
 TRAIN_PRINT_PERIOD = 0.1
 TRAIN_PRINT_PERIOD_STEP = int(N_TRAIN_SAMPLES * TRAIN_PRINT_PERIOD / TRAIN_BATCH_SIZE)
 TEST_PERIOD = 1.0  # Evaluate on test batch every TEST_PERIOD epochs
 TEST_PERIOD_STEP = int(N_TRAIN_SAMPLES * TEST_PERIOD / TRAIN_BATCH_SIZE)
-LEARNING_RATE = 0.003
+LEARNING_RATE = arguments.learning_rate
 LR_DECAY_EPOCH = 10  # Perform decay very n epochs
 LR_DECAY_FACTOR = 0.5
-MIN_LEARNING_RATE = 1e-4
+MIN_LEARNING_RATE = 1e-5
 TARGET_FALSE = 3
 TARGET_TRUE = 30
 
@@ -215,59 +191,52 @@ for run in range(NUMBER_OF_RUNS):
     network = Network()
     input_layer = ConvInputLayer(neurons_shape=INPUT_SHAPE, name="Input layer")
     network.add_layer(input_layer, input=True)
-
-    conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
-                          filter_from_next = FILTER_FROM_NEXT,
-                          tau_s=TAU_S_1,
-                          theta=THRESHOLD_HAT_1,
-                          delta_theta=DELTA_THRESHOLD_1,
-                          weight_initializer=weight_initializer_conv,
-                          max_n_spike=SPIKE_BUFFER_SIZE_1,
-                          name="Convolution 1")
-    network.add_layer(conv_1)
-
-    # pool_1 = PoolingLayer(conv_1, name="Pooling 1")
-    # network.add_layer(pool_1)
-
-    conv_1_5 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_1_5, use_padding=USE_PADDING,
-                          filter_from_next = FILTER_FROM_NEXT_1_5,
-                          tau_s=TAU_S_1_5,
-                          theta=THRESHOLD_HAT_1_5,
-                          delta_theta=DELTA_THRESHOLD_1_5,
-                          weight_initializer=weight_initializer_conv,
-                          max_n_spike=SPIKE_BUFFER_SIZE_1_5,
-                          name="Convolution 1_5")
-    network.add_layer(conv_1_5)
-
-    # this is an activation layer
-    # pool_1_5 = PoolingLayer(conv_1_5, name="Pooling 1_5")
-    # network.add_layer(pool_1_5)
-    #! the is a problem after a few iterations, nans appear
-    # conv_2 = ConvLIFLayerResidual(previous_layer=conv_1_5, jump_layer= conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
-                        #   tau_s=TAU_S_2,
-    if USE_RESIDUAL:
-    # *I can connect it straight to other conv layers
-        conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
-                            tau_s=TAU_S_2,
-                            theta=THRESHOLD_HAT_2,
-                            delta_theta=DELTA_THRESHOLD_2,
+    for i in range(N_HIDDEN_LAYERS):
+        if i == 0:
+            conv = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
+                            tau_s=TAU_S_1,
+                            filter_from_next=FILTER_1,
+                            theta=THRESHOLD_HAT_1,
+                            delta_theta=DELTA_THRESHOLD_1,
                             weight_initializer=weight_initializer_conv,
-                            max_n_spike=SPIKE_BUFFER_SIZE_2,
-                            name="Convolution 2")
-    else:
-        conv_2 = ConvLIFLayer(previous_layer=conv_1_5, filters_shape=FILTER_2, use_padding=USE_PADDING,
-                            tau_s=TAU_S_2,
-                            theta=THRESHOLD_HAT_2,
-                            delta_theta=DELTA_THRESHOLD_2,
+                            max_n_spike=SPIKE_BUFFER_SIZE_1,
+                            name="Convolution "+str(i))
+            network.add_layer(conv)
+        if i % RESIDUAL_EVERY_N == 0 and i != 0:
+            if USE_RESIDUAL:
+                conv = ConvLIFLayerResidual_2(previous_layer=conv, jump_layer=conv, filters_shape=FILTER_1, use_padding=USE_PADDING,
+                            tau_s=TAU_S_1,
+                            filter_from_next=FILTER_1,
+                            theta=THRESHOLD_HAT_1,
+                            delta_theta=DELTA_THRESHOLD_1,
                             weight_initializer=weight_initializer_conv,
-                            max_n_spike=SPIKE_BUFFER_SIZE_2,
-                            name="Convolution 2")
-    network.add_layer(conv_2)
+                            max_n_spike=SPIKE_BUFFER_SIZE_1,
+                            name="Convolution "+str(i))
+            else:
+                conv = ConvLIFLayer(previous_layer=conv, filters_shape=FILTER_1, use_padding=USE_PADDING,
+                            tau_s=TAU_S_1,
+                            filter_from_next=FILTER_1,
+                            theta=THRESHOLD_HAT_1,
+                            delta_theta=DELTA_THRESHOLD_1,
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=SPIKE_BUFFER_SIZE_1,
+                            name="Convolution "+str(i))
+            network.add_layer(conv)
+        else:
+            conv = ConvLIFLayer(previous_layer=conv, filters_shape=FILTER_1, use_padding=USE_PADDING,
+                            tau_s=TAU_S_1,
+                            filter_from_next=FILTER_1,
+                            theta=THRESHOLD_HAT_1,
+                            delta_theta=DELTA_THRESHOLD_1,
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=SPIKE_BUFFER_SIZE_1,
+                            name="Convolution "+str(i))
+            network.add_layer(conv)
 
-    # pool_2 = PoolingLayer(conv_2, name="Pooling 2")
-    # network.add_layer(pool_2)
+    pool_2 = PoolingLayer(conv, name="Pooling 2")
+    network.add_layer(pool_2)
 
-    feedforward = LIFLayer(previous_layer=conv_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+    feedforward = LIFLayer(previous_layer=pool_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
                            theta=THRESHOLD_HAT_FC,
                            delta_theta=DELTA_THRESHOLD_FC,
                            weight_initializer=weight_initializer_ff,

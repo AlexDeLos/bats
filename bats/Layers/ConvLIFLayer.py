@@ -170,9 +170,12 @@ class ConvLIFLayer(AbstractConvLayer):
             if new_x.shape != errors.shape:
                 #* here I could check on a list of filters_from_next - Talk to supervisors about this
                 raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors.shape}")
+        else:
+            errors = errors_in
         
         new_spike_times_per_neuron = self.__spike_times_per_neuron #? what is this?
-        errors_debug = errors.copy()
+        errors_debug = errors_in.copy()
+        
         propagate_recurrent_errors(new_x, new_post_exp_tau, errors, self.__delta_theta_tau)#! they all have the shape of the current layer
         f1, f2 = compute_factors(new_spike_times_per_neuron, self.__a, self.__c, new_x,
                                  new_post_exp_tau, self.__tau)
