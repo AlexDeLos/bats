@@ -74,13 +74,15 @@ class Dataset:
                 y_test = np.array(test[b'fine_labels'])
         else:
             data_batch_1 = unpickle(os.path.join(target_dir, "data_batch_1"))
-            data_batch_2 = unpickle(os.path.join(target_dir, "data_batch_2"))
-            data_batch_3 = unpickle(os.path.join(target_dir, "data_batch_3"))
-            data_batch_4 = unpickle(os.path.join(target_dir, "data_batch_4"))
-            data_batch_5 = unpickle(os.path.join(target_dir, "data_batch_5"))
+            # data_batch_2 = unpickle(os.path.join(target_dir, "data_batch_2"))
+            # data_batch_3 = unpickle(os.path.join(target_dir, "data_batch_3"))
+            # data_batch_4 = unpickle(os.path.join(target_dir, "data_batch_4"))
+            # data_batch_5 = unpickle(os.path.join(target_dir, "data_batch_5"))
+            x_train = data_batch_1[b'data']
+            y_train = np.array(data_batch_1[b'labels'], dtype= 'uint8')
             test_batch = unpickle(os.path.join(target_dir, "test_batch"))
-            x_train = np.concatenate([data_batch_1[b'data'], data_batch_2[b'data'], data_batch_3[b'data'], data_batch_4[b'data'], data_batch_5[b'data']])
-            y_train = np.concatenate([data_batch_1[b'labels'], data_batch_2[b'labels'], data_batch_3[b'labels'], data_batch_4[b'labels'], data_batch_5[b'labels']])
+            # x_train = np.concatenate([data_batch_1[b'data'], data_batch_2[b'data'], data_batch_3[b'data'], data_batch_4[b'data'], data_batch_5[b'data']])
+            # y_train = np.concatenate([data_batch_1[b'labels'], data_batch_2[b'labels'], data_batch_3[b'labels'], data_batch_4[b'labels'], data_batch_5[b'labels']])
             x_test = test_batch[b'data']
             y_test = np.array(test_batch[b'labels'], dtype= 'uint8')
         
@@ -126,9 +128,13 @@ class Dataset:
             return spike_times, n_spike_per_neuron_3_channels
 
         else:
-            avaraged_spike_times = np.mean(spike_times, axis=2, keepdims=True) # Here I take the mean of the 3 channels, it is also worth to try just running the 3 channels separately
-            n_spike_per_neuron = np.isfinite(avaraged_spike_times).astype('int').reshape((samples.shape[0], N_NEURONS))
-            return avaraged_spike_times, n_spike_per_neuron
+            stack = samples.reshape((samples.shape[0], 3,N_NEURONS))
+            averaged_spike_times = np.mean(stack, axis=1, keepdims=True) # Here I take the mean of the 3 channels, it is also worth to try just running the 3 channels separately
+            spike_times_av = TIME_WINDOW * (1 - (averaged_spike_times / MAX_VALUE))
+            spike_times_av[spike_times_av == TIME_WINDOW] = np.inf
+            n_spike_per_neuron = np.isfinite(spike_times_av).astype('int').reshape((samples.shape[0], N_NEURONS))
+            spike_times_av_ret = spike_times_av.reshape((samples.shape[0], N_NEURONS, 1))
+            return spike_times_av_ret, n_spike_per_neuron
 
     def shuffle(self) -> None:
         shuffled_indices = np.arange(len(self.__train_labels))
