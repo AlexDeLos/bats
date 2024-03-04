@@ -64,7 +64,7 @@ else:
 # INPUT_SHAPE = np.array([5,5,2])
 SIMULATION_TIME = 0.2
 
-FILTER_1 = np.array([3, 3, 10]) #? could it be the size of this filter's channels?
+FILTER_1 = np.array([3, 3, 2]) #? could it be the size of this filter's channels?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -96,7 +96,7 @@ if CLUSTER:
     TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
     TEST_BATCH_SIZE = arguments.batch_size_test
 else:
-    N_TRAIN_SAMPLES = 100
+    N_TRAIN_SAMPLES = 500
     N_TEST_SAMPLES = 100
     TRAIN_BATCH_SIZE = 20
     TEST_BATCH_SIZE = 40
