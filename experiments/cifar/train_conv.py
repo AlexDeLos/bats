@@ -24,7 +24,7 @@ from bats.Layers.ConvLIFLayerResidual_2 import ConvLIFLayerResidual_2
 from bats.Layers.PoolingLayer import PoolingLayer
 
 # Change from small test on computer to big test on cluster
-CLUSTER = False
+CLUSTER = True
 USE_WANDB = False
 ALTERNATE = False
 USE_RESIDUAL = True
