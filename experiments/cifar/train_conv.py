@@ -96,8 +96,8 @@ if CLUSTER:
     TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
     TEST_BATCH_SIZE = arguments.batch_size_test
 else:
-    N_TRAIN_SAMPLES = 1000
-    N_TEST_SAMPLES = 1000
+    N_TRAIN_SAMPLES = 100
+    N_TEST_SAMPLES = 100
     TRAIN_BATCH_SIZE = 20
     TEST_BATCH_SIZE = 40
     TRAIN_BATCH_SIZE = 20 # 20
@@ -202,7 +202,7 @@ for run in range(NUMBER_OF_RUNS):
                             max_n_spike=SPIKE_BUFFER_SIZE_1,
                             name="Convolution "+str(i))
             network.add_layer(conv)
-        if i % RESIDUAL_EVERY_N == 0 and i != 0:
+        if (i % RESIDUAL_EVERY_N == 0 and i != 0) or i == N_HIDDEN_LAYERS-1:
             if USE_RESIDUAL:
                 conv = ConvLIFLayerResidual_2(previous_layer=conv, jump_layer=conv, filters_shape=FILTER_1, use_padding=USE_PADDING,
                             tau_s=TAU_S_1,
