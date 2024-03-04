@@ -214,6 +214,14 @@ for run in range(NUMBER_OF_RUNS):
                             weight_initializer=weight_initializer_conv,
                             max_n_spike=SPIKE_BUFFER_SIZE_1,
                             name="Convolution "+str(i))
+            elif USE_RESIDUAL and i == N_HIDDEN_LAYERS-1:
+                conv = ConvLIFLayerResidual_2(previous_layer=conv, jump_layer=hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_1, use_padding=USE_PADDING,
+                            tau_s=TAU_S_1,
+                            theta=THRESHOLD_HAT_1,
+                            delta_theta=DELTA_THRESHOLD_1,
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=SPIKE_BUFFER_SIZE_1,
+                            name="Convolution "+str(i))
             else:
                 conv = ConvLIFLayer(previous_layer=conv, filters_shape=FILTER_1, use_padding=USE_PADDING,
                             tau_s=TAU_S_1,
