@@ -191,6 +191,7 @@ for run in range(NUMBER_OF_RUNS):
     network = Network()
     input_layer = ConvInputLayer(neurons_shape=INPUT_SHAPE, name="Input layer")
     network.add_layer(input_layer, input=True)
+    hidden_layers = []
     for i in range(N_HIDDEN_LAYERS):
         if i == 0:
             conv = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
@@ -201,10 +202,11 @@ for run in range(NUMBER_OF_RUNS):
                             weight_initializer=weight_initializer_conv,
                             max_n_spike=SPIKE_BUFFER_SIZE_1,
                             name="Convolution "+str(i))
+            hidden_layers.append(conv)
             network.add_layer(conv)
-        if (i % RESIDUAL_EVERY_N == 0 and i != 0) or i == N_HIDDEN_LAYERS-1:
+        elif i % RESIDUAL_EVERY_N == 0 or i == N_HIDDEN_LAYERS-1:
             if USE_RESIDUAL:
-                conv = ConvLIFLayerResidual_2(previous_layer=conv, jump_layer=conv, filters_shape=FILTER_1, use_padding=USE_PADDING,
+                conv = ConvLIFLayerResidual_2(previous_layer=conv, jump_layer=hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_1, use_padding=USE_PADDING,
                             tau_s=TAU_S_1,
                             filter_from_next=FILTER_1,
                             theta=THRESHOLD_HAT_1,
@@ -221,6 +223,7 @@ for run in range(NUMBER_OF_RUNS):
                             weight_initializer=weight_initializer_conv,
                             max_n_spike=SPIKE_BUFFER_SIZE_1,
                             name="Convolution "+str(i))
+            hidden_layers.append(conv)
             network.add_layer(conv)
         else:
             conv = ConvLIFLayer(previous_layer=conv, filters_shape=FILTER_1, use_padding=USE_PADDING,
@@ -231,6 +234,7 @@ for run in range(NUMBER_OF_RUNS):
                             weight_initializer=weight_initializer_conv,
                             max_n_spike=SPIKE_BUFFER_SIZE_1,
                             name="Convolution "+str(i))
+            hidden_layers.append(conv)
             network.add_layer(conv)
 
     pool_2 = PoolingLayer(conv, name="Pooling 2")
