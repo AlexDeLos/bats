@@ -74,15 +74,15 @@ class Dataset:
                 y_test = np.array(test[b'fine_labels'])
         else:
             data_batch_1 = unpickle(os.path.join(target_dir, "data_batch_1"))
-            # data_batch_2 = unpickle(os.path.join(target_dir, "data_batch_2"))
-            # data_batch_3 = unpickle(os.path.join(target_dir, "data_batch_3"))
-            # data_batch_4 = unpickle(os.path.join(target_dir, "data_batch_4"))
-            # data_batch_5 = unpickle(os.path.join(target_dir, "data_batch_5"))
+            data_batch_2 = unpickle(os.path.join(target_dir, "data_batch_2"))
+            data_batch_3 = unpickle(os.path.join(target_dir, "data_batch_3"))
+            data_batch_4 = unpickle(os.path.join(target_dir, "data_batch_4"))
+            data_batch_5 = unpickle(os.path.join(target_dir, "data_batch_5"))
             x_train = data_batch_1[b'data']
             y_train = np.array(data_batch_1[b'labels'], dtype= 'uint8')
             test_batch = unpickle(os.path.join(target_dir, "test_batch"))
-            # x_train = np.concatenate([data_batch_1[b'data'], data_batch_2[b'data'], data_batch_3[b'data'], data_batch_4[b'data'], data_batch_5[b'data']])
-            # y_train = np.concatenate([data_batch_1[b'labels'], data_batch_2[b'labels'], data_batch_3[b'labels'], data_batch_4[b'labels'], data_batch_5[b'labels']])
+            x_train = np.concatenate([data_batch_1[b'data'], data_batch_2[b'data'], data_batch_3[b'data'], data_batch_4[b'data'], data_batch_5[b'data']])
+            y_train = np.concatenate([data_batch_1[b'labels'], data_batch_2[b'labels'], data_batch_3[b'labels'], data_batch_4[b'labels'], data_batch_5[b'labels']])
             x_test = test_batch[b'data']
             y_test = np.array(test_batch[b'labels'], dtype= 'uint8')
         
