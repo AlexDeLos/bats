@@ -248,10 +248,10 @@ for run in range(NUMBER_OF_RUNS):
             hidden_layers.append(conv)
             network.add_layer(conv)
 
-    pool_2 = PoolingLayer(conv, name="Pooling 2")
-    network.add_layer(pool_2)
+    # pool_2 = PoolingLayer(conv, name="Pooling 2")
+    # network.add_layer(pool_2)
 
-    feedforward = LIFLayer(previous_layer=pool_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+    feedforward = LIFLayer(previous_layer=conv, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
                            theta=THRESHOLD_HAT_FC,
                            delta_theta=DELTA_THRESHOLD_FC,
                            weight_initializer=weight_initializer_ff,
