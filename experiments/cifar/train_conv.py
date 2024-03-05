@@ -141,25 +141,24 @@ for run in range(NUMBER_OF_RUNS):
         wandb.init(
         # set the wandb project where this run will be logged
         project="Residual-SCNN",
-        name="Residual-SCNN_Padding_test_"+ str(USE_PADDING)+"_run_"+str(run),
+        name="CNN_"+ str(USE_RESIDUAL)+"# hidden_"+ N_HIDDEN_LAYERS +" using CIFAR100? = "+str(USE_CIFAR100),
         
         # track hyperparameters and run metadata4
         config={
         "Cluster": CLUSTER,
         "Use_residual": USE_RESIDUAL,
-        # "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
+        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
         "train_batch_size": TRAIN_BATCH_SIZE,
-        # "residual_every_n": RESIDUAL_EVERY_N,
-        "use_residual": "Not implemented yet",
+        "residual_every_n": RESIDUAL_EVERY_N,
         "use_padding": USE_PADDING,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
-        "Filter": str(FILTER_1)+'|'+str(FILTER_2),#+'|'+str(FILTER_3)+'|',
+        "Filter": str(FILTER_1),
         "learning_rate": LEARNING_RATE,
         "architecture": "CNN",
-        "dataset": "MNIST",
+        "dataset": "CIFAR-100" if USE_CIFAR100 else "CIFAR-10",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "0.0.1_cluster_" + str(CLUSTER),
+        "version": "1.0.0_cluster_" + str(CLUSTER),
         }
         )
 

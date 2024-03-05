@@ -22,10 +22,11 @@ module use /opt/insy/modulefiles
 module load miniconda/3.9
 conda activate myHomeEnv
 
-# conda activate /home/nfs/adelossantossu/.conda/envs/freshPytorch
-# echo "cuda version (from torch): " `python3 -c "import torch; print(torch.version.cuda)"`
-# echo "cuda version: " `python3 -c "import cupy; print(cupy.cuda.runtime.runtimeGetVersion())"`
-
-# srun python3 experiments/mnist/train_spike_count.py
-# srun python3 experiments/cifar/train_spike_count.py
-srun python3 experiments/cifar/train_conv.py --cluster True --use_residual True --use_multi_channel True --n_epochs 30 --runs 5 --n_hidden_layers 4
+srun python3 experiments/cifar/train_conv.py --cluster True --use_residual True --n_epochs 30 --runs 5 --n_hidden_layers 2 --use_wanb True
+# srun python3 experiments/cifar/train_conv.py --cluster False --use_residual True --n_epochs 30 --runs 5 --n_hidden_layers 2 --use_wanb True
+# srun python3 experiments/cifar/train_conv.py --cluster True --use_residual True --n_epochs 30 --runs 5 --n_hidden_layers 4 --use_wanb True
+# srun python3 experiments/cifar/train_conv.py --cluster False --use_residual True --n_epochs 30 --runs 5 --n_hidden_layers 4 --use_wanb True
+# srun python3 experiments/cifar/train_conv.py --cluster True --use_residual True --n_epochs 30 --runs 5 --n_hidden_layers 6 --use_wanb True
+# srun python3 experiments/cifar/train_conv.py --cluster False --use_residual True --n_epochs 30 --runs 5 --n_hidden_layers 6 --use_wanb True
+# srun python3 experiments/cifar/train_conv.py --cluster True --use_residual True --n_epochs 30 --runs 5 --n_hidden_layers 12 –residual_every_n 3 --use_wanb True
+# srun python3 experiments/cifar/train_conv.py --cluster False --use_residual True --n_epochs 30 --runs 5 --n_hidden_layers 12 --use_wanb True
