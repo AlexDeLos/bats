@@ -64,7 +64,10 @@ else:
 # INPUT_SHAPE = np.array([5,5,2])
 SIMULATION_TIME = 0.2
 
-FILTER_1 = np.array([3, 3, 10]) #? could it be the size of this filter's channels?
+if CLUSTER:
+    FILTER_1 = np.array([3, 3, 5]) #? could it be the size of this filter's channels?
+else:
+    FILTER_1 = np.array([3, 3, 2])
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -245,10 +248,10 @@ for run in range(NUMBER_OF_RUNS):
             hidden_layers.append(conv)
             network.add_layer(conv)
 
-    # pool_2 = PoolingLayer(conv, name="Pooling 2")
-    # network.add_layer(pool_2)
+    pool_2 = PoolingLayer(conv, name="Pooling 2")
+    network.add_layer(pool_2)
 
-    feedforward = LIFLayer(previous_layer=conv, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+    feedforward = LIFLayer(previous_layer=pool_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
                            theta=THRESHOLD_HAT_FC,
                            delta_theta=DELTA_THRESHOLD_FC,
                            weight_initializer=weight_initializer_ff,
