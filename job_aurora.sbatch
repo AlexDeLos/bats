@@ -28,4 +28,4 @@ conda activate myHomeEnv
 
 # srun python3 experiments/mnist/train_spike_count.py
 # srun python3 experiments/cifar/train_spike_count.py
-srun python3 experiments/cifar/train_conv.py --cluster True --use_residual True --use_multi_channel True --n_epochs 30 --runs 5
+srun python3 experiments/cifar/train_conv.py --cluster True --use_residual True --use_multi_channel True --n_epochs 30 --runs 5 --n_hidden_layers 4
