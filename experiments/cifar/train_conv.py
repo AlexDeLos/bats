@@ -141,7 +141,7 @@ for run in range(NUMBER_OF_RUNS):
         wandb.init(
         # set the wandb project where this run will be logged
         project="Final_thesis_testing",
-        name="CNN_"+ str(USE_RESIDUAL)+"# hidden_"+ N_HIDDEN_LAYERS +" using CIFAR100? = "+str(USE_CIFAR100),
+        name="CNN_"+ str(USE_RESIDUAL)+"# hidden_"+ str(N_HIDDEN_LAYERS) +" using CIFAR100? = "+str(USE_CIFAR100),
         
         # track hyperparameters and run metadata4
         config={
