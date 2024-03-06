@@ -92,7 +92,7 @@ DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 # Training parameters
-N_TRAINING_EPOCHS = 10 #! used to  be 100
+N_TRAINING_EPOCHS = arguments.n_epochs #! used to  be 100
 if CLUSTER:
     N_TRAIN_SAMPLES = arguments.n_train_samples
     N_TEST_SAMPLES = arguments.n_test_samples #! used to be 10000
