@@ -22,11 +22,17 @@ module use /opt/insy/modulefiles
 module load miniconda/3.9
 conda activate myHomeEnv
 
-srun python3 experiments/cifar/train_conv.py --cluster True --use_residual True --n_epochs 30 --runs 5 --n_hidden_layers 2 --use_wanb True
-srun python3 experiments/cifar/train_conv.py --cluster True --use_residual False --n_epochs 30 --runs 5 --n_hidden_layers 2 --use_wanb True
-srun python3 experiments/cifar/train_conv.py --cluster True --use_residual True --n_epochs 30 --runs 5 --n_hidden_layers 4 --use_wanb True
-srun python3 experiments/cifar/train_conv.py --cluster True --use_residual False --n_epochs 30 --runs 5 --n_hidden_layers 4 --use_wanb True
-# srun python3 experiments/cifar/train_conv.py --cluster True --use_residual True --n_epochs 30 --runs 5 --n_hidden_layers 6 --use_wanb True
+# srun python3 experiments/cifar/train_conv.py --cluster True --use_residual True --n_epochs 30 --runs 5 --n_hidden_layers 2 --use_wanb True
+# echo "Done with residual True, n_hidden_layers 2"
+# srun python3 experiments/cifar/train_conv.py --cluster True --use_residual False --n_epochs 30 --runs 5 --n_hidden_layers 2 --use_wanb True
+# echo "Done with residual False, n_hidden_layers 2"
+# srun python3 experiments/cifar/train_conv.py --cluster True --use_residual True --n_epochs 30 --runs 5 --n_hidden_layers 4 --use_wanb True
+# echo "Done with residual True, n_hidden_layers 4"
+# srun python3 experiments/cifar/train_conv.py --cluster True --use_residual False --n_epochs 30 --runs 5 --n_hidden_layers 4 --use_wanb True
+# echo "Done with residual False, n_hidden_layers 4"
+#SECOND JOBS
+srun python3 experiments/cifar/train_conv.py --cluster True --use_residual True --n_epochs 30 --runs 5 --n_hidden_layers 6 --use_wanb True
+echo "Done with residual True, n_hidden_layers 6"
 # srun python3 experiments/cifar/train_conv.py --cluster True --use_residual False --n_epochs 30 --runs 5 --n_hidden_layers 6 --use_wanb True
 # srun python3 experiments/cifar/train_conv.py --cluster True --use_residual True --n_epochs 30 --runs 5 --n_hidden_layers 12 –residual_every_n 3 --use_wanb True
 # srun python3 experiments/cifar/train_conv.py --cluster True --use_residual False --n_epochs 30 --runs 5 --n_hidden_layers 12 --use_wanb True

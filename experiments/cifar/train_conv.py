@@ -99,8 +99,8 @@ if CLUSTER:
     TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
     TEST_BATCH_SIZE = arguments.batch_size_test
 else:
-    N_TRAIN_SAMPLES = 500
-    N_TEST_SAMPLES = 100
+    N_TRAIN_SAMPLES = 5000
+    N_TEST_SAMPLES = 1000
     TRAIN_BATCH_SIZE = 20
     TEST_BATCH_SIZE = 40
     TRAIN_BATCH_SIZE = 20 # 20
@@ -247,10 +247,10 @@ for run in range(NUMBER_OF_RUNS):
             hidden_layers.append(conv)
             network.add_layer(conv)
 
-    # pool_2 = PoolingLayer(conv, name="Pooling 2")
-    # network.add_layer(pool_2)
+    pool_2 = PoolingLayer(conv, name="Pooling 2")
+    network.add_layer(pool_2)
 
-    feedforward = LIFLayer(previous_layer=conv, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+    feedforward = LIFLayer(previous_layer=pool_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
                            theta=THRESHOLD_HAT_FC,
                            delta_theta=DELTA_THRESHOLD_FC,
                            weight_initializer=weight_initializer_ff,
