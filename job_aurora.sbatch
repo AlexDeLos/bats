@@ -2,7 +2,7 @@
 
 #SBATCH --partition=general
 
-#SBATCH --qos=high
+#SBATCH --qos=medium
 
 #SBATCH --time=30:00:00
 

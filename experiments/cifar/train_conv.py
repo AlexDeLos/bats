@@ -134,9 +134,6 @@ def weight_initializer_ff(n_post: int, n_pre: int) -> cp.ndarray:
 
 
 for run in range(NUMBER_OF_RUNS):
-    if ALTERNATE and CLUSTER:
-        USE_RESIDUAL = run%2 == 0
-        print("Using Residual: ", USE_RESIDUAL)
     if USE_WANDB:
         wandb.init(
         # set the wandb project where this run will be logged
