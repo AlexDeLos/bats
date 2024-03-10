@@ -20,7 +20,7 @@ DATASET_PATH = Path("./datasets/emnist-balanced.mat")
 
 arguments = get_arguments()
 # Residual arguments
-N_HIDDEN_LAYERS = arguments.n_hidden_layers
+N_HIDDEN_LAYERS =2# arguments.n_hidden_layers
 USE_RESIDUAL = arguments.use_residual
 RESIDUAL_EVERY_N = arguments.residual_every_n
 
@@ -146,14 +146,22 @@ for run in range(NUMBER_OF_RUNS):
                                         delta_theta=DELTA_THRESHOLD_1,
                                         weight_initializer=weight_initializer,
                                         max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                        name="Hidden layer " + str(i + 1))
-            elif i == N_HIDDEN_LAYERS-1:
-                hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[-1], jump_layer= hidden_layers[i- RESIDUAL_EVERY_N], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+                                        name="Residual layer " + str(i + 1))
+            elif i == N_HIDDEN_LAYERS-1 and USE_RESIDUAL:
+                if N_HIDDEN_LAYERS >= RESIDUAL_EVERY_N:
+                    hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[-1], jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                         theta=THRESHOLD_HAT_1,
                                         delta_theta=DELTA_THRESHOLD_1,
                                         weight_initializer=weight_initializer,
                                         max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                        name="Hidden layer " + str(i + 1))
+                                        name="Residual layer " + str(i + 1))
+                else:
+                    hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[-1], jump_layer= hidden_layers[i- RESIDUAL_EVERY_N], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+                                            theta=THRESHOLD_HAT_1,
+                                            delta_theta=DELTA_THRESHOLD_1,
+                                            weight_initializer=weight_initializer,
+                                            max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                            name="Residual layer " + str(i + 1))
                 
             else:
                 hidden_layer = LIFLayer(previous_layer=hidden_layers[-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
