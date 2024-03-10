@@ -337,7 +337,7 @@ for run in range(NUMBER_OF_RUNS):
             for g, layer in zip(gradient, network.layers):
                 if g is None:
                     avg_gradient.append(None)
-                elif layer._is_residual:#! this was changed to make it non residual for TESTING
+                elif layer._is_residual:
                     grad_entry = []
                     for i in range(len(g)):
                         averaged_values = cp.mean(g[i], axis=0)

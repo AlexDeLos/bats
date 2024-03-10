@@ -15,7 +15,7 @@ def get_arguments():
     parser.add_argument("--alternate", default=False, type=bool)
     parser.add_argument("--residual_every_n", default=2, type=int)
     parser.add_argument("--n_hidden_layers", default=6, type=int)
-    parser.add_argument("--use_residual",default=True, type=bool)
+    parser.add_argument("--use_residual",default=False, type=bool)
     parser.add_argument("--use_wanb", default=False, type=bool)
     parser.add_argument("--use_3_channels", default=True, type=bool)
     parser.add_argument("-s", "--save_model", action="store_true", default=False)
