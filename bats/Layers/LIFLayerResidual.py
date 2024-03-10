@@ -14,7 +14,7 @@ WEIGHTS_FILE_SUFFIX = "_weights.npy"
 class LIFLayerResidual(AbstractLayer):
     def __init__(self, previous_layer: AbstractLayer, jump_layer: AbstractLayer, tau_s: float, theta: float, delta_theta: float,
                  weight_initializer: Callable[[int, int], cp.ndarray] = None, fuse_function = "Append", max_n_spike: int = 32, **kwargs): # type: ignore
-        super().__init__(**kwargs)
+        super().__init__(**kwargs, is_residual=True)
         self._is_residual = True
         self.__previous_layer: AbstractLayer = previous_layer
         self.__jump_layer: AbstractLayer = jump_layer

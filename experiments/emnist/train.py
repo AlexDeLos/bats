@@ -146,8 +146,15 @@ for run in range(NUMBER_OF_RUNS):
                                         delta_theta=DELTA_THRESHOLD_1,
                                         weight_initializer=weight_initializer,
                                         max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                        name="Hidden layer " + str(i + 1),
-                                        residual=hidden_layers[0].weights)
+                                        name="Hidden layer " + str(i + 1))
+            elif i == N_HIDDEN_LAYERS-1:
+                hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[-1], jump_layer= hidden_layers[i- RESIDUAL_EVERY_N], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+                                        theta=THRESHOLD_HAT_1,
+                                        delta_theta=DELTA_THRESHOLD_1,
+                                        weight_initializer=weight_initializer,
+                                        max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                        name="Hidden layer " + str(i + 1))
+                
             else:
                 hidden_layer = LIFLayer(previous_layer=hidden_layers[-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                         theta=THRESHOLD_HAT_1,
@@ -233,7 +240,20 @@ for run in range(NUMBER_OF_RUNS):
 
             # Compute gradient
             gradient = network.backward(errors)
-            avg_gradient = [None if g is None else cp.mean(g, axis=0) for g in gradient]
+            avg_gradient = []
+
+            for g, layer in zip(gradient, network.layers):
+                if g is None:
+                    avg_gradient.append(None)
+                elif layer._is_residual:
+                    grad_entry = []
+                    for i in range(len(g)):
+                        averaged_values = cp.mean(g[i], axis=0)
+                        grad_entry.append(averaged_values)
+                    avg_gradient.append(grad_entry)
+                else:
+                    averaged_values = cp.mean(g, axis=0)
+                    avg_gradient.append(averaged_values)
             del gradient
             if USE_WANDB:
                 for i in range(len(avg_gradient)):
