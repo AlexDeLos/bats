@@ -5,4 +5,3 @@ from .AbstractMonitor import AbstractMonitor
 from .AbstractConvLayer import AbstractConvLayer
 from .Network import Network
 from .Losses import *
-from .Utils import *

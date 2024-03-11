@@ -13,13 +13,12 @@ def get_sorted_spikes_indices(spike_times_per_neuron, n_spike_per_neuron):
     # total_spikes => number of spikes per neuron
     total_spikes = cp.sum(n_spike_per_neuron, axis=1)
     #max spikes a neuron got
-    #! Error found here: 2 (found here when running the program on the cluster)
-    #! In local machine it works 
-    #!TODO: Here is where you start next time bro, GL <3
+    #memory error here
     max_total_spike = int(cp.max(total_spikes))
-    sorted_indices = cp.argsort(spike_times_reshaped, axis=1)[:, :max_total_spike]
+    """sorted_indices = cp.argsort(spike_times_reshaped, axis=1)[:, :max_total_spike]"""
     # creates keys? (was orriginally just called n)
-    #TODO: possibly change it back
     keys = np.arange(max_total_spike)
-    # sorted_indices = cp.argpartition(spike_times_reshaped, keys, axis=1)[:, :max_total_spike] #!This was what "works"
+    # keys produces: ValueError: kth(=7200) out of bounds 7200
+    sorted_indices = cp.argpartition(spike_times_reshaped, keys, axis=1)[:, :max_total_spike]
+    #? what if I add padding to the indeces? increase theyr number to what they should be?
     return new_shape, sorted_indices, spike_times_reshaped

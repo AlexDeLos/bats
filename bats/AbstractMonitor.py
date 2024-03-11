@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -38,8 +38,8 @@ class AbstractMonitor(ABC):
             return
         np.savez(self._export_path, epochs=self._epochs, values=self._values)
 
-        plt.plot(self._epochs, self._values)
-        plt.xlabel("Epoch")
-        plt.ylabel(self._name)
-        plt.savefig(self._export_path.with_suffix('.png'))
-        plt.close()
+        # plt.plot(self._epochs, self._values)
+        # plt.xlabel("Epoch")
+        # plt.ylabel(self._name)
+        # plt.savefig(self._export_path.with_suffix('.png'))
+        # plt.close()

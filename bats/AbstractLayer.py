@@ -9,9 +9,11 @@ import numpy as np
 WEIGHTS_FILE_SUFFIX = "_weights.npy"
 
 class AbstractLayer(ABC):
-    def __init__(self, n_neurons: int, name: str = ""):
+    def __init__(self, n_neurons: int, name: str = "", is_residual: bool = False):
         self._n_neurons: int = n_neurons
         self._name: str = name
+        self._is_residual: bool = False
+        self._is_residual = is_residual
 
     @property
     def n_neurons(self) -> int:

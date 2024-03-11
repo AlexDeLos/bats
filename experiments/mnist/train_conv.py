@@ -1,14 +1,17 @@
 from pathlib import Path
-import cupy as cp
 import wandb
+# import tensorflow as tf
+import cupy as cp
 import numpy as np
+import sys
 import os
-
 import sys
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from Dataset import Dataset
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+# from Dataset import Dataset
+from Dataset_fashion import Dataset
+
 from bats.Monitors import *
 from bats.Layers import LIFLayer
 from bats.Losses import *
@@ -16,32 +19,78 @@ from bats.Network import Network
 from bats.Optimizers import *
 from bats.Layers.ConvInputLayer import ConvInputLayer
 from bats.Layers.ConvLIFLayer import ConvLIFLayer
-from bats.Layers.ConvLIFLayerResidual import ConvLIFLayerResidual
+from bats.Layers.ConvLIFLayerResidual_2 import ConvLIFLayerResidual_2
+
 from bats.Layers.PoolingLayer import PoolingLayer
 
 # Dataset
-DATASET_PATH = Path("./datasets/mnist.npz")
+# DATASET_PATH = Path("datasets/mnist.npz")
+DATASET_PATH = Path("datasets/")
+
+# Change from small test on computer to big test on cluster
+CLUSTER = False
+USE_WANDB = False
+ALTERNATE = False
+USE_RESIDUAL = True
+FIX_SEED = False
+USE_PADDING = True #! residual and padd gives nans
+# what causes nans:
+#! residual layers with pre = jump and nans
+# Why is it not learning?
+
+# but silent labels go down and kind of does loss
+#TODO: try to get the non append function to run out of memory
+
+#Residual parameters
+# USE_RESIDUAL = True
+# RESIDUAL_EVERY_N = 500
+# N_HIDDEN_LAYERS = 2
+
+if CLUSTER:
+    NUMBER_OF_RUNS = 20
+else:
+    NUMBER_OF_RUNS = 10
+
+
 
 INPUT_SHAPE = np.array([28, 28, 1])
+# INPUT_SHAPE = np.array([5,5,2])
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
-FILTER_1 = np.array([5, 5, 15])
+FILTER_1 = np.array([3, 3, 5]) #? could it be the size of this filter's channels?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
-SPIKE_BUFFER_SIZE_1 = 1
+SPIKE_BUFFER_SIZE_1 = 10
+if USE_PADDING:
+    FILTER_FROM_NEXT = np.array([3, 3, 10])
+else:
+    FILTER_FROM_NEXT = None
 
-FILTER_2 = np.array([5, 5, 40])
-#make these lower
+FILTER_1_5 = np.array([3, 3, 10]) #? could it be the size of this filter's channels?
+TAU_S_1_5 = 0.130
+THRESHOLD_HAT_1_5 = 0.04
+DELTA_THRESHOLD_1_5 = 1 * THRESHOLD_HAT_1
+SPIKE_BUFFER_SIZE_1_5 = 10
+if USE_PADDING:
+    FILTER_FROM_NEXT_1_5 = np.array([3, 3, 10])
+else:
+    FILTER_FROM_NEXT_1_5 = None
+
+FILTER_2 = np.array([3, 3, 10]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_2 = 0.130
 THRESHOLD_HAT_2 = 0.8
 DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
-SPIKE_BUFFER_SIZE_2 = 3
+SPIKE_BUFFER_SIZE_2 = 21
+if USE_PADDING:
+    FILTER_FROM_NEXT_2 = None
+else:
+    FILTER_FROM_NEXT_2 = None
 
-N_NEURONS_FC = 300
+N_NEURONS_FC = 100
 TAU_S_FC = 0.130
-THRESHOLD_HAT_FC = 0.6
+THRESHOLD_HAT_FC = 0.06
 DELTA_THRESHOLD_FC = 1 * THRESHOLD_HAT_FC
 SPIKE_BUFFER_SIZE_FC = 10
 
@@ -52,18 +101,16 @@ THRESHOLD_HAT_OUTPUT = 0.3
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
-
-#Residual controls
-N_HIDDEN_LAYERS = 3
-USE_RESIDUAL = True
-RESIDUAL_EVERY_N = 5
-
-
 # Training parameters
-N_TRAINING_EPOCHS = 10
-N_TRAIN_SAMPLES = 60000 #60000  
-N_TEST_SAMPLES = 10000
-TRAIN_BATCH_SIZE = 20
+if CLUSTER:
+    N_TRAINING_EPOCHS = 10
+    N_TRAIN_SAMPLES = 60000 #60000
+    N_TEST_SAMPLES = 10000 #10000
+else:
+    N_TRAINING_EPOCHS = 10
+    N_TRAIN_SAMPLES = 6000
+    N_TEST_SAMPLES = 1000
+TRAIN_BATCH_SIZE = 20 # 20
 TEST_BATCH_SIZE = 50
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
@@ -80,33 +127,9 @@ TARGET_TRUE = 30
 
 # Plot parameters
 EXPORT_METRICS = True
-EXPORT_DIR = Path("./experiments/mnist/output_metrics_conv")
-SAVE_DIR = Path("./experiments/mnist/best_model_conv")
+EXPORT_DIR = Path("./output_metrics")
+SAVE_DIR = Path("./best_model")
 
-#TODO: Look for the padding
-#TODO: Modify to use -> https://www.cs.toronto.edu/~kriz/cifar.html 
-
-wandb.init(
-        # set the wandb project where this run will be logged
-        project="Residual-SNN",
-        
-        # track hyperparameters and run metadata4
-        config={
-        "Network Type": "Convolution Network",
-        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-        "train_batch_size": TRAIN_BATCH_SIZE,
-        "residual_every_n": RESIDUAL_EVERY_N,
-        "use_residual": USE_RESIDUAL,
-        "n_of_train_samples": N_TRAIN_SAMPLES,
-        "n_of_test_samples": N_TEST_SAMPLES,
-        "n_neurons": N_NEURONS_FC,
-        "learning_rate": LEARNING_RATE,
-        "architecture": "SNN",
-        "dataset": "MNIST",
-        "epochs": N_TRAINING_EPOCHS,
-        "version": "1.0.0",
-        }
-    )
 
 def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:
     return cp.random.uniform(-1.0, 1.0, size=(c, x, y, pre_c), dtype=cp.float32)
@@ -114,12 +137,55 @@ def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:
 
 def weight_initializer_ff(n_post: int, n_pre: int) -> cp.ndarray:
     return cp.random.uniform(-1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
+    # return cp.random.uniform(1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
 
 
-if __name__ == "__main__":
+for run in range(NUMBER_OF_RUNS):
+    if ALTERNATE and CLUSTER:
+        USE_RESIDUAL = run%2 == 0
+        print("Using Residual: ", USE_RESIDUAL)
+    if USE_WANDB:
+        wandb.init(
+        # set the wandb project where this run will be logged
+        project="Residual-SCNN",
+        name="Residual-SCNN_Padding_test_"+ str(USE_PADDING)+"_run_"+str(run),
+        
+        # track hyperparameters and run metadata4
+        config={
+        "Cluster": CLUSTER,
+        "Use_residual": USE_RESIDUAL,
+        # "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
+        "train_batch_size": TRAIN_BATCH_SIZE,
+        # "residual_every_n": RESIDUAL_EVERY_N,
+        "use_residual": "Not implemented yet",
+        "use_padding": USE_PADDING,
+        "n_of_train_samples": N_TRAIN_SAMPLES,
+        "n_of_test_samples": N_TEST_SAMPLES,
+        "Filter": str(FILTER_1)+'|'+str(FILTER_2),#+'|'+str(FILTER_3)+'|',
+        "learning_rate": LEARNING_RATE,
+        "architecture": "CNN",
+        "dataset": "MNIST",
+        "epochs": N_TRAINING_EPOCHS,
+        "version": "0.0.1_cluster_" + str(CLUSTER),
+        }
+        )
+
+
+
     max_int = np.iinfo(np.int32).max
-    np_seed = np.random.randint(low=0, high=max_int)
-    cp_seed = np.random.randint(low=0, high=max_int)
+    # np_seed = 319596201
+
+    if not FIX_SEED:
+        np_seed = int(cp.random.randint(low=0, high=max_int))
+    else:
+        np_seed = 733255843
+        print('fixing seed np', np_seed)
+    if not FIX_SEED:
+        cp_seed = int(cp.random.randint(low=0, high=max_int))
+    else:
+        cp_seed = 1598833012
+        print('fixing seed cp', cp_seed)
+
     np.random.seed(np_seed)
     cp.random.seed(cp_seed)
     print(f"Numpy seed: {np_seed}, Cupy seed: {cp_seed}")
@@ -132,11 +198,12 @@ if __name__ == "__main__":
 
     print("Creating network...")
     network = Network()
-
     input_layer = ConvInputLayer(neurons_shape=INPUT_SHAPE, name="Input layer")
     network.add_layer(input_layer, input=True)
 
-    conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, tau_s=TAU_S_1,
+    conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
+                          filter_from_next = FILTER_FROM_NEXT,
+                          tau_s=TAU_S_1,
                           theta=THRESHOLD_HAT_1,
                           delta_theta=DELTA_THRESHOLD_1,
                           weight_initializer=weight_initializer_conv,
@@ -144,68 +211,56 @@ if __name__ == "__main__":
                           name="Convolution 1")
     network.add_layer(conv_1)
 
-    pool_1 = PoolingLayer(conv_1, name="Pooling 1")
-    network.add_layer(pool_1)
+    # pool_1 = PoolingLayer(conv_1, name="Pooling 1")
+    # network.add_layer(pool_1)
 
-
-    hidden_layers = []
-    for i in range(N_HIDDEN_LAYERS):
-        if i == 0:
-            hidden_layer = ConvLIFLayer(previous_layer=pool_1, filters_shape=FILTER_1, tau_s=TAU_S_1,
-                          theta=THRESHOLD_HAT_1,
-                          delta_theta=DELTA_THRESHOLD_1,
+    conv_1_5 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_1_5, use_padding=USE_PADDING,
+                          filter_from_next = FILTER_FROM_NEXT_1_5,
+                          tau_s=TAU_S_1_5,
+                          theta=THRESHOLD_HAT_1_5,
+                          delta_theta=DELTA_THRESHOLD_1_5,
                           weight_initializer=weight_initializer_conv,
-                          max_n_spike=SPIKE_BUFFER_SIZE_1,
-                          name="Convolution" + str(i))
-            
-        elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL:
-            hidden_layer = ConvLIFLayerResidual(previous_layer=pool_1, previous_layer_residual= input_layer, filters_shape=FILTER_2, tau_s=TAU_S_2,
-                          theta=THRESHOLD_HAT_2,
-                          delta_theta=DELTA_THRESHOLD_2,
-                          weight_initializer=weight_initializer_conv,
-                          max_n_spike=SPIKE_BUFFER_SIZE_2,
-                          name="Convolution residual:" + str(i))
-        elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
-            hidden_layer = ConvLIFLayerResidual(previous_layer=pool_1, previous_layer_residual= hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_2, tau_s=TAU_S_2,
-                          theta=THRESHOLD_HAT_2,
-                          delta_theta=DELTA_THRESHOLD_2,
-                          weight_initializer=weight_initializer_conv,
-                          max_n_spike=SPIKE_BUFFER_SIZE_2,
-                          name="Convolution residual:" + str(i))
-        else:
-            hidden_layer = ConvLIFLayer(previous_layer=pool_1, filters_shape=FILTER_1, tau_s=TAU_S_1,
-                          theta=THRESHOLD_HAT_1,
-                          delta_theta=DELTA_THRESHOLD_1,
-                          weight_initializer=weight_initializer_conv,
-                          max_n_spike=SPIKE_BUFFER_SIZE_1,
-                          name="Convolution" + str(i))
-        hidden_layers.append(hidden_layer)
-        network.add_layer(hidden_layer)
+                          max_n_spike=SPIKE_BUFFER_SIZE_1_5,
+                          name="Convolution 1_5")
+    network.add_layer(conv_1_5)
 
-        pool_i = PoolingLayer(hidden_layer, name="Pooling" + str(i))
-        network.add_layer(pool_i)
+    # this is an activation layer
+    # pool_1_5 = PoolingLayer(conv_1_5, name="Pooling 1_5")
+    # network.add_layer(pool_1_5)
+    #! the is a problem after a few iterations, nans appear
+    # conv_2 = ConvLIFLayerResidual(previous_layer=conv_1_5, jump_layer= conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+                        #   tau_s=TAU_S_2,
+    if USE_RESIDUAL:
+    # *I can connect it straight to other conv layers
+        conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+                            tau_s=TAU_S_2,
+                            theta=THRESHOLD_HAT_2,
+                            delta_theta=DELTA_THRESHOLD_2,
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=SPIKE_BUFFER_SIZE_2,
+                            name="Convolution 2")
+    else:
+        conv_2 = ConvLIFLayer(previous_layer=conv_1_5, filters_shape=FILTER_2, use_padding=USE_PADDING,
+                            tau_s=TAU_S_2,
+                            theta=THRESHOLD_HAT_2,
+                            delta_theta=DELTA_THRESHOLD_2,
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=SPIKE_BUFFER_SIZE_2,
+                            name="Convolution 2")
+    network.add_layer(conv_2)
 
+    # pool_2 = PoolingLayer(conv_2, name="Pooling 2")
+    # network.add_layer(pool_2)
 
+    feedforward = LIFLayer(previous_layer=conv_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+                           theta=THRESHOLD_HAT_FC,
+                           delta_theta=DELTA_THRESHOLD_FC,
+                           weight_initializer=weight_initializer_ff,
+                           max_n_spike=SPIKE_BUFFER_SIZE_FC,
+                           name="Feedforward 1")
+    network.add_layer(feedforward)
 
-    # conv_2 = ConvLIFLayerResidual(previous_layer=pool_1, previous_layer_residual= input_layer, filters_shape=FILTER_2, tau_s=TAU_S_2,
-    #                       theta=THRESHOLD_HAT_2,
-    #                       delta_theta=DELTA_THRESHOLD_2,
-    #                       weight_initializer=weight_initializer_conv,
-    #                       max_n_spike=SPIKE_BUFFER_SIZE_2,
-    #                       name="Convolution 2")
-    # network.add_layer(conv_2)
-
-
-
-    # feedforward = LIFLayer(previous_layer=pool_i, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
-    #                        theta=THRESHOLD_HAT_FC,
-    #                        delta_theta=DELTA_THRESHOLD_FC,
-    #                        weight_initializer=weight_initializer_ff,
-    #                        max_n_spike=SPIKE_BUFFER_SIZE_FC,
-    #                        name="Feedforward 1")
-    # network.add_layer(feedforward)
-
-    output_layer = LIFLayer(previous_layer=pool_i, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT,
+    output_layer = LIFLayer(previous_layer=feedforward, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT,
                             theta=THRESHOLD_HAT_OUTPUT,
                             delta_theta=DELTA_THRESHOLD_OUTPUT,
                             weight_initializer=weight_initializer_ff,
@@ -245,10 +300,13 @@ if __name__ == "__main__":
                                             print_prefix="Test | ")
 
     best_acc = 0.0
+    tracker = [0.0]* len(network.layers)
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
-        dataset.shuffle()
+        if not FIX_SEED:
+            dataset.shuffle()
+        # ! remove the shuffle for testability
 
         # Learning rate decay
         if epoch > 0 and epoch % LR_DECAY_EPOCH == 0:
@@ -278,11 +336,50 @@ if __name__ == "__main__":
 
             # Compute gradient
             gradient = network.backward(errors)
-            avg_gradient = [None if g is None else cp.mean(g, axis=0) for g, layer in zip(gradient, network.layers)]
+            # avg_gradient = [None if g is None else cp.mean(g, axis=0) for g, layer in zip(gradient, network.layers)]
+            avg_gradient = []
+
+            for g, layer in zip(gradient, network.layers):
+                if g is None:
+                    avg_gradient.append(None)
+                elif layer._is_residual:#! this was changed to make it non residual for TESTING
+                    grad_entry = []
+                    for i in range(len(g)):
+                        averaged_values = cp.mean(g[i], axis=0)
+                        grad_entry.append(averaged_values)
+                    avg_gradient.append(grad_entry)
+                else:
+                    averaged_values = cp.mean(g, axis=0)
+                    avg_gradient.append(averaged_values)
+            # for i in range(len(avg_gradient)):
+            #     if i == 3:
+            #         print("Gradient_avg: ", cp.max(avg_gradient[i][1]), cp.min(avg_gradient[i][1]), cp.mean(avg_gradient[i][1]))
+            #         print("Gradient: ", cp.max(gradient[i][1]), cp.min(gradient[i][1]), cp.mean(gradient[i][1]))
             del gradient
 
+            if USE_WANDB:
+                for i in range(len(avg_gradient)):
+                    if avg_gradient[i] is not None:
+                        if isinstance(avg_gradient[i], list):
+                            for j in range(len(avg_gradient[i])):
+                                tracker[i] = (tracker[i] + float(cp.mean(cp.abs(avg_gradient[i][j]))))/2
+                            if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
+                                wandb.log({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
+                                if not CLUSTER:
+                                    print("Mean Gradient Magnitude at residual layer "+str(i)+": ", tracker[i])
+                                tracker = [0.0]* len(network.layers)
+                        else:
+                            tracker[i] = (tracker[i] + float(cp.mean(cp.abs(avg_gradient[i]))))/2
+                            if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
+                                wandb.log({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
+                                if not CLUSTER:
+                                    print("Mean Gradient Magnitude at layer "+str(i)+": ", tracker[i])
+                                tracker = [0.0]* len(network.layers)
             # Apply step
             deltas = optimizer.step(avg_gradient)
+            # for i in range(len(deltas)):
+            #     if i == 3:
+            #         print("Deltas: ", cp.max(deltas[i][1]), cp.min(deltas[i][1]), cp.mean(deltas[i][1]))
             del avg_gradient
 
             network.apply_deltas(deltas)
@@ -296,17 +393,41 @@ if __name__ == "__main__":
                 # Compute metrics
 
                 train_monitors_manager.record(epoch_metrics)
-                train_monitors_manager.print(epoch_metrics)
+                train_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB)
                 train_monitors_manager.export()
+                out_copy = cp.copy(out_spikes)
+                mask = cp.isinf(out_copy)
+                out_copy[mask] = cp.nan
+                mean_spikes_for_times = cp.nanmean(out_copy)
+
+                first_spike_for_times = cp.nanmin(out_copy)
+
+                mean_res = cp.mean(cp.array(mean_spikes_for_times))
+                mean_first = cp.mean(cp.array(first_spike_for_times))
+                if not CLUSTER:
+                    print(f'Output layer mean times: {mean_res}')
+                    print(f'Output layer first spike: {mean_first}')
+                if USE_WANDB:
+                    wandb.log({"Train_mean_spikes_for_times": float(mean_res), "Train_first_spike_for_times": float(mean_first)})
+                
 
             # Test evaluation
             if training_steps % TEST_PERIOD_STEP == 0:
                 test_time_monitor.start()
+                mean_spikes_for_times = []
+                first_spike_for_times = []
                 for batch_idx in range(N_TEST_BATCH):
                     spikes, n_spikes, labels = dataset.get_test_batch(batch_idx, TEST_BATCH_SIZE)
                     network.reset()
                     network.forward(spikes, n_spikes, max_simulation=SIMULATION_TIME)
                     out_spikes, n_out_spikes = network.output_spike_trains
+
+                    out_copy = cp.copy(out_spikes)
+                    mask = cp.isinf(out_copy)
+                    out_copy[mask] = cp.nan
+                    mean_spikes_for_times.append(cp.nanmean(out_copy))
+
+                    first_spike_for_times.append(cp.nanmin(out_copy))
 
                     pred = loss_fct.predict(out_spikes, n_out_spikes)
                     loss = loss_fct.compute_loss(out_spikes, n_out_spikes, labels)
@@ -325,12 +446,23 @@ if __name__ == "__main__":
                 test_learning_rate_monitor.add(optimizer.learning_rate)
 
                 records = test_monitors_manager.record(epoch_metrics)
-                test_monitors_manager.print(epoch_metrics)
+                test_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB)
                 test_monitors_manager.export()
+                
+                mean_res = cp.mean(cp.array(mean_spikes_for_times))
+                mean_first = cp.mean(cp.array(first_spike_for_times))
+                if not CLUSTER:
+                    print(f'Output layer mean times: {mean_res}')
+                    print(f'Output layer first spike: {mean_first}')
+                if USE_WANDB:
+                    wandb.log({"Test_mean_spikes_for_times": float(mean_res), "Test_first_spike_for_times": float(mean_first)})
+
 
                 acc = records[test_accuracy_monitor]
                 if acc > best_acc:
                     best_acc = acc
-                    network.store(SAVE_DIR)
-                    print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks save to: {SAVE_DIR}")
-wandb.finish()
+                    # network.store(SAVE_DIR)
+                    print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks NOT save to: {SAVE_DIR}")
+    if USE_WANDB:
+        wandb.finish()
+    print("Done!: ", run)   

@@ -5,5 +5,10 @@
 *.npz
 # *.sbatch
 wandb/
+/.vscode
+/.venv
 experiments/mnist/avg_acc.txt
 times.txt
+datasets/cifar-10-batches-py/
+datasets/cifar-100-python/
+

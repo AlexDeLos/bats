@@ -7,7 +7,7 @@ from bats.AbstractLayer import AbstractLayer
 from bats.CudaKernels.Wrappers.Inference import *
 from bats.CudaKernels.Wrappers.Backpropagation import *
 
-# PROBLEM does not seem to be here
+
 class LIFLayer(AbstractLayer):
     def __init__(self, previous_layer: AbstractLayer, tau_s: float, theta: float, delta_theta: float,
                  weight_initializer: Callable[[int, int], cp.ndarray] = None, max_n_spike: int = 32, **kwargs):
@@ -31,7 +31,8 @@ class LIFLayer(AbstractLayer):
 
         self.__pre_exp_tau_s: Optional[cp.ndarray] = None
         self.__pre_exp_tau: Optional[cp.ndarray] = None
-        self.__pre_spike_weights: Optional[cp.ndarray] = None
+        #! this is never used
+        # self.__pre_spike_weights: Optional[cp.ndarray] = None
         self.__c: Optional[cp.float32] = self.__theta_tau
 
     @property
@@ -55,7 +56,7 @@ class LIFLayer(AbstractLayer):
         self.__spike_times_per_neuron = None
         self.__pre_exp_tau_s = None
         self.__pre_exp_tau = None
-        self.__pre_spike_weights = None
+        # self.__pre_spike_weights = None
         self.__a = None
         self.__x = None
         self.__post_exp_tau = None
@@ -65,15 +66,11 @@ class LIFLayer(AbstractLayer):
         #? How is it per neuron? (50, 784, 1)=>shape of spike_times_per_neuron on first stop of debugger
         #? It seems to be the number of spikes per layer, not per neuron, as there where 784 neurons in the input layer
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
-        #! what do the input layer inputs look like?
-        # cp.isinf().any(False)
-
 
         self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
         # END OF PREVIOUS LAYER INPUTS
 
         # Sort spikes for inference
-        #! Memory problem here in foward pass??? was it just random timing?
         new_shape, sorted_indices, spike_times_reshaped = get_sorted_spikes_indices(pre_spike_per_neuron,
                                                                                     pre_n_spike_per_neuron)
         if sorted_indices.size == 0:  # No input spike in the batch
@@ -96,32 +93,40 @@ class LIFLayer(AbstractLayer):
             pre_spike_weights = get_spike_weights(self.weights, sorted_spike_indices)
 
             # Compute spikes, everything has been calculated in order to make this
+            #! nans in self.__spike_times_per_neuron-> there are no nans in the input
             self.__n_spike_per_neuron, self.__a, self.__x, self.__spike_times_per_neuron, \
             self.__post_exp_tau = compute_spike_times(sorted_spike_times, sorted_pre_exp_tau_s, sorted_pre_exp_tau,
                                                       pre_spike_weights, self.__c,
                                                       self.__delta_theta_tau,
                                                       self.__tau, cp.float32(max_simulation), self.__max_n_spike)
-            if cp.array_equal(self.spike_trains[1] , cp.zeros(self.spike_trains[1].shape)):
-                tes =""
-            # break point here in order to see if normal layers have any NaN values
-            # FOUND: No NaN values in normal layers
+            spikes = self.__spike_times_per_neuron
+            count = self.__n_spike_per_neuron
+            test3 = self.__post_exp_tau
+            test4 = self.__a
+            test5 = self.__x
+
     def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
         pre_spike_per_neuron, _ = self.__previous_layer.spike_trains
         propagate_recurrent_errors(self.__x, self.__post_exp_tau, errors, self.__delta_theta_tau)
         f1, f2 = compute_factors(self.__spike_times_per_neuron, self.__a, self.__c, self.__x,
                                  self.__post_exp_tau, self.__tau)
-
+        #! nans show up here when getting the previous layer spikes
+        test = self.__spike_times_per_neuron
         weights_grad = compute_weights_gradient(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron,
                                                 self.__pre_exp_tau_s, self.__pre_exp_tau, errors)
         # Propagate errors
+        # what are the dimensions of f1
+        # what are the dimensions of pre_exp_tau_s
         if self.__previous_layer.trainable:
             pre_errors = propagate_errors_to_pre_spikes(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron,
                                                         self.__pre_exp_tau_s, self.__pre_exp_tau, self.__weights,
                                                         errors, self.__tau_s, self.__tau)
+            asdasd = 0
         else:
             pre_errors = None
 
+        asddas= ''
         return weights_grad, pre_errors
 
     def add_deltas(self, delta_weights: cp.ndarray) -> None:

@@ -4,20 +4,9 @@ from pathlib import Path
 import numpy as np
 import cupy as cp
 from brian2 import *
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from bats.Layers import InputLayer, LIFLayer
 from bats.CudaKernels.Wrappers.Inference import get_sorted_spikes_indices
-
-if __name__ == '__main__':
-    main = unittest.main()
-    test = LifLayer_tests(main)
-    test.test_forward()
-    test.test_backward()
-    test.compute_spike_times_brian2(1, np.array([1, 0, 0, 0, 0, 0, 0, 0, 0]), np.array([0.1, 0,0,0,0,0,0,0,0]), 1, 0.01, 0.02, 0.1, 0.1, np.array([[1.0]]), 0.1)
 
 
 class LifLayer_tests(unittest.TestCase):

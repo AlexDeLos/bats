@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Tuple
-import elasticdeform
+# from elasticdeform import deform_random_grid
 import warnings
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter, map_coordinates
 
 warnings.filterwarnings("ignore")
@@ -20,6 +20,8 @@ WIDTH_SHIFT = 0
 HEIGHT_SHIFT = 0
 ZOOM_RANGE = 12 / 100
 ROTATION_RANGE = 12
+
+
 
 
 def elastic_transform(image, alpha_range, sigma):
@@ -89,7 +91,7 @@ class Dataset:
             plt.show()"""
             """rotate = np.random.uniform(-ROTATION_RANGE, ROTATION_RANGE)
             zoom = np.random.uniform(1.0 - ZOOM_RANGE, 1.0 + ZOOM_RANGE)"""
-            samples = elasticdeform.deform_random_grid(list(samples), sigma=1.0, points=2, order=0)
+            # samples = deform_random_grid(list(samples), sigma=1.0, points=2, order=0) #!add it back later IDK why it fails in the cluster
             samples = np.array(samples)
             """samples = np.expand_dims(samples, axis=3)
             samples = self.__datagen.flow(samples, batch_size=len(samples), shuffle=False).next()
