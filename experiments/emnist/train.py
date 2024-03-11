@@ -20,7 +20,7 @@ DATASET_PATH = Path("./datasets/emnist-balanced.mat")
 
 arguments = get_arguments()
 # Residual arguments
-N_HIDDEN_LAYERS =2# arguments.n_hidden_layers
+N_HIDDEN_LAYERS = arguments.n_hidden_layers
 USE_RESIDUAL = arguments.use_residual
 RESIDUAL_EVERY_N = arguments.residual_every_n
 
@@ -104,7 +104,7 @@ for run in range(NUMBER_OF_RUNS):
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
         "learning_rate": LEARNING_RATE,
-        "architecture": "CNN",
+        "architecture": "MLP",
         "dataset": "emnist",
         "epochs": N_TRAINING_EPOCHS,
         "version": "1.0.0_cluster_" + str(CLUSTER),
