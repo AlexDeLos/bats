@@ -107,7 +107,7 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "MLP",
         "dataset": "emnist",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "1.0.0_cluster_" + str(CLUSTER),
+        "version": "2.0.0_cluster_" + str(CLUSTER),
         }
         )
 
