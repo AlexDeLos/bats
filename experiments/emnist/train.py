@@ -27,7 +27,6 @@ RESIDUAL_EVERY_N = arguments.residual_every_n
 CLUSTER = arguments.cluster
 USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
-USE_RESIDUAL = arguments.use_residual
 
 
 NUMBER_OF_RUNS = arguments.runs
