@@ -22,6 +22,7 @@ arguments = get_arguments()
 # Residual arguments
 N_HIDDEN_LAYERS = arguments.n_hidden_layers
 USE_RESIDUAL = arguments.use_residual
+print("Using residual: ", USE_RESIDUAL)
 RESIDUAL_EVERY_N = arguments.residual_every_n
 
 CLUSTER = arguments.cluster
