@@ -87,8 +87,7 @@ def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
 
 for run in range(NUMBER_OF_RUNS):
 
-    print("Run: ", run)
-    print("USE_RESIDUAL: ", USE_RESIDUAL)
+
     if USE_WANDB:
         wandb.init(
         # set the wandb project where this run will be logged
@@ -127,6 +126,7 @@ for run in range(NUMBER_OF_RUNS):
     dataset = Dataset(path=DATASET_PATH)
 
     print("Creating network...")
+    print("USE_RESIDUAL: ", USE_RESIDUAL)
     network = Network()
     input_layer = InputLayer(n_neurons=N_INPUTS, name="Input layer")
     network.add_layer(input_layer, input=True)
