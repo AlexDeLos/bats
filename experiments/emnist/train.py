@@ -105,6 +105,7 @@ for run in range(NUMBER_OF_RUNS):
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
         "learning_rate": LEARNING_RATE,
+        "batch_size": TRAIN_BATCH_SIZE,
         "architecture": "MLP",
         "dataset": "emnist",
         "epochs": N_TRAINING_EPOCHS,

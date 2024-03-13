@@ -26,7 +26,7 @@ def get_arguments():
     parser.add_argument("--n_train_samples", default=50000, type=int)
     parser.add_argument("--use_multi_channel", default=True, type=bool)
     parser.add_argument("--cifar100", default=False, type=bool)
-    parser.add_argument("--batch_size_test", default=50, type=int)
+    parser.add_argument("--batch_size_test", default=90, type=int)
     parser.add_argument("--use_coarse_labels", default=False, type=bool)
 
 
