@@ -1,4 +1,5 @@
 from pathlib import Path
+from symbol import argument
 import wandb
 # import tensorflow as tf
 import cupy as cp
@@ -12,6 +13,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 # from Dataset import Dataset
 from Dataset_fashion import Dataset
 
+from bats.Utils.utils import get_arguments
 from bats.Monitors import *
 from bats.Layers import LIFLayer
 from bats.Losses import *
@@ -27,11 +29,12 @@ from bats.Layers.PoolingLayer import PoolingLayer
 # DATASET_PATH = Path("datasets/mnist.npz")
 DATASET_PATH = Path("datasets/")
 
+arguments = get_arguments()
 # Change from small test on computer to big test on cluster
-CLUSTER = False
-USE_WANDB = False
-ALTERNATE = False
-USE_RESIDUAL = True
+CLUSTER = arguments.cluster
+USE_WANDB = arguments.use_wanb
+ALTERNATE = arguments.alternate
+USE_RESIDUAL = True #arguments.use_residual
 FIX_SEED = False
 USE_PADDING = True #! residual and padd gives nans
 # what causes nans:
@@ -47,7 +50,7 @@ USE_PADDING = True #! residual and padd gives nans
 # N_HIDDEN_LAYERS = 2
 
 if CLUSTER:
-    NUMBER_OF_RUNS = 20
+    NUMBER_OF_RUNS = arguments.runs
 else:
     NUMBER_OF_RUNS = 10
 
@@ -103,22 +106,23 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 # Training parameters
 if CLUSTER:
-    N_TRAINING_EPOCHS = 10
-    N_TRAIN_SAMPLES = 60000 #60000
-    N_TEST_SAMPLES = 10000 #10000
+    N_TRAIN_SAMPLES = arguments.n_train_samples
+    N_TEST_SAMPLES = arguments.n_test_samples #! used to be 10000
+    TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
+    TEST_BATCH_SIZE = arguments.batch_size_test
 else:
     N_TRAINING_EPOCHS = 10
     N_TRAIN_SAMPLES = 6000
     N_TEST_SAMPLES = 1000
-TRAIN_BATCH_SIZE = 20 # 20
-TEST_BATCH_SIZE = 50
+    TRAIN_BATCH_SIZE = 20 
+TEST_BATCH_SIZE = arguments.batch_size_test
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
 TRAIN_PRINT_PERIOD = 0.1
 TRAIN_PRINT_PERIOD_STEP = int(N_TRAIN_SAMPLES * TRAIN_PRINT_PERIOD / TRAIN_BATCH_SIZE)
 TEST_PERIOD = 1.0  # Evaluate on test batch every TEST_PERIOD epochs
 TEST_PERIOD_STEP = int(N_TRAIN_SAMPLES * TEST_PERIOD / TRAIN_BATCH_SIZE)
-LEARNING_RATE = 0.003
+LEARNING_RATE = arguments.learning_rate
 LR_DECAY_EPOCH = 10  # Perform decay very n epochs
 LR_DECAY_FACTOR = 0.5
 MIN_LEARNING_RATE = 1e-4
@@ -211,10 +215,10 @@ for run in range(NUMBER_OF_RUNS):
                           name="Convolution 1")
     network.add_layer(conv_1)
 
-    # pool_1 = PoolingLayer(conv_1, name="Pooling 1")
-    # network.add_layer(pool_1)
+    pool_1 = PoolingLayer(conv_1, name="Pooling 1")
+    network.add_layer(pool_1)
 
-    conv_1_5 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_1_5, use_padding=USE_PADDING,
+    conv_1_5 = ConvLIFLayer(previous_layer=pool_1, filters_shape=FILTER_1_5, use_padding=USE_PADDING,
                           filter_from_next = FILTER_FROM_NEXT_1_5,
                           tau_s=TAU_S_1_5,
                           theta=THRESHOLD_HAT_1_5,

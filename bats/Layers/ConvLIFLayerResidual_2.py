@@ -22,8 +22,14 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
                  **kwargs):
         prev_x, prev_y, prev_c = previous_layer._neurons_shape.get()
         prev_x_jump, prev_y_jump, prev_c_jump = jump_layer._neurons_shape.get()
+
+        self.__previous_layer: AbstractConvLayer = previous_layer
+        self.__jump_layer: AbstractConvLayer = jump_layer
+
         if prev_x != prev_x_jump or prev_y != prev_y_jump:
-            raise ValueError("The input dimensions of the previous layers are not the same", prev_x, prev_y, prev_x_jump, prev_y_jump)
+            #! let's start playing with differing dimensions
+            print(f"inputs have different dimensions: {prev_x, prev_y, prev_x_jump, prev_y_jump}")
+            # raise ValueError("The input dimensions of the previous layers are not the same", prev_x, prev_y, prev_x_jump, prev_y_jump)
         filter_x, filter_y, filter_c = filters_shape
         padding= [filter_x-1, filter_y -1]
         self.__filter_from_next = filter_from_next
@@ -49,8 +55,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         self.__filters_shape = cp.array([filter_c, filter_x, filter_y, prev_c], dtype=cp.int32)
         self.__filters_shape_jump = cp.array([filter_c, filter_x, filter_y, prev_c_jump], dtype=cp.int32)
 
-        self.__previous_layer: AbstractConvLayer = previous_layer
-        self.__jump_layer: AbstractConvLayer = jump_layer
+
         self.__tau_s: cp.float32 = cp.float32(tau_s)
         self.__tau_s_jump: cp.float32 = cp.float32(tau_s)
         self.__tau: cp.float32 = cp.float32(2 * tau_s)
@@ -114,17 +119,6 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
                                              self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
                                             #  self.__spike_times_per_neuron, self.__n_spike_per_neuron,
                                              self.neurons_shape)
-        # if not self._is_residual:
-        #     return self.__spike_times_per_neuron, self.__n_spike_per_neuron
-        # No NaNs here
-        # te=  self.__spike_times_per_neuron, self.__n_spike_per_neuron
-        # x, y, z = spikes.shape
-        # for i in range(x):
-        #     for u in range(y):
-        #         real_count = cp.count_nonzero(spikes[i, u] != cp.inf)
-        #         count = number[i, u]
-        #         if real_count != count:
-        #             raise ValueError(f"Real count {real_count} != count {count}")
         return spikes, number
 
     @property
