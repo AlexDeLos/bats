@@ -44,9 +44,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         n_y = prev_y - filter_y + 1
         neurons_shape: cp.ndarray = cp.array([n_x, n_y, filter_c], dtype=cp.int32)
 
-        is_residual = True
-
-        super().__init__(neurons_shape=neurons_shape, use_padding = use_padding,padding= [filter_x-1, filter_y -1], is_residual = is_residual, **kwargs)
+        super().__init__(neurons_shape=neurons_shape, use_padding = use_padding,padding= [filter_x-1, filter_y -1], is_residual = True, **kwargs)
         
         self.fuse_function = "Append"
         self.jump_layer = jump_layer

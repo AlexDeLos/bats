@@ -229,14 +229,14 @@ for run in range(NUMBER_OF_RUNS):
     network.add_layer(conv_1_5)
 
     # this is an activation layer
-    # pool_1_5 = PoolingLayer(conv_1_5, name="Pooling 1_5")
-    # network.add_layer(pool_1_5)
+    pool_1_5 = PoolingLayer(conv_1_5, name="Pooling 1_5")
+    network.add_layer(pool_1_5)
     #! the is a problem after a few iterations, nans appear
     # conv_2 = ConvLIFLayerResidual(previous_layer=conv_1_5, jump_layer= conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
                         #   tau_s=TAU_S_2,
     if USE_RESIDUAL:
     # *I can connect it straight to other conv layers
-        conv_2 = ConvLIFLayerResidual_2(previous_layer=conv_1_5, jump_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
+        conv_2 = ConvLIFLayerResidual_2(previous_layer=pool_1_5, jump_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
                             tau_s=TAU_S_2,
                             theta=THRESHOLD_HAT_2,
                             delta_theta=DELTA_THRESHOLD_2,
@@ -253,10 +253,10 @@ for run in range(NUMBER_OF_RUNS):
                             name="Convolution 2")
     network.add_layer(conv_2)
 
-    # pool_2 = PoolingLayer(conv_2, name="Pooling 2")
-    # network.add_layer(pool_2)
+    pool_2 = PoolingLayer(conv_2, name="Pooling 2")
+    network.add_layer(pool_2)
 
-    feedforward = LIFLayer(previous_layer=conv_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+    feedforward = LIFLayer(previous_layer=pool_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
                            theta=THRESHOLD_HAT_FC,
                            delta_theta=DELTA_THRESHOLD_FC,
                            weight_initializer=weight_initializer_ff,

@@ -65,9 +65,9 @@ else:
 SIMULATION_TIME = 0.2
 
 if CLUSTER:
-    FILTER_1 = np.array([3, 3, 5]) #? could it be the size of this filter's channels?
+    FILTER_1 = np.array([5, 5, 5]) #? could it be the size of this filter's channels?
 else:
-    FILTER_1 = np.array([3, 3, 2])
+    FILTER_1 = np.array([5, 5, 2])
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -205,7 +205,7 @@ for run in range(NUMBER_OF_RUNS):
             network.add_layer(conv)
         elif i % RESIDUAL_EVERY_N == 0 or i == N_HIDDEN_LAYERS-1:
             if USE_RESIDUAL and i == N_HIDDEN_LAYERS-1:
-                conv = ConvLIFLayerResidual_2(previous_layer=conv, jump_layer=hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_1, use_padding=USE_PADDING,
+                conv = ConvLIFLayerResidual_2(previous_layer=network.layers[-1], jump_layer=hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_1, use_padding=USE_PADDING,
                             tau_s=TAU_S_1,
                             theta=THRESHOLD_HAT_1,
                             delta_theta=DELTA_THRESHOLD_1,
@@ -213,7 +213,7 @@ for run in range(NUMBER_OF_RUNS):
                             max_n_spike=SPIKE_BUFFER_SIZE_1,
                             name="Convolution "+str(i))
             elif USE_RESIDUAL:
-                conv = ConvLIFLayerResidual_2(previous_layer=conv, jump_layer=hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_1, use_padding=USE_PADDING,
+                conv = ConvLIFLayerResidual_2(previous_layer=network.layers[-1], jump_layer=hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_1, use_padding=USE_PADDING,
                             tau_s=TAU_S_1,
                             filter_from_next=FILTER_1,
                             theta=THRESHOLD_HAT_1,
@@ -222,7 +222,7 @@ for run in range(NUMBER_OF_RUNS):
                             max_n_spike=SPIKE_BUFFER_SIZE_1,
                             name="Convolution "+str(i))
             else:
-                conv = ConvLIFLayer(previous_layer=conv, filters_shape=FILTER_1, use_padding=USE_PADDING,
+                conv = ConvLIFLayer(previous_layer=network.layers[-1], filters_shape=FILTER_1, use_padding=USE_PADDING,
                             tau_s=TAU_S_1,
                             filter_from_next=FILTER_1,
                             theta=THRESHOLD_HAT_1,
@@ -232,6 +232,8 @@ for run in range(NUMBER_OF_RUNS):
                             name="Convolution "+str(i))
             hidden_layers.append(conv)
             network.add_layer(conv)
+            # pool = PoolingLayer(conv, name="Pooling "+str(i))
+            # network.add_layer(pool)
         else:
             conv = ConvLIFLayer(previous_layer=conv, filters_shape=FILTER_1, use_padding=USE_PADDING,
                             tau_s=TAU_S_1,
