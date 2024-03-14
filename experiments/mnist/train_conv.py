@@ -109,6 +109,7 @@ if CLUSTER:
     N_TEST_SAMPLES = arguments.n_test_samples #! used to be 10000
     TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
     TEST_BATCH_SIZE = arguments.batch_size_test
+    N_TRAINING_EPOCHS = 10
 else:
     N_TRAINING_EPOCHS = 10
     N_TRAIN_SAMPLES = 6000
