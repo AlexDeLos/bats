@@ -232,8 +232,6 @@ for run in range(NUMBER_OF_RUNS):
     pool_1_5 = PoolingLayer(conv_1_5, name="Pooling 1_5")
     network.add_layer(pool_1_5)
     #! the is a problem after a few iterations, nans appear
-    # conv_2 = ConvLIFLayerResidual(previous_layer=conv_1_5, jump_layer= conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
-                        #   tau_s=TAU_S_2,
     if USE_RESIDUAL:
     # *I can connect it straight to other conv layers
         conv_2 = ConvLIFLayerResidual_2(previous_layer=pool_1_5, jump_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
