@@ -57,6 +57,7 @@ class PoolingLayer(AbstractConvLayer):
         if self.__previous_layer.trainable:
             batch_size, n_neurons, max_n_spike = errors.shape
             pre_n_neurons = self.__previous_layer.n_neurons
+            
             pre_errors = cp.empty((batch_size * pre_n_neurons * max_n_spike // 4,), dtype=cp.float32)
             cp.put(pre_errors, self.__spike_indices.flatten(), errors)
             pre_errors = pre_errors.reshape((batch_size, pre_n_neurons, max_n_spike // 4))

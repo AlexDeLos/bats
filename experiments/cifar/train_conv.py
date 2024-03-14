@@ -38,7 +38,7 @@ USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
 USE_RESIDUAL = arguments.use_residual
 FIX_SEED = False
-USE_PADDING = True #! residual and padd gives nans
+USE_PADDING = False #! residual and padd gives nans
 USE_CIFAR100 = arguments.cifar100	
 USE_COURSE_LABELS = arguments.use_coarse_labels
 USE_3_CHANNELS = arguments.use_3_channels #! false could be broken
@@ -65,9 +65,9 @@ else:
 SIMULATION_TIME = 0.2
 
 if CLUSTER:
-    FILTER_1 = np.array([5, 5, 5]) #? could it be the size of this filter's channels?
+    FILTER_1 = np.array([5, 5, 12]) #? could it be the size of this filter's channels?
 else:
-    FILTER_1 = np.array([5, 5, 2])
+    FILTER_1 = np.array([5, 5, 12])
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
@@ -201,8 +201,6 @@ for run in range(NUMBER_OF_RUNS):
                             weight_initializer=weight_initializer_conv,
                             max_n_spike=SPIKE_BUFFER_SIZE_1,
                             name="Convolution "+str(i))
-            hidden_layers.append(conv)
-            network.add_layer(conv)
         elif i % RESIDUAL_EVERY_N == 0 or i == N_HIDDEN_LAYERS-1:
             if USE_RESIDUAL and i == N_HIDDEN_LAYERS-1:
                 conv = ConvLIFLayerResidual_2(previous_layer=network.layers[-1], jump_layer=hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_1, use_padding=USE_PADDING,
@@ -211,7 +209,7 @@ for run in range(NUMBER_OF_RUNS):
                             delta_theta=DELTA_THRESHOLD_1,
                             weight_initializer=weight_initializer_conv,
                             max_n_spike=SPIKE_BUFFER_SIZE_1,
-                            name="Convolution "+str(i))
+                            name="Convolution Residual "+str(i))
             elif USE_RESIDUAL:
                 conv = ConvLIFLayerResidual_2(previous_layer=network.layers[-1], jump_layer=hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_1, use_padding=USE_PADDING,
                             tau_s=TAU_S_1,
@@ -220,7 +218,7 @@ for run in range(NUMBER_OF_RUNS):
                             delta_theta=DELTA_THRESHOLD_1,
                             weight_initializer=weight_initializer_conv,
                             max_n_spike=SPIKE_BUFFER_SIZE_1,
-                            name="Convolution "+str(i))
+                            name="Convolution Residual "+str(i))
             else:
                 conv = ConvLIFLayer(previous_layer=network.layers[-1], filters_shape=FILTER_1, use_padding=USE_PADDING,
                             tau_s=TAU_S_1,
@@ -230,10 +228,6 @@ for run in range(NUMBER_OF_RUNS):
                             weight_initializer=weight_initializer_conv,
                             max_n_spike=SPIKE_BUFFER_SIZE_1,
                             name="Convolution "+str(i))
-            hidden_layers.append(conv)
-            network.add_layer(conv)
-            # pool = PoolingLayer(conv, name="Pooling "+str(i))
-            # network.add_layer(pool)
         else:
             conv = ConvLIFLayer(previous_layer=conv, filters_shape=FILTER_1, use_padding=USE_PADDING,
                             tau_s=TAU_S_1,
@@ -243,8 +237,10 @@ for run in range(NUMBER_OF_RUNS):
                             weight_initializer=weight_initializer_conv,
                             max_n_spike=SPIKE_BUFFER_SIZE_1,
                             name="Convolution "+str(i))
-            hidden_layers.append(conv)
-            network.add_layer(conv)
+        hidden_layers.append(conv)
+        network.add_layer(conv)
+        pool = PoolingLayer(conv, name="Pooling "+str(i))
+        network.add_layer(pool)
 
     # pool_2 = PoolingLayer(conv, name="Pooling 2")
     # network.add_layer(pool_2)
