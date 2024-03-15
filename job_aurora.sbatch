@@ -26,7 +26,7 @@ echo "Starting job -------------------------------------------------------------
 # echo 'Starting 12 layers No residual MLP on EMNIST'
 # srun python3 experiments/emnist/train.py --cluster True --n_epochs 50 --runs 2 --n_hidden_layers 12 --batch_size 90 --use_wanb True
 echo "CIFAR 10 premade architecture run"
-srun python3 experiments/cifar/train_conv.py --cluster True --n_epochs 50 --runs 2 --batch_size 5 --use_wanb True
+srun python3 experiments/cifar/train_conv.py --cluster True --n_epochs 50 --runs 2 --batch_size 1 --use_wanb True
 # echo "Starting 1 layers No residual MLP on MNIST"
 # srun python3 experiments/emnist/train.py --cluster True --n_epochs 50 --runs 2 --n_hidden_layers 1 --batch_size 90 --use_wanb True
 # echo 'Starting 2 layers No residual MLP on EMNIST'
