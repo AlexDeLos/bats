@@ -10,7 +10,7 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 # from Dataset import Dataset
-from Dataset_fashion import Dataset
+from Dataset import Dataset
 
 from bats.Utils.utils import get_arguments
 from bats.Monitors import *
