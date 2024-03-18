@@ -7,7 +7,7 @@ from sympy import rotations
 warnings.filterwarnings('ignore')
 
 from typing import Tuple
-from elasticdeform import deform_random_grid
+# from elasticdeform import deform_random_grid
 import warnings
 # import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter, map_coordinates
