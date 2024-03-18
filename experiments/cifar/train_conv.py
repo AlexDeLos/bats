@@ -33,6 +33,7 @@ RESIDUAL_EVERY_N = arguments.residual_every_n
 
 # Change from small test on computer to big test on cluster
 CLUSTER = arguments.cluster
+STANDARD = arguments.standard
 USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
 USE_RESIDUAL = arguments.use_residual
@@ -191,113 +192,135 @@ for run in range(NUMBER_OF_RUNS):
     network.add_layer(input_layer, input=True)
 
     #! Standard network builder
-    # hidden_layers = []
-    # for i in range(N_HIDDEN_LAYERS):
-    #     if i == 0:
-    #         conv = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
-    #                         tau_s=TAU_S_1,
-    #                         filter_from_next=FILTER_1,
-    #                         theta=THRESHOLD_HAT_1,
-    #                         delta_theta=DELTA_THRESHOLD_1,
-    #                         weight_initializer=weight_initializer_conv,
-    #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
-    #                         name="Convolution "+str(i))
-    #     elif i % RESIDUAL_EVERY_N == 0 or i == N_HIDDEN_LAYERS-1:
-    #         if USE_RESIDUAL and i == N_HIDDEN_LAYERS-1:
-    #             conv = ConvLIFLayerResidual_2(previous_layer=network.layers[-1], jump_layer=hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_1, use_padding=USE_PADDING,
-    #                         tau_s=TAU_S_1,
-    #                         theta=THRESHOLD_HAT_1,
-    #                         delta_theta=DELTA_THRESHOLD_1,
-    #                         weight_initializer=weight_initializer_conv,
-    #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
-    #                         name="Convolution Residual "+str(i))
-    #         elif USE_RESIDUAL:
-    #             conv = ConvLIFLayerResidual_2(previous_layer=network.layers[-1], jump_layer=hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_1, use_padding=USE_PADDING,
-    #                         tau_s=TAU_S_1,
-    #                         filter_from_next=FILTER_1,
-    #                         theta=THRESHOLD_HAT_1,
-    #                         delta_theta=DELTA_THRESHOLD_1,
-    #                         weight_initializer=weight_initializer_conv,
-    #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
-    #                         name="Convolution Residual "+str(i))
-    #         else:
-    #             conv = ConvLIFLayer(previous_layer=network.layers[-1], filters_shape=FILTER_1, use_padding=USE_PADDING,
-    #                         tau_s=TAU_S_1,
-    #                         filter_from_next=FILTER_1,
-    #                         theta=THRESHOLD_HAT_1,
-    #                         delta_theta=DELTA_THRESHOLD_1,
-    #                         weight_initializer=weight_initializer_conv,
-    #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
-    #                         name="Convolution "+str(i))
-    #     else:
-    #         conv = ConvLIFLayer(previous_layer=conv, filters_shape=FILTER_1, use_padding=USE_PADDING,
-    #                         tau_s=TAU_S_1,
-    #                         filter_from_next=FILTER_1,
-    #                         theta=THRESHOLD_HAT_1,
-    #                         delta_theta=DELTA_THRESHOLD_1,
-    #                         weight_initializer=weight_initializer_conv,
-    #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
-    #                         name="Convolution "+str(i))
-    #     hidden_layers.append(conv)
-    #     network.add_layer(conv)
+    if not STANDARD:
+        hidden_layers = []
+        for i in range(N_HIDDEN_LAYERS):
+            if i == 0:
+                conv = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
+                                tau_s=TAU_S_1,
+                                filter_from_next=FILTER_1,
+                                theta=THRESHOLD_HAT_1,
+                                delta_theta=DELTA_THRESHOLD_1,
+                                weight_initializer=weight_initializer_conv,
+                                max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                name="Convolution "+str(i))
+            elif i % RESIDUAL_EVERY_N == 0 or i == N_HIDDEN_LAYERS-1:
+                if USE_RESIDUAL and i == N_HIDDEN_LAYERS-1:
+                    conv = ConvLIFLayerResidual_2(previous_layer=network.layers[-1], jump_layer=hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_1, use_padding=USE_PADDING,
+                                tau_s=TAU_S_1,
+                                theta=THRESHOLD_HAT_1,
+                                delta_theta=DELTA_THRESHOLD_1,
+                                weight_initializer=weight_initializer_conv,
+                                max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                name="Convolution Residual "+str(i))
+                elif USE_RESIDUAL:
+                    conv = ConvLIFLayerResidual_2(previous_layer=network.layers[-1], jump_layer=hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_1, use_padding=USE_PADDING,
+                                tau_s=TAU_S_1,
+                                filter_from_next=FILTER_1,
+                                theta=THRESHOLD_HAT_1,
+                                delta_theta=DELTA_THRESHOLD_1,
+                                weight_initializer=weight_initializer_conv,
+                                max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                name="Convolution Residual "+str(i))
+                else:
+                    conv = ConvLIFLayer(previous_layer=network.layers[-1], filters_shape=FILTER_1, use_padding=USE_PADDING,
+                                tau_s=TAU_S_1,
+                                filter_from_next=FILTER_1,
+                                theta=THRESHOLD_HAT_1,
+                                delta_theta=DELTA_THRESHOLD_1,
+                                weight_initializer=weight_initializer_conv,
+                                max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                name="Convolution "+str(i))
+            else:
+                conv = ConvLIFLayer(previous_layer=conv, filters_shape=FILTER_1, use_padding=USE_PADDING,
+                                tau_s=TAU_S_1,
+                                filter_from_next=FILTER_1,
+                                theta=THRESHOLD_HAT_1,
+                                delta_theta=DELTA_THRESHOLD_1,
+                                weight_initializer=weight_initializer_conv,
+                                max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                name="Convolution "+str(i))
+            hidden_layers.append(conv)
+            network.add_layer(conv)
+        
+
+        pool_final = PoolingLayer(conv, name="Pooling final")
+        network.add_layer(pool_3)
+
+        feedforward = LIFLayer(previous_layer=pool_final, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+                            theta=THRESHOLD_HAT_FC,
+                            delta_theta=DELTA_THRESHOLD_FC,
+                            weight_initializer=weight_initializer_ff,
+                            max_n_spike=SPIKE_BUFFER_SIZE_FC,
+                            name="Feedforward")
+        network.add_layer(feedforward)
+
+        output_layer = LIFLayer(previous_layer=feedforward, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT,
+                                theta=THRESHOLD_HAT_OUTPUT,
+                                delta_theta=DELTA_THRESHOLD_OUTPUT,
+                                weight_initializer=weight_initializer_ff,
+                                max_n_spike=SPIKE_BUFFER_SIZE_OUTPUT,
+                                name="Output layer")
+        network.add_layer(output_layer)
     #! end of standard network builder
 
     # pool_2 = PoolingLayer(conv, name="Pooling 2")
     # network.add_layer(pool_2)
-    conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=np.array([5, 5, 32]), use_padding=USE_PADDING,
+    else:
+        conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=np.array([5, 5, 32]), use_padding=USE_PADDING,
+                            #   filter_from_next = FILTER_FROM_NEXT,
+                            tau_s=TAU_S_1,
+                            theta=THRESHOLD_HAT_1,
+                            delta_theta=DELTA_THRESHOLD_1,
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=SPIKE_BUFFER_SIZE_1,
+                            name="Convolution 1")
+        network.add_layer(conv_1)
+
+        pool_1 = PoolingLayer(conv_1, name="Pooling 1")
+        network.add_layer(pool_1)
+
+        conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 32]), use_padding=USE_PADDING,
+                            #   filter_from_next = FILTER_FROM_NEXT,
+                            tau_s=TAU_S_1,
+                            theta=THRESHOLD_HAT_1,
+                            delta_theta=DELTA_THRESHOLD_1,
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=SPIKE_BUFFER_SIZE_1,
+                            name="Convolution 2")
+        network.add_layer(conv_2)
+
+        pool_2 = PoolingLayer(conv_2, name="Pooling 2")
+        network.add_layer(pool_2)
+
+        conv_3 = ConvLIFLayer(previous_layer=pool_2, filters_shape=np.array([5, 5, 32]), use_padding=USE_PADDING,
                         #   filter_from_next = FILTER_FROM_NEXT,
-                          tau_s=TAU_S_1,
-                          theta=THRESHOLD_HAT_1,
-                          delta_theta=DELTA_THRESHOLD_1,
-                          weight_initializer=weight_initializer_conv,
-                          max_n_spike=SPIKE_BUFFER_SIZE_1,
-                          name="Convolution 1")
-    network.add_layer(conv_1)
+                            tau_s=TAU_S_1,
+                            theta=THRESHOLD_HAT_1,
+                            delta_theta=DELTA_THRESHOLD_1,
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=SPIKE_BUFFER_SIZE_1,
+                            name="Convolution 3")
+        network.add_layer(conv_3)
 
-    pool_1 = PoolingLayer(conv_1, name="Pooling 1")
-    network.add_layer(pool_1)
+        pool_3 = PoolingLayer(conv_3, name="Pooling 3")
+        network.add_layer(pool_3)
 
-    conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 32]), use_padding=USE_PADDING,
-                        #   filter_from_next = FILTER_FROM_NEXT,
-                          tau_s=TAU_S_1,
-                          theta=THRESHOLD_HAT_1,
-                          delta_theta=DELTA_THRESHOLD_1,
-                          weight_initializer=weight_initializer_conv,
-                          max_n_spike=SPIKE_BUFFER_SIZE_1,
-                          name="Convolution 2")
-    network.add_layer(conv_2)
-
-    pool_2 = PoolingLayer(conv_2, name="Pooling 2")
-    network.add_layer(pool_2)
-
-    conv_3 = ConvLIFLayer(previous_layer=pool_2, filters_shape=np.array([5, 5, 32]), use_padding=USE_PADDING,
-                    #   filter_from_next = FILTER_FROM_NEXT,
-                        tau_s=TAU_S_1,
-                        theta=THRESHOLD_HAT_1,
-                        delta_theta=DELTA_THRESHOLD_1,
-                        weight_initializer=weight_initializer_conv,
-                        max_n_spike=SPIKE_BUFFER_SIZE_1,
-                        name="Convolution 3")
-    network.add_layer(conv_3)
-
-    pool_3 = PoolingLayer(conv_3, name="Pooling 3")
-    network.add_layer(pool_3)
-
-    feedforward = LIFLayer(previous_layer=pool_3, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
-                           theta=THRESHOLD_HAT_FC,
-                           delta_theta=DELTA_THRESHOLD_FC,
-                           weight_initializer=weight_initializer_ff,
-                           max_n_spike=SPIKE_BUFFER_SIZE_FC,
-                           name="Feedforward 1")
-    network.add_layer(feedforward)
-
-    output_layer = LIFLayer(previous_layer=feedforward, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT,
-                            theta=THRESHOLD_HAT_OUTPUT,
-                            delta_theta=DELTA_THRESHOLD_OUTPUT,
+        feedforward = LIFLayer(previous_layer=pool_3, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+                            theta=THRESHOLD_HAT_FC,
+                            delta_theta=DELTA_THRESHOLD_FC,
                             weight_initializer=weight_initializer_ff,
-                            max_n_spike=SPIKE_BUFFER_SIZE_OUTPUT,
-                            name="Output layer")
-    network.add_layer(output_layer)
+                            max_n_spike=SPIKE_BUFFER_SIZE_FC,
+                            name="Feedforward 1")
+        network.add_layer(feedforward)
+
+        output_layer = LIFLayer(previous_layer=feedforward, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT,
+                                theta=THRESHOLD_HAT_OUTPUT,
+                                delta_theta=DELTA_THRESHOLD_OUTPUT,
+                                weight_initializer=weight_initializer_ff,
+                                max_n_spike=SPIKE_BUFFER_SIZE_OUTPUT,
+                                name="Output layer")
+        network.add_layer(output_layer)
 
     loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
