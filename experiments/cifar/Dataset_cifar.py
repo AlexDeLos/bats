@@ -1,7 +1,9 @@
 import os
 import numpy as np
 
-import warnings 
+import warnings
+
+from sympy import rotations 
 warnings.filterwarnings('ignore')
 
 from typing import Tuple
@@ -146,9 +148,9 @@ class Dataset:
         if augment:
             """plt.imshow(samples[0])
             plt.show()"""
-            """rotate = np.random.uniform(-ROTATION_RANGE, ROTATION_RANGE)
-            zoom = np.random.uniform(1.0 - ZOOM_RANGE, 1.0 + ZOOM_RANGE)"""
-            samples = deform_random_grid(list(samples), sigma=1.0, points=2, order=0) #!add it back later IDK why it fails in the cluster
+            rotations = np.random.randint(0, high=4)
+            np.rot90(samples, k=rotations)
+            # samples = deform_random_grid(list(samples), sigma=1.0, points=2, order=0) # this pakage is no on conda so can't be used
             samples = np.array(samples)
             """samples = np.expand_dims(samples, axis=3)
             samples = self.__datagen.flow(samples, batch_size=len(samples), shuffle=False).next()
