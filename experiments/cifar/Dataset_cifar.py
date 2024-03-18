@@ -1,23 +1,16 @@
-import tensorflow as tf 
-from tensorflow import keras 
-import gzip
 import os
-import tarfile
 import numpy as np
 
 import warnings 
 warnings.filterwarnings('ignore')
 
-from pathlib import Path
 from typing import Tuple
-# from elasticdeform import deform_random_grid
+from elasticdeform import deform_random_grid
 import warnings
 # import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter, map_coordinates
 
 warnings.filterwarnings("ignore")
-
-from tensorflow import keras
 import numpy as np
 
 TIME_WINDOW = 100e-3
@@ -155,7 +148,7 @@ class Dataset:
             plt.show()"""
             """rotate = np.random.uniform(-ROTATION_RANGE, ROTATION_RANGE)
             zoom = np.random.uniform(1.0 - ZOOM_RANGE, 1.0 + ZOOM_RANGE)"""
-            # samples = deform_random_grid(list(samples), sigma=1.0, points=2, order=0) #!add it back later IDK why it fails in the cluster
+            samples = deform_random_grid(list(samples), sigma=1.0, points=2, order=0) #!add it back later IDK why it fails in the cluster
             samples = np.array(samples)
             """samples = np.expand_dims(samples, axis=3)
             samples = self.__datagen.flow(samples, batch_size=len(samples), shuffle=False).next()
