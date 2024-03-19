@@ -47,9 +47,7 @@ srun python3 experiments/emnist/train.py --cluster True --n_epochs 50 --runs 2 -
 # srun python3 experiments/emnist/train.py --cluster True --n_epochs 50 --runs 2 --use_residual True --n_hidden_layers 12 --batch_size 90 --use_wanb True
 
 echo "Done with EMNIST -----------------------------------------------------------------------"
-echo "Done with residual True, n_hidden_layers 6 -----------------------------------------------------------------------"
-srun python3 experiments/cifar/train_conv.py --cluster True --use_residual True --n_epochs 50 --runs 2 --n_hidden_layers 6 --batch_size 20 --test_batch_size 20 --use_wanb True
-echo "Done with residual False, n_hidden_layers 6 -----------------------------------------------------------------------"
+echo "Done with residual Fasle, n_hidden_layers 6 -----------------------------------------------------------------------"
 srun python3 experiments/cifar/train_conv.py --cluster True --n_epochs 50 --runs 2 --n_hidden_layers 6 --batch_size 20 --test_batch_size 20 --use_wanb True
 # echo "Done with residual True, n_hidden_layers 4 -----------------------------------------------------------------------"
 # srun python3 experiments/cifar/train_conv.py --cluster True --use_residual True --n_epochs 50 --runs 2 --n_hidden_layers 4 --batch_size 20 --test_batch_size 20 --use_wanb True
