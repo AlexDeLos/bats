@@ -1,9 +1,9 @@
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 
 import warnings
-
-from sympy import rotations 
+from scipy.ndimage import rotate
 warnings.filterwarnings('ignore')
 
 from typing import Tuple
@@ -96,30 +96,16 @@ class Dataset:
         return self.__test_labels
 
     def __to_spikes(self, samples):
-        red = samples[:,:1024]
-        green = samples[:,1024:2048]
-        blue = samples[:,-1024:]
-        average_red = np.mean(red)
-        average_green = np.mean(green)
-        average_blue = np.mean(blue)
+        images = samples.reshape((samples.shape[0], 3, 32, 32))
 
-        # how does it work without this thresholding?
-        average_red = 0
-        average_green = 0
-        average_blue = 0
-
-        # we turn all of the ones below the average to 0
-        red[red < average_red] = 0
-        green[green < average_green] = 0
-        blue[blue < average_blue] = 0
-        new_samples = np.concatenate([red, green, blue], axis=1)
         # spike_times = samples.reshape((samples.shape[0], N_NEURONS, 3))# now this assumes 3 channels
-        spike_times = TIME_WINDOW * (1 - (new_samples / MAX_VALUE))
+        spike_times = TIME_WINDOW * (1 - (samples / MAX_VALUE))
         spike_times[spike_times == TIME_WINDOW] = np.inf
         if self.__use_multi_channel:
-            spike_times = spike_times.reshape((samples.shape[0], N_NEURONS*3, 1))
-            #! all of them have 1s how can I stop this?
-            n_spike_per_neuron_3_channels = np.isfinite(spike_times).astype('int').reshape((samples.shape[0], N_NEURONS*3))
+            spike_times = spike_times.reshape((samples.shape[0], 3, 32, 32))
+            spike_times = spike_times.transpose(0,2,3,1)
+            # ! all of them have 1s how can I stop this?
+            n_spike_per_neuron_3_channels = np.isfinite(spike_times).astype('int').reshape((samples.shape[0], N_NEURONS,3))
             return spike_times, n_spike_per_neuron_3_channels
 
         else:
@@ -148,10 +134,21 @@ class Dataset:
         if augment:
             """plt.imshow(samples[0])
             plt.show()"""
-            rotations = np.random.randint(0, high=4)
-            np.rot90(samples, k=rotations)
+            #! this de-aligs the labets
+            old = samples.copy()
+            samples = samples.reshape((samples.shape[0], 3,32, 32))
+            samples = samples.transpose(0,2,3,1)
+            for image in range(samples.shape[0]):
+                rotations = np.random.randint(0, high=4)
+                samples[image] = rotate(samples[image], 90 * rotations,reshape=False)
+                asasd = ''
+            # undo the transpose
+            samples = samples.transpose(0,3,1,2)
+            sample_new = samples.reshape(old.shape)
+
+            # samples = samples.reshape((samples.shape[0], N_NEURONS*3))
             # samples = deform_random_grid(list(samples), sigma=1.0, points=2, order=0) # this pakage is no on conda so can't be used
-            samples = np.array(samples)
+            samples = np.array(sample_new)
             """samples = np.expand_dims(samples, axis=3)
             samples = self.__datagen.flow(samples, batch_size=len(samples), shuffle=False).next()
             samples = samples[..., 0]"""

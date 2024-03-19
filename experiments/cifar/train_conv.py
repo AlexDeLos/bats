@@ -156,6 +156,7 @@ for run in range(NUMBER_OF_RUNS):
         "dataset": "CIFAR-100" if USE_CIFAR100 else "CIFAR-10",
         "epochs": N_TRAINING_EPOCHS,
         "version": "1.0.0_cluster_" + str(CLUSTER),
+        "use_multi_channel": USE_3_CHANNELS,
         }
         )
 
