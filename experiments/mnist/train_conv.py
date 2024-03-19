@@ -24,9 +24,7 @@ from bats.Layers.ConvLIFLayerResidual_2 import ConvLIFLayerResidual_2
 
 from bats.Layers.PoolingLayer import PoolingLayer
 
-# Dataset
-# DATASET_PATH = Path("datasets/mnist.npz")
-DATASET_PATH = Path("datasets/")
+DATASET_PATH = Path("./datasets/mnist.npz")
 
 arguments = get_arguments()
 # Change from small test on computer to big test on cluster
@@ -105,8 +103,8 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 # Training parameters
 if CLUSTER:
-    N_TRAIN_SAMPLES = arguments.n_train_samples
-    N_TEST_SAMPLES = arguments.n_test_samples #! used to be 10000
+    N_TRAIN_SAMPLES = 60000
+    N_TEST_SAMPLES = 10000 #! used to be 10000
     TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
     TEST_BATCH_SIZE = arguments.batch_size_test
     N_TRAINING_EPOCHS = 10
@@ -205,61 +203,51 @@ for run in range(NUMBER_OF_RUNS):
     input_layer = ConvInputLayer(neurons_shape=INPUT_SHAPE, name="Input layer")
     network.add_layer(input_layer, input=True)
 
-    conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
-                          filter_from_next = FILTER_FROM_NEXT,
-                          tau_s=TAU_S_1,
-                          theta=THRESHOLD_HAT_1,
-                          delta_theta=DELTA_THRESHOLD_1,
-                          weight_initializer=weight_initializer_conv,
-                          max_n_spike=SPIKE_BUFFER_SIZE_1,
-                          name="Convolution 1")
+    conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=np.array([5, 5, 32]), use_padding=USE_PADDING,
+                        #   filter_from_next = FILTER_FROM_NEXT,
+                        tau_s=TAU_S_1,
+                        theta=THRESHOLD_HAT_1,
+                        delta_theta=DELTA_THRESHOLD_1,
+                        weight_initializer=weight_initializer_conv,
+                        max_n_spike=SPIKE_BUFFER_SIZE_1,
+                        name="Convolution 1")
     network.add_layer(conv_1)
 
     pool_1 = PoolingLayer(conv_1, name="Pooling 1")
     network.add_layer(pool_1)
 
-    conv_1_5 = ConvLIFLayer(previous_layer=pool_1, filters_shape=FILTER_1_5, use_padding=USE_PADDING,
-                          filter_from_next = FILTER_FROM_NEXT_1_5,
-                          tau_s=TAU_S_1_5,
-                          theta=THRESHOLD_HAT_1_5,
-                          delta_theta=DELTA_THRESHOLD_1_5,
-                          weight_initializer=weight_initializer_conv,
-                          max_n_spike=SPIKE_BUFFER_SIZE_1_5,
-                          name="Convolution 1_5")
-    network.add_layer(conv_1_5)
-
-    # this is an activation layer
-    pool_1_5 = PoolingLayer(conv_1_5, name="Pooling 1_5")
-    network.add_layer(pool_1_5)
-    #! the is a problem after a few iterations, nans appear
-    if USE_RESIDUAL:
-    # *I can connect it straight to other conv layers
-        conv_2 = ConvLIFLayerResidual_2(previous_layer=pool_1_5, jump_layer=conv_1, filters_shape=FILTER_2, use_padding=USE_PADDING,
-                            tau_s=TAU_S_2,
-                            theta=THRESHOLD_HAT_2,
-                            delta_theta=DELTA_THRESHOLD_2,
-                            weight_initializer=weight_initializer_conv,
-                            max_n_spike=SPIKE_BUFFER_SIZE_2,
-                            name="Convolution 2")
-    else:
-        conv_2 = ConvLIFLayer(previous_layer=conv_1_5, filters_shape=FILTER_2, use_padding=USE_PADDING,
-                            tau_s=TAU_S_2,
-                            theta=THRESHOLD_HAT_2,
-                            delta_theta=DELTA_THRESHOLD_2,
-                            weight_initializer=weight_initializer_conv,
-                            max_n_spike=SPIKE_BUFFER_SIZE_2,
-                            name="Convolution 2")
+    conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 32]), use_padding=USE_PADDING,
+                        #   filter_from_next = FILTER_FROM_NEXT,
+                        tau_s=TAU_S_1,
+                        theta=THRESHOLD_HAT_1,
+                        delta_theta=DELTA_THRESHOLD_1,
+                        weight_initializer=weight_initializer_conv,
+                        max_n_spike=SPIKE_BUFFER_SIZE_1,
+                        name="Convolution 2")
     network.add_layer(conv_2)
 
     pool_2 = PoolingLayer(conv_2, name="Pooling 2")
     network.add_layer(pool_2)
 
-    feedforward = LIFLayer(previous_layer=pool_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
-                           theta=THRESHOLD_HAT_FC,
-                           delta_theta=DELTA_THRESHOLD_FC,
-                           weight_initializer=weight_initializer_ff,
-                           max_n_spike=SPIKE_BUFFER_SIZE_FC,
-                           name="Feedforward 1")
+    conv_3 = ConvLIFLayer(previous_layer=pool_2, filters_shape=np.array([5, 5, 32]), use_padding=USE_PADDING,
+                    #   filter_from_next = FILTER_FROM_NEXT,
+                        tau_s=TAU_S_1,
+                        theta=THRESHOLD_HAT_1,
+                        delta_theta=DELTA_THRESHOLD_1,
+                        weight_initializer=weight_initializer_conv,
+                        max_n_spike=SPIKE_BUFFER_SIZE_1,
+                        name="Convolution 3")
+    network.add_layer(conv_3)
+
+    pool_3 = PoolingLayer(conv_3, name="Pooling 3")
+    network.add_layer(pool_3)
+
+    feedforward = LIFLayer(previous_layer=pool_3, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+                        theta=THRESHOLD_HAT_FC,
+                        delta_theta=DELTA_THRESHOLD_FC,
+                        weight_initializer=weight_initializer_ff,
+                        max_n_spike=SPIKE_BUFFER_SIZE_FC,
+                        name="Feedforward 1")
     network.add_layer(feedforward)
 
     output_layer = LIFLayer(previous_layer=feedforward, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT,

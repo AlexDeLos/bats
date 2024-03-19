@@ -15,7 +15,7 @@ from scipy.ndimage import gaussian_filter, map_coordinates
 warnings.filterwarnings("ignore")
 import numpy as np
 
-TIME_WINDOW = 100e-3
+TIME_WINDOW = 100e-3 #! try changing this
 MAX_VALUE = 255
 RESOLUTION = 32
 N_NEURONS = RESOLUTION * RESOLUTION
@@ -104,7 +104,6 @@ class Dataset:
         if self.__use_multi_channel:
             spike_times = spike_times.reshape((samples.shape[0], 3, 32, 32))
             spike_times = spike_times.transpose(0,2,3,1)
-            # ! all of them have 1s how can I stop this?
             n_spike_per_neuron_3_channels = np.isfinite(spike_times).astype('int').reshape((samples.shape[0], N_NEURONS,3))
             return spike_times, n_spike_per_neuron_3_channels
 
