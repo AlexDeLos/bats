@@ -33,7 +33,7 @@ USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
 USE_RESIDUAL = arguments.use_residual
 FIX_SEED = False
-USE_PADDING = False #! residual and padd gives nans
+USE_PADDING = True #! residual and padd gives nans
 # what causes nans:
 #! residual layers with pre = jump and nans
 # Why is it not learning?
@@ -110,8 +110,8 @@ if CLUSTER:
     N_TRAINING_EPOCHS = 10
 else:
     N_TRAINING_EPOCHS = 10
-    N_TRAIN_SAMPLES = 6000
-    N_TEST_SAMPLES = 1000
+    N_TRAIN_SAMPLES = 60000
+    N_TEST_SAMPLES = 10000
     TRAIN_BATCH_SIZE = 20 
 TEST_BATCH_SIZE = arguments.batch_size_test
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
