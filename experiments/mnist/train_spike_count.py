@@ -31,7 +31,7 @@ SIMULATION_TIME = 0.2
 
 # Change from small test on computer to big test on cluster
 CLUSTER = arguments.cluster
-USE_WANDB = arguments.wandb
+USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
