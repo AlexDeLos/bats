@@ -94,15 +94,15 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 # Training parameters
 N_TRAINING_EPOCHS = arguments.n_epochs #! used to  be 100
 if CLUSTER:
-    N_TRAIN_SAMPLES = arguments.n_train_samples
-    N_TEST_SAMPLES = arguments.n_test_samples #! used to be 10000
+    N_TRAIN_SAMPLES = 50000 # arguments.n_train_samples
+    N_TEST_SAMPLES = 10000 # arguments.n_test_samples #! used to be 10000
     TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
     TEST_BATCH_SIZE = arguments.batch_size_test
 else:
     N_TRAIN_SAMPLES = 5000
     N_TEST_SAMPLES = 1000
-    TRAIN_BATCH_SIZE = 20
-    TEST_BATCH_SIZE = 40
+    TRAIN_BATCH_SIZE = 5
+    TEST_BATCH_SIZE = 5
     TRAIN_BATCH_SIZE = 20 # 20
     TEST_BATCH_SIZE = 50
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
@@ -268,7 +268,7 @@ for run in range(NUMBER_OF_RUNS):
     # pool_2 = PoolingLayer(conv, name="Pooling 2")
     # network.add_layer(pool_2)
     else:
-        conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=np.array([5, 5, 32]), use_padding=USE_PADDING,
+        conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=np.array([5, 5, 8]), use_padding=USE_PADDING,
                             #   filter_from_next = FILTER_FROM_NEXT,
                             tau_s=TAU_S_1,
                             theta=THRESHOLD_HAT_1,
@@ -281,7 +281,7 @@ for run in range(NUMBER_OF_RUNS):
         pool_1 = PoolingLayer(conv_1, name="Pooling 1")
         network.add_layer(pool_1)
 
-        conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 32]), use_padding=USE_PADDING,
+        conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 8]), use_padding=USE_PADDING,
                             #   filter_from_next = FILTER_FROM_NEXT,
                             tau_s=TAU_S_1,
                             theta=THRESHOLD_HAT_1,
@@ -294,7 +294,7 @@ for run in range(NUMBER_OF_RUNS):
         pool_2 = PoolingLayer(conv_2, name="Pooling 2")
         network.add_layer(pool_2)
 
-        conv_3 = ConvLIFLayer(previous_layer=pool_2, filters_shape=np.array([5, 5, 32]), use_padding=USE_PADDING,
+        conv_3 = ConvLIFLayer(previous_layer=pool_2, filters_shape=np.array([5, 5, 8]), use_padding=USE_PADDING,
                         #   filter_from_next = FILTER_FROM_NEXT,
                             tau_s=TAU_S_1,
                             theta=THRESHOLD_HAT_1,
