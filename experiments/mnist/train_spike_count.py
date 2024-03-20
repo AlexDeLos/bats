@@ -121,7 +121,7 @@ for run in range(NUMBER_OF_RUNS):
         wandb.init(
         # set the wandb project where this run will be logged
         project="Residual-SNN",
-        name="Residual-SNN_"+str(N_HIDDEN_LAYERS)"_run_"+str(run)+ "verifications",
+        name="Residual-SNN_"+str(N_HIDDEN_LAYERS)+"_run_"+str(run)+"verifications",
         
         # track hyperparameters and run metadata4
         config={
