@@ -99,8 +99,7 @@ class ConvLIFLayer(AbstractConvLayer):
         # how are the spikes used? and how do I add padding?
         if self._use_padding: #! using this causes random nans for some reason
         #? what is I don't use padding in the forward pass?
-            self.__pre_spike_per_neuron, self.__pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron,
-                                                                       self.__pre_shape, self._padding)
+            self.__pre_spike_per_neuron, self.__pre_n_spike_per_neuron = pre_spike_per_neuron, pre_n_spike_per_neuron #add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron, self.__pre_shape, self._padding)
             pre_spike_per_neuron = self.__pre_spike_per_neuron
             pre_n_spike_per_neuron = self.__pre_n_spike_per_neuron
             self.__padded_pre_exp_tau_s, self.__padded_pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
@@ -198,10 +197,10 @@ class ConvLIFLayer(AbstractConvLayer):
         new_x = self.__x
         new_post_exp_tau = self.__post_exp_tau
         if new_x.shape != errors_in.shape:
-            if new_x.shape[2] != errors_in.shape[2]:
-                raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors_in.shape}")
             errors = trimed_errors(errors_in, self.__filter_from_next, self.neurons_shape[2])
             # print("errors shape is not the same as the x shape")
+            if new_x.shape[2] != errors_in.shape[2]:
+                raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors_in.shape}")
             if new_x.shape != errors.shape:
                 #* here I could check on a list of filters_from_next - Talk to supervisors about this
                 raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors.shape}")

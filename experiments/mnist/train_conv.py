@@ -203,21 +203,21 @@ for run in range(NUMBER_OF_RUNS):
     input_layer = ConvInputLayer(neurons_shape=INPUT_SHAPE, name="Input layer")
     network.add_layer(input_layer, input=True)
 
-    conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=np.array([5, 5, 32]), use_padding=USE_PADDING,
-                        #   filter_from_next = FILTER_FROM_NEXT,
+    conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=np.array([5, 5, 3]), use_padding=USE_PADDING,
+                          filter_from_next = np.array([5, 5, 3]),
                         tau_s=TAU_S_1,
                         theta=THRESHOLD_HAT_1,
                         delta_theta=DELTA_THRESHOLD_1,
                         weight_initializer=weight_initializer_conv,
-                        max_n_spike=SPIKE_BUFFER_SIZE_1,
+                        max_n_spike=8,
                         name="Convolution 1")
     network.add_layer(conv_1)
 
     pool_1 = PoolingLayer(conv_1, name="Pooling 1")
     network.add_layer(pool_1)
 
-    conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 32]), use_padding=USE_PADDING,
-                        #   filter_from_next = FILTER_FROM_NEXT,
+    conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 3]), use_padding=USE_PADDING,
+                        #   filter_from_next = np.array([5, 5, 3]),
                         tau_s=TAU_S_1,
                         theta=THRESHOLD_HAT_1,
                         delta_theta=DELTA_THRESHOLD_1,
@@ -229,7 +229,7 @@ for run in range(NUMBER_OF_RUNS):
     pool_2 = PoolingLayer(conv_2, name="Pooling 2")
     network.add_layer(pool_2)
 
-    conv_3 = ConvLIFLayer(previous_layer=pool_2, filters_shape=np.array([5, 5, 32]), use_padding=USE_PADDING,
+    conv_3 = ConvLIFLayer(previous_layer=pool_2, filters_shape=np.array([3, 3, 3]), use_padding=USE_PADDING,
                     #   filter_from_next = FILTER_FROM_NEXT,
                         tau_s=TAU_S_1,
                         theta=THRESHOLD_HAT_1,
