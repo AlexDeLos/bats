@@ -18,7 +18,9 @@ from bats.Layers import InputLayer, LIFLayer, LIFLayerResidual
 from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *
+from bats.Utils.utils import get_arguments
 
+arguments = get_arguments()
 
 # Dataset
 # DATASET_PATH = Path("../../datasets/mnist.npz")
@@ -28,16 +30,16 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Change from small test on computer to big test on cluster
-CLUSTER = False
-USE_WANDB = False
-ALTERNATE = False
+CLUSTER = arguments.cluster
+USE_WANDB = arguments.wandb
+ALTERNATE = arguments.alternate
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 
 #Residual parameters
-USE_RESIDUAL = True
-RESIDUAL_EVERY_N = 2
-N_HIDDEN_LAYERS = 2
+USE_RESIDUAL = arguments.residual
+RESIDUAL_EVERY_N = arguments.residual_every_n
+N_HIDDEN_LAYERS = arguments.hidden_layers
 
 if CLUSTER:
     NUMBER_OF_RUNS = 20
