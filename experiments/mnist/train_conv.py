@@ -110,8 +110,8 @@ if CLUSTER:
     N_TRAINING_EPOCHS = 10
 else:
     N_TRAINING_EPOCHS = 10
-    N_TRAIN_SAMPLES = 60000
-    N_TEST_SAMPLES = 10000
+    N_TRAIN_SAMPLES = 6000
+    N_TEST_SAMPLES = 1000
     TRAIN_BATCH_SIZE = 20 
 TEST_BATCH_SIZE = arguments.batch_size_test
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
@@ -217,7 +217,7 @@ for run in range(NUMBER_OF_RUNS):
     # network.add_layer(pool_1)
 
     conv_2 = ConvLIFLayer(previous_layer=conv_1, filters_shape=np.array([5, 5, 3]), use_padding=USE_PADDING,
-                        #   filter_from_next = np.array([5, 5, 3]),
+                          filter_from_next = np.array([3, 3, 3]),
                         tau_s=TAU_S_1,
                         theta=THRESHOLD_HAT_1,
                         delta_theta=DELTA_THRESHOLD_1,

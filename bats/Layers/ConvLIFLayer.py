@@ -95,11 +95,16 @@ class ConvLIFLayer(AbstractConvLayer):
         if not self._use_padding:
             return self.forward_no_pad(max_simulation, training)
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
+
+        
+        pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
+
+        self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
         
         # how are the spikes used? and how do I add padding?
         if self._use_padding: #! using this causes random nans for some reason
         #? what is I don't use padding in the forward pass?
-            self.__pre_spike_per_neuron, self.__pre_n_spike_per_neuron = pre_spike_per_neuron, pre_n_spike_per_neuron #add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron, self.__pre_shape, self._padding)
+            self.__pre_spike_per_neuron, self.__pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron, self.__pre_shape, self._padding)
             pre_spike_per_neuron = self.__pre_spike_per_neuron
             pre_n_spike_per_neuron = self.__pre_n_spike_per_neuron
             self.__padded_pre_exp_tau_s, self.__padded_pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
@@ -184,7 +189,7 @@ class ConvLIFLayer(AbstractConvLayer):
             raise ValueError("NaNs in errors")
         if not self._use_padding:
             return self.backward_no_pad(errors_in)
-        pre_spike_per_neuron, _ = self.__previous_layer.spike_trains
+        pre_spike_per_neuron_real, _ = self.__previous_layer.spike_trains
         
         #? what is I don't use padding in the backward pass?
         
@@ -197,6 +202,7 @@ class ConvLIFLayer(AbstractConvLayer):
         new_x = self.__x
         new_post_exp_tau = self.__post_exp_tau
         if new_x.shape != errors_in.shape:
+            #! watch out for channel dimension differences
             errors = trimed_errors(errors_in, self.__filter_from_next, self.neurons_shape[2])
             # print("errors shape is not the same as the x shape")
             if new_x.shape[2] != errors_in.shape[2]:
@@ -232,8 +238,8 @@ class ConvLIFLayer(AbstractConvLayer):
                                                              self.__weights,
                                                              errors, # this has the shape of the current layer
                                                              self.__tau_s, self.__tau,
-                                                            #  new_shape_previous,
-                                                             self.__previous_layer.neurons_shape,
+                                                             new_shape_previous,
+                                                            #  self.__previous_layer.neurons_shape, #!  these 2 shapes are out of date with the padding
                                                              self.neurons_shape,
                                                              self.__filters_shape)
             testsd = 0
