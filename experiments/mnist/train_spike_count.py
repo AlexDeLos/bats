@@ -37,7 +37,7 @@ FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 
 #Residual parameters
-USE_RESIDUAL = arguments.residual
+USE_RESIDUAL = arguments.use_residual
 RESIDUAL_EVERY_N = arguments.residual_every_n
 N_HIDDEN_LAYERS = arguments.hidden_layers
 
