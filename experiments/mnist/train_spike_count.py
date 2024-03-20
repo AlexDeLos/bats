@@ -121,7 +121,7 @@ for run in range(NUMBER_OF_RUNS):
         wandb.init(
         # set the wandb project where this run will be logged
         project="Residual-SNN",
-        name="Residual-SNN_"+ str(FUSE_FUNCTION)+"_run_"+str(run),
+        name="Residual-SNN_"+str(N_HIDDEN_LAYERS)"_run_"+str(run)+ "verifications",
         
         # track hyperparameters and run metadata4
         config={
@@ -138,7 +138,7 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "SNN",
         "dataset": "MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "4.0.0_cluster_" + str(CLUSTER),
+        "version": "1.0.0_cluster_" + str(CLUSTER),
         }
         )
 

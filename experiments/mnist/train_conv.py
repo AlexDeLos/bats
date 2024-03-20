@@ -213,10 +213,10 @@ for run in range(NUMBER_OF_RUNS):
                         name="Convolution 1")
     network.add_layer(conv_1)
 
-    pool_1 = PoolingLayer(conv_1, name="Pooling 1")
-    network.add_layer(pool_1)
+    # pool_1 = PoolingLayer(conv_1, name="Pooling 1")
+    # network.add_layer(pool_1)
 
-    conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 3]), use_padding=True,
+    conv_2 = ConvLIFLayer(previous_layer=conv_1, filters_shape=np.array([5, 5, 3]), use_padding=True,
                         #   filter_from_next = np.array([3, 3, 3]),
                         tau_s=TAU_S_1,
                         theta=THRESHOLD_HAT_1,
@@ -239,10 +239,10 @@ for run in range(NUMBER_OF_RUNS):
                         name="Convolution 3")
     network.add_layer(conv_3)
 
-    # pool_3 = PoolingLayer(conv_3, name="Pooling 3")
-    # network.add_layer(pool_3)
+    pool_3 = PoolingLayer(conv_3, name="Pooling 3")
+    network.add_layer(pool_3)
 
-    feedforward = LIFLayer(previous_layer=conv_3, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+    feedforward = LIFLayer(previous_layer=pool_3, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
                         theta=THRESHOLD_HAT_FC,
                         delta_theta=DELTA_THRESHOLD_FC,
                         weight_initializer=weight_initializer_ff,
