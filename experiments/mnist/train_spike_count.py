@@ -39,7 +39,7 @@ FUSE_FUNCTION = "Append"
 #Residual parameters
 USE_RESIDUAL = arguments.use_residual
 RESIDUAL_EVERY_N = arguments.residual_every_n
-N_HIDDEN_LAYERS = arguments.hidden_layers
+N_HIDDEN_LAYERS = arguments.n_hidden_layers
 
 if CLUSTER:
     NUMBER_OF_RUNS = 20
