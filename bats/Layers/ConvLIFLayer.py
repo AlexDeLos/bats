@@ -32,7 +32,7 @@ class ConvLIFLayer(AbstractConvLayer):
         self.__pre_shape = (prev_x, prev_y, prev_c)
         n_x = prev_x - filter_x + 1 # why this equation? -> this is the reduction of dimensions because of the filter
         n_y = prev_y - filter_y + 1
-        neurons_shape: cp.ndarray = np.array([n_x, n_y, filter_c], dtype=cp.int32)
+        neurons_shape: cp.ndarray = cp.array([n_x, n_y, filter_c], dtype=cp.int32)
 
         super().__init__(neurons_shape=neurons_shape, use_padding = use_padding,padding= [filter_x-1, filter_y -1], **kwargs)
 
@@ -222,7 +222,7 @@ class ConvLIFLayer(AbstractConvLayer):
         weights_grad = compute_weights_gradient_conv(f1, f2, self.__spike_times_per_neuron, # this has the shape of the current layer
                                                      pre_spike_per_neuron,# this has the shape of the previous layer
                                                      padded_pre_exp_tau_s, padded_pre_exp_tau, # these 2 also have the shape of the previous layer
-                                                     #! BUT IF i TRY TO run it as is now I get the shape of the current layer
+                                                     #! BUT IF I TRY TO run it as is now I get the shape of the current layer
                                                     #  new_shape_previous,
                                                      self.__previous_layer.neurons_shape,
                                                      self.neurons_shape,

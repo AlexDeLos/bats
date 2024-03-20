@@ -48,9 +48,14 @@ class PoolingLayer(AbstractConvLayer):
 
     def forward(self, max_simulation: float, training: bool = False) -> None:
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
+        pre_shape = self.__previous_layer.neurons_shape
+        if False and self.__previous_layer._use_padding:
+            padding_pre =  self.__previous_layer._padding
+            pre_shape = cp.array([pre_shape[0] + padding_pre[0], pre_shape[1] + padding_pre[1], pre_shape[2]], dtype=cp.int32)
         self.__n_spike_per_neuron, self.__spike_times_per_neuron, self.__spike_indices = \
-            aggregate_spikes_conv(pre_n_spike_per_neuron, pre_spike_per_neuron, self.__previous_layer.neurons_shape,
+            aggregate_spikes_conv(pre_n_spike_per_neuron, pre_spike_per_neuron, pre_shape,
                                   self.neurons_shape)
+        tesete = ''
 
     def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Propagate errors
