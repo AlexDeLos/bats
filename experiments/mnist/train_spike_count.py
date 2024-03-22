@@ -14,7 +14,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 
 from Dataset import Dataset
 from bats.Monitors import *
-from bats.Layers import InputLayer, LIFLayer, LIFLayerResidual
+from bats.Layers import InputLayer, LIFLayer, LIFLayerResidual, LIFLayerResidual_copy
 from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *
@@ -33,7 +33,7 @@ SIMULATION_TIME = 0.2
 CLUSTER = arguments.cluster
 USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
-FUSE_FUNCTION = "Append"
+FUSE_FUNCTION = None#"Append"
 #TODO: try to get the non append function to run out of memory
 
 #Residual parameters
@@ -179,7 +179,7 @@ for run in range(NUMBER_OF_RUNS):
                                     name="Hidden layer 0")
             
         elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL:
-            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[0], n_neurons=N_NEURONS_1, tau_s=TAU_S_RES,
+            hidden_layer = LIFLayerResidual_copy(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[0], n_neurons=N_NEURONS_1, tau_s=TAU_S_RES,
                                     theta=THRESHOLD_HAT_RES,
                                     fuse_function=FUSE_FUNCTION,
                                     delta_theta=DELTA_THRESHOLD_RES,
@@ -187,7 +187,7 @@ for run in range(NUMBER_OF_RUNS):
                                     max_n_spike=SPIKE_BUFFER_SIZE_RES,
                                     name="Residual layer " + str(i))
         elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
-            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i - RESIDUAL_EVERY_N], n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
+            hidden_layer = LIFLayerResidual_copy(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i - RESIDUAL_EVERY_N], n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
                                     theta=THRESHOLD_HAT_RES,
                                     fuse_function=FUSE_FUNCTION,
                                     delta_theta=DELTA_THRESHOLD_RES,
