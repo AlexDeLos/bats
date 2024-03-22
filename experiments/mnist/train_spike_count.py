@@ -42,7 +42,7 @@ RESIDUAL_EVERY_N = arguments.residual_every_n
 N_HIDDEN_LAYERS = arguments.n_hidden_layers
 
 if CLUSTER:
-    NUMBER_OF_RUNS = 20
+    NUMBER_OF_RUNS = arguments.runs
 else:
     NUMBER_OF_RUNS = 1
 
@@ -76,7 +76,7 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 
 # Training parameters
-N_TRAINING_EPOCHS = 10 #! used to  be 100
+N_TRAINING_EPOCHS = arguments.n_epochs #! used to  be 100
 if CLUSTER:
     N_TRAIN_SAMPLES = 60000 #! used to be 60000
     N_TEST_SAMPLES = 10000 #! used to be 10000
