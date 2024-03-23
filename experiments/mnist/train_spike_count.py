@@ -116,7 +116,7 @@ def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
 
 
 for run in range(NUMBER_OF_RUNS):
-    print(USE_RESIDUAL)
+    print(USE_RESIDUAL, CLUSTER, FUSE_FUNCTION, N_HIDDEN_LAYERS, RESIDUAL_EVERY_N, run)
     if ALTERNATE and CLUSTER:
         USE_RESIDUAL = run%2 == 0
     if USE_WANDB:
