@@ -216,7 +216,7 @@ class LIFLayerResidual(AbstractLayer):
     
     def forward(self, max_simulation: float, training: bool = False) -> None:
         self.forward_res(max_simulation, training)
-        # self.forward_jump(max_simulation, training)
+        self.forward_jump(max_simulation, training)
 
     # backwards function for the jump part of the residual layer
     def backward_jump(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
