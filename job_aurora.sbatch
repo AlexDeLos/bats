@@ -23,7 +23,7 @@ module load miniconda/3.9
 conda activate myHomeEnv
 
 echo "Starting job -----------------------------------------------------------------------"
-srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 50 --runs 2 --n_hidden_layers 8 --use_residual True --batch_size 80
+srun python3 experiments/cifar/train_conv.py --cluster True --n_epochs 50 --runs 2 --standard True --batch_size 20 --use_wanb True
 echo "end"
 
 # echo "testing CIFAR10"
