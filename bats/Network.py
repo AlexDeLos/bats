@@ -110,9 +110,10 @@ class Network:
                 weights_grad, errors = layer.backward(errors)
                 if type(errors) is tuple:
                     (errors,errors_jump) = errors
-                if errors_jump is None:
-                    jump_layer_is_input = True
-
+                    if errors_jump is None:
+                        jump_layer_is_input = True
+                else:
+                    errors_jump = errors
                 errors_jump_array.append(errors_jump)
                 jump_layers.append(layer.jump_layer)# type: ignore
             else:
