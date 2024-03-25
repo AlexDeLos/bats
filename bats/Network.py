@@ -107,7 +107,9 @@ class Network:
                         weights_grad = (weights_grad_jump + weights_grad_pre) / 2
 
             elif layer._is_residual:
-                weights_grad, (errors,errors_jump) = layer.backward(errors)
+                # weights_grad, (errors,errors_jump) = layer.backward(errors)
+                weights_grad, errors = layer.backward(errors)
+                errors_jump = None
                 if errors_jump is None:
                     jump_layer_is_input = True
 
