@@ -47,8 +47,8 @@ class LIFLayerResidual(AbstractLayer):
 
 
             else:
-                self.__weights_res: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons) # type: ignore
-
+                self.__weights_res: cp.ndarray = weight_initializer(int(cp.floor(self.n_neurons/2)), previous_layer.n_neurons)
+                self.__weights_jump: cp.ndarray = weight_initializer(int(cp.ceil(self.n_neurons/2)), jump_layer.n_neurons)
         self.__max_n_spike: cp.int32 = cp.int32(max_n_spike)
 
         self.__n_spike_per_neuron_res: Optional[cp.ndarray] = None
@@ -83,11 +83,14 @@ class LIFLayerResidual(AbstractLayer):
             # if self.__spike_times_per_neuron_res.shape != self.__spike_times_per_neuron_jump.shape:
             #     raise ValueError("The shapes of the residual and jump spike trains are not the same")
 
+            #! FOR TESTING
+            return self.__spike_times_per_neuron_res, self.__n_spike_per_neuron_res
             res =  fuse_inputs_append(self.__spike_times_per_neuron_res, self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_res, self.__n_spike_per_neuron_jump, self.__max_n_spike)
         else:
             #! shape is different here than in the other option don;t belive it fits with n_neurons
             res = fuse_inputs(self.__spike_times_per_neuron_res, self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_res, self.__n_spike_per_neuron_jump, self.__max_n_spike)
         return res
+        return self.__spike_times_per_neuron_res, self.__n_spike_per_neuron_res
 
     @property
     def weights(self) -> Tuple[Optional[cp.ndarray], Optional[cp.ndarray]]:
