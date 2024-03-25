@@ -33,7 +33,7 @@ SIMULATION_TIME = 0.2
 CLUSTER = arguments.cluster
 USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
-FUSE_FUNCTION = "Append"
+FUSE_FUNCTION = None#"Append"
 #TODO: try to get the non append function to run out of memory
 
 #Residual parameters
