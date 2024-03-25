@@ -436,8 +436,8 @@ for run in range(NUMBER_OF_RUNS):
 
                 if acc > best_acc:
                     best_acc = acc
-                    network.store(SAVE_DIR)
-                    print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks save to: {SAVE_DIR}")
+                    # network.store(SAVE_DIR)
+                    print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks save NOT to: {SAVE_DIR}")
     # best_acc_array.append(best_acc)    
         
     # with open('times.txt', 'a') as f:
