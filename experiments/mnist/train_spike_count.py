@@ -189,8 +189,8 @@ for run in range(NUMBER_OF_RUNS):
                                     name="Residual layer " + str(i))
         elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
             hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1],
-                                            jump_layer= hidden_layers[i-1],
-                                            #jump_layer = hidden_layers[i - RESIDUAL_JUMP_LENGTH],
+                                            # jump_layer= hidden_layers[i-1],
+                                            jump_layer = hidden_layers[i - RESIDUAL_JUMP_LENGTH],
                                             n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
                                     theta=THRESHOLD_HAT_RES,
                                     fuse_function=FUSE_FUNCTION,

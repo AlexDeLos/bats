@@ -41,6 +41,7 @@ class LIFLayer(AbstractLayer):
 
     @property
     def spike_trains(self) -> Tuple[cp.ndarray, cp.ndarray]:
+        test = self.__n_spike_per_neuron
         return self.__spike_times_per_neuron, self.__n_spike_per_neuron
 
     @property

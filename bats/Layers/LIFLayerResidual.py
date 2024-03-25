@@ -75,8 +75,8 @@ class LIFLayerResidual(AbstractLayer):
 
     @property
     def spike_trains(self) -> Tuple[cp.ndarray, cp.ndarray]:
-        # testing = self.__spike_times_per_neuron_res
-        # testing2 = self.__spike_times_per_neuron_jump
+        testing = self.__n_spike_per_neuron_res
+        testing2 = self.__n_spike_per_neuron_jump
         #first half are residual, second half are jump
         if self.__fuse_function == "Append":
             # if self.__spike_times_per_neuron_res.shape != self.__spike_times_per_neuron_jump.shape:
