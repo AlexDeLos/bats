@@ -85,7 +85,10 @@ class Network:
                     weights_grad_pre, errors1 = layer.backward(errors)
                     #! this is never used, how should we deal with the layer that recieves the jump?
                     #! error shape in conv can be wrong
-                    weights_grad_jump, errors2 = layer.backward(errors_jump_array[index])
+                    if errors_jump_array[index] is not None:
+                        weights_grad_jump, errors2 = layer.backward(errors_jump_array[index])
+                    else:
+                        errors2 = None
                     #! TESTING
                     weights_grad_jump = weights_grad_pre
                     jump_layers.pop(index)

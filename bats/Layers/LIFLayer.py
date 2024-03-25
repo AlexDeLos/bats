@@ -108,7 +108,7 @@ class LIFLayer(AbstractLayer):
     def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
         pre_spike_per_neuron, _ = self.__previous_layer.spike_trains
-        propagate_recurrent_errors(self.__x, self.__post_exp_tau, errors, self.__delta_theta_tau)
+        propagate_recurrent_errors(self.__x, self.__post_exp_tau, errors, self.__delta_theta_tau)# all the shape of this layer
         f1, f2 = compute_factors(self.__spike_times_per_neuron, self.__a, self.__c, self.__x,
                                  self.__post_exp_tau, self.__tau)
         #! nans show up here when getting the previous layer spikes

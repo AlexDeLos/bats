@@ -33,12 +33,13 @@ SIMULATION_TIME = 0.2
 CLUSTER = arguments.cluster
 USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
-FUSE_FUNCTION = None#"Append"
+FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 
 #Residual parameters
 USE_RESIDUAL = arguments.use_residual
 RESIDUAL_EVERY_N = arguments.residual_every_n
+RESIDUAL_JUMP_LENGTH = arguments.residual_jump_length
 N_HIDDEN_LAYERS = arguments.n_hidden_layers
 
 if CLUSTER:
@@ -54,13 +55,13 @@ else:
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.2
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
-SPIKE_BUFFER_SIZE_1 = 30
+SPIKE_BUFFER_SIZE_1 = 20
 
 # Residual layer
 if CLUSTER:
-    N_NEURONS_RES = 800 #!800 #? Should I lower it?
+    N_NEURONS_RES = 750 #!800 #? Should I lower it?
 else:
-    N_NEURONS_RES = 260
+    N_NEURONS_RES = 400
 TAU_S_RES = 0.130
 THRESHOLD_HAT_RES = 0.2
 DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES
@@ -78,8 +79,8 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 # Training parameters
 N_TRAINING_EPOCHS = arguments.n_epochs #! used to  be 100
 if CLUSTER:
-    N_TRAIN_SAMPLES = 60000 #! used to be 60000
-    N_TEST_SAMPLES = 10000 #! used to be 10000
+    N_TRAIN_SAMPLES = 6000 #! used to be 60000
+    N_TEST_SAMPLES = 1000 #! used to be 10000
     TRAIN_BATCH_SIZE = arguments.batch_size
     TEST_BATCH_SIZE = arguments.batch_size_test
 else:
@@ -178,7 +179,7 @@ for run in range(NUMBER_OF_RUNS):
                                     max_n_spike=SPIKE_BUFFER_SIZE_1,
                                     name="Hidden layer 0")
             
-        elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL:
+        elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL and False:
             hidden_layer = LIFLayerResidual_copy(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[0], n_neurons=N_NEURONS_1, tau_s=TAU_S_RES,
                                     theta=THRESHOLD_HAT_RES,
                                     fuse_function=FUSE_FUNCTION,
@@ -187,15 +188,26 @@ for run in range(NUMBER_OF_RUNS):
                                     max_n_spike=SPIKE_BUFFER_SIZE_RES,
                                     name="Residual layer " + str(i))
         elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
-            hidden_layer = LIFLayerResidual_copy(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i - RESIDUAL_EVERY_N], n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
+            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1],
+                                            jump_layer= hidden_layers[i-1],
+                                            #jump_layer = hidden_layers[i - RESIDUAL_JUMP_LENGTH],
+                                            n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
                                     theta=THRESHOLD_HAT_RES,
                                     fuse_function=FUSE_FUNCTION,
                                     delta_theta=DELTA_THRESHOLD_RES,
                                     weight_initializer=weight_initializer,
                                     max_n_spike=SPIKE_BUFFER_SIZE_RES,
                                     name="Residual layer " + str(i))
+        elif i % RESIDUAL_EVERY_N ==0 and not USE_RESIDUAL:
+            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=int(N_NEURONS_1/2), tau_s=TAU_S_1,
+                                    theta=THRESHOLD_HAT_1,
+                                    delta_theta=DELTA_THRESHOLD_1,
+                                    weight_initializer=weight_initializer,
+                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                    name="Hidden layer " + str(i))
+
         else:
-            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1 + i*10, tau_s=TAU_S_1,
+            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                     theta=THRESHOLD_HAT_1,
                                     delta_theta=DELTA_THRESHOLD_1,
                                     weight_initializer=weight_initializer,
@@ -252,7 +264,7 @@ for run in range(NUMBER_OF_RUNS):
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
-        dataset.shuffle()
+        # dataset.shuffle()
 
         # Learning rate decay
         if epoch > 0 and epoch % LR_DECAY_EPOCH == 0:
@@ -294,7 +306,10 @@ for run in range(NUMBER_OF_RUNS):
                 elif isinstance(layer, LIFLayerResidual):
                     grad_entry = []
                     for i in range(len(g)):
-                        averaged_values = cp.mean(g[i], axis=0)
+                        try:
+                            averaged_values = cp.mean(g[i], axis=0)
+                        except:
+                            averaged_values = cp.mean(g[0], axis=0)
                         grad_entry.append(averaged_values)
                     avg_gradient.append(grad_entry)
                 else:

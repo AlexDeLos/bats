@@ -10,11 +10,12 @@ def get_arguments():
     # if file is moved in another directory level relative to the root (currently in root/utils/src), this needs to be changed
     root_directory = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     parser.add_argument("--cluster", default=False, type=bool)
+    parser.add_argument("--residual_jump_length", default=2, type=int)
     parser.add_argument("--standard", default=False, type=bool)
     parser.add_argument("--runs", default=1, type=int)
     parser.add_argument("--n_neurons", default=500, type=int)
     parser.add_argument("--alternate", default=False, type=bool)
-    parser.add_argument("--residual_every_n", default=2, type=int)
+    parser.add_argument("--residual_every_n", default=3, type=int)
     parser.add_argument("--n_hidden_layers", default=6, type=int)
     parser.add_argument("--use_residual",default=False, type=bool)
     parser.add_argument("--use_wanb", default=False, type=bool)
