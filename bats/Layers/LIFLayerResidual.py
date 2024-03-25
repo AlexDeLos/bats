@@ -82,8 +82,9 @@ class LIFLayerResidual(AbstractLayer):
         if self.__fuse_function == "Append":
             # if self.__spike_times_per_neuron_res.shape != self.__spike_times_per_neuron_jump.shape:
             #     raise ValueError("The shapes of the residual and jump spike trains are not the same")
-            if self.__spike_times_per_neuron_jump == None:
-                return self.__spike_times_per_neuron_res, self.__n_spike_per_neuron_res
+
+            #! FOR TESTING
+            return self.__spike_times_per_neuron_res, self.__n_spike_per_neuron_res
             res =  fuse_inputs_append(self.__spike_times_per_neuron_res, self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_res, self.__n_spike_per_neuron_jump, self.__max_n_spike)
         else:
             #! shape is different here than in the other option don;t belive it fits with n_neurons
@@ -201,7 +202,7 @@ class LIFLayerResidual(AbstractLayer):
             sorted_spike_times[sorted_indices == -1] = cp.inf
             sorted_pre_exp_tau_s = cp.take_along_axis(cp.reshape(self.__pre_exp_tau_s_jump, new_shape), sorted_indices, axis=1)
             sorted_pre_exp_tau = cp.take_along_axis(cp.reshape(self.__pre_exp_tau_jump, new_shape), sorted_indices, axis=1)
-            pre_spike_weights = get_spike_weights(self.weights[1], sorted_spike_indices)
+            pre_spike_weights = get_spike_weights(self.weights, sorted_spike_indices)
 
             # Compute spikes, everything has been calculated in order to make this
             self.__n_spike_per_neuron_jump, self.__a_jump, self.__x_jump, self.__spike_times_per_neuron_jump, \
@@ -215,7 +216,7 @@ class LIFLayerResidual(AbstractLayer):
     
     def forward(self, max_simulation: float, training: bool = False) -> None:
         self.forward_res(max_simulation, training)
-        # self.forward_jump(max_simulation, training)
+        self.forward_jump(max_simulation, training)
 
     # backwards function for the jump part of the residual layer
     def backward_jump(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
