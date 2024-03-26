@@ -21,12 +21,14 @@
 module use /opt/insy/modulefiles
 module load miniconda/3.9
 conda activate myHomeEnv
+echo "testing CIFAR10"
+srun python3 experiments/cifar/train_conv.py --cluster True --n_epochs 50 --runs 2 --standard True --batch_size 20 --use_wanb True
 
-echo "Starting job -----------------------------------------------------------------------"
-srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 20 --runs 1 --n_hidden_layers 8 --batch_size 70 --use_residual True --fuse_func Append --use_wanb True
-srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 20 --runs 1 --n_hidden_layers 8 --batch_size 70 --use_residual True --use_wanb True
-srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 20 --runs 1 --n_hidden_layers 8 --batch_size 70 --use_wanb True
-echo "end"
+# echo "Starting job -----------------------------------------------------------------------"
+# srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 20 --runs 1 --n_hidden_layers 8 --batch_size 70 --use_residual True --fuse_func Append --use_wanb True
+# srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 20 --runs 1 --n_hidden_layers 8 --batch_size 70 --use_residual True --use_wanb True
+# srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 20 --runs 1 --n_hidden_layers 8 --batch_size 70 --use_wanb True
+# echo "end"
 # echo "testing CIFAR10"
 # srun python3 experiments/cifar/train_conv.py --cluster True --n_epochs 50 --runs 2 --standard True --batch_size 20 --use_wanb True
 # echo "Starting 1 layers No residual MLP on MNIST"

@@ -76,7 +76,7 @@ TARGET_FALSE = 3
 TARGET_TRUE = 15
 
 # Plot parameters
-EXPORT_METRICS = True
+EXPORT_METRICS = False
 EXPORT_DIR = Path("output_metrics")
 SAVE_DIR = Path("best_model")
 

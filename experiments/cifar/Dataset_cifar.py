@@ -15,7 +15,7 @@ from scipy.ndimage import gaussian_filter, map_coordinates
 warnings.filterwarnings("ignore")
 import numpy as np
 
-TIME_WINDOW = 100e-3 #! try changing this
+TIME_WINDOW = 100e-2 #! try changing this used to be 100e-3
 MAX_VALUE = 255
 RESOLUTION = 32
 N_NEURONS = RESOLUTION * RESOLUTION
