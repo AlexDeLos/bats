@@ -216,7 +216,7 @@ if __name__ == "__main__":
     # pool_2 = PoolingLayer(conv, name="Pooling 2")
     # network.add_layer(pool_2)
     else:
-        conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=np.array([5, 5, 8]), use_padding=USE_PADDING,
+        conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=np.array([5, 5, 15]), use_padding=USE_PADDING,
                             #   filter_from_next = FILTER_FROM_NEXT,
                             tau_s=TAU_S_1,
                             theta=THRESHOLD_HAT_1,
@@ -229,7 +229,7 @@ if __name__ == "__main__":
         pool_1 = PoolingLayer(conv_1, name="Pooling 1")
         network.add_layer(pool_1)
 
-        conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 8]), use_padding=USE_PADDING,
+        conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 40]), use_padding=USE_PADDING,
                             #   filter_from_next = FILTER_FROM_NEXT,
                             tau_s=TAU_S_1,
                             theta=THRESHOLD_HAT_1,
