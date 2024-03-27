@@ -82,11 +82,18 @@ DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 # Training parameters
-N_TRAINING_EPOCHS = 100
-N_TRAIN_SAMPLES = 600
-N_TEST_SAMPLES = 100
-TRAIN_BATCH_SIZE = 20
-TEST_BATCH_SIZE = 50
+N_TRAINING_EPOCHS = arguments.n_epochs #! used to  be 100
+if CLUSTER:
+    N_TRAIN_SAMPLES = 60000 #! used to be 60000
+    N_TEST_SAMPLES = 10000 #! used to be 10000
+    TRAIN_BATCH_SIZE = arguments.batch_size
+    TEST_BATCH_SIZE = arguments.batch_size_test
+else:
+    N_TRAIN_SAMPLES = 600
+    N_TEST_SAMPLES = 100
+    TRAIN_BATCH_SIZE = 20
+    TEST_BATCH_SIZE = 40
+
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
 TRAIN_PRINT_PERIOD = 0.1
@@ -94,11 +101,12 @@ TRAIN_PRINT_PERIOD_STEP = int(N_TRAIN_SAMPLES * TRAIN_PRINT_PERIOD / TRAIN_BATCH
 TEST_PERIOD = 1.0  # Evaluate on test batch every TEST_PERIOD epochs
 TEST_PERIOD_STEP = int(N_TRAIN_SAMPLES * TEST_PERIOD / TRAIN_BATCH_SIZE)
 LEARNING_RATE = 0.003
-LR_DECAY_EPOCH = 10  # Perform decay very n epochs
-LR_DECAY_FACTOR = 0.5
-MIN_LEARNING_RATE = 1e-4
+LR_DECAY_EPOCH = int(N_TRAINING_EPOCHS/10)  # Perform decay very n epochs
+LR_DECAY_FACTOR = 1.0
+MIN_LEARNING_RATE = 0
 TARGET_FALSE = 3
 TARGET_TRUE = 30
+
 
 # Plot parameters
 EXPORT_METRICS = True
@@ -265,7 +273,8 @@ if __name__ == "__main__":
 
     loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
-
+    for layer in network.layers:
+        print(layer.name)
     # Metrics
     training_steps = 0
     train_loss_monitor = LossMonitor(export_path=EXPORT_DIR / "loss_train")

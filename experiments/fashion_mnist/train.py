@@ -118,7 +118,8 @@ if __name__ == "__main__":
 
     loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
-
+    for layer in network.layers:
+        print(layer.name)
     # Metrics
     training_steps = 0
     train_loss_monitor = LossMonitor(export_path=EXPORT_DIR / "loss_train")
