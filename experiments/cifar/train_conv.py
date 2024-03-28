@@ -134,33 +134,6 @@ def weight_initializer_ff(n_post: int, n_pre: int) -> cp.ndarray:
 
 
 for run in range(NUMBER_OF_RUNS):
-    if USE_WANDB:
-        wandb.init(
-        # set the wandb project where this run will be logged
-        project="Final_thesis_testing",
-        name="CNN_"+ str(USE_RESIDUAL)+"# hidden_"+ str(N_HIDDEN_LAYERS) +" using CIFAR100? = "+str(USE_CIFAR100),
-        
-        # track hyperparameters and run metadata4
-        config={
-        "Cluster": CLUSTER,
-        "Use_residual": USE_RESIDUAL,
-        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-        "train_batch_size": TRAIN_BATCH_SIZE,
-        "residual_every_n": RESIDUAL_EVERY_N,
-        "use_padding": USE_PADDING,
-        "n_of_train_samples": N_TRAIN_SAMPLES,
-        "n_of_test_samples": N_TEST_SAMPLES,
-        "Filter": str(FILTER_1),
-        "learning_rate": LEARNING_RATE,
-        "architecture": "CNN",
-        "dataset": "CIFAR-100" if USE_CIFAR100 else "CIFAR-10",
-        "epochs": N_TRAINING_EPOCHS,
-        "version": "2.0.0_cluster_" + str(CLUSTER),
-        "use_multi_channel": USE_3_CHANNELS,
-        }
-        )
-
-
 
     max_int = np.iinfo(np.int32).max
     # np_seed = 319596201
@@ -354,6 +327,31 @@ for run in range(NUMBER_OF_RUNS):
     all_test_monitors.append(test_time_monitor)
     test_monitors_manager = MonitorsManager(all_test_monitors,
                                             print_prefix="Test | ")
+    if USE_WANDB:
+        wandb.init(
+        # set the wandb project where this run will be logged
+        project="Final_thesis_testing",
+        name="CNN_"+ str(USE_RESIDUAL)+"# hidden_"+ str(N_HIDDEN_LAYERS) +" using CIFAR100? = "+str(USE_CIFAR100),
+        
+        # track hyperparameters and run metadata4
+        config={
+        "Cluster": CLUSTER,
+        "Use_residual": USE_RESIDUAL,
+        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
+        "train_batch_size": TRAIN_BATCH_SIZE,
+        "residual_every_n": RESIDUAL_EVERY_N,
+        "use_padding": USE_PADDING,
+        "n_of_train_samples": N_TRAIN_SAMPLES,
+        "n_of_test_samples": N_TEST_SAMPLES,
+        "Filter": str(FILTER_1),
+        "learning_rate": LEARNING_RATE,
+        "architecture": "CNN",
+        "dataset": "CIFAR-100" if USE_CIFAR100 else "CIFAR-10",
+        "epochs": N_TRAINING_EPOCHS,
+        "version": "2.0.0_cluster_" + str(CLUSTER),
+        "use_multi_channel": USE_3_CHANNELS,
+        }
+        )
 
     best_acc = 0.0
     tracker = [0.0]* len(network.layers)

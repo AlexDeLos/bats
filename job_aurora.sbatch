@@ -22,7 +22,7 @@ module use /opt/insy/modulefiles
 module load miniconda/3.9
 conda activate myHomeEnv
 echo "testing CIFAR10"
-# srun python3 experiments/cifar/trawin_conv.py --cluster True --n_epochs 50 --runs 2 --standard True --batch_size 20 --use_wanb True
+# srun python3 experiments/cifar/train_conv.py --cluster True --n_epochs 50 --runs 2 --standard True --batch_size 20 --use_wanb True
 
 echo "Starting job -----------------------------------------------------------------------"
 echo "Starting 8 MLP with append residual on MNIST"

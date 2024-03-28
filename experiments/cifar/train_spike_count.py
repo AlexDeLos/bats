@@ -135,33 +135,7 @@ for run in range(NUMBER_OF_RUNS):
 
     if ALTERNATE and CLUSTER:
         USE_RESIDUAL = run%2 == 0
-    if USE_WANDB:
-        wandb.init(
-        # set the wandb project where this run will be logged
-        project="Residual-SNN",
-        name="Residual-SNN_"+ str(FUSE_FUNCTION)+"_run_CIFAR_"+str(run),
-        
-        # track hyperparameters and run metadata4
-        config={
-        "Cluster": CLUSTER,
-        "FUSE_FUNCTION": FUSE_FUNCTION,
-        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-        "train_batch_size": TRAIN_BATCH_SIZE,
-        "residual_every_n": RESIDUAL_EVERY_N,
-        "use_residual": USE_RESIDUAL,
-        "n_of_train_samples": N_TRAIN_SAMPLES,
-        "n_of_test_samples": N_TEST_SAMPLES,
-        "n_neurons": N_NEURONS_1,
-        "learning_rate": LEARNING_RATE,
-        "architecture": "SNN",
-        "dataset": "CIFAR",
-        "epochs": N_TRAINING_EPOCHS,
-        "version": "4.0.0_cluster_" + str(CLUSTER),
-        }
-        )
-
-
-    
+   
     max_int = np.iinfo(np.int32).max
     np_seed = np.random.randint(low=0, high=max_int)
     cp_seed = np.random.randint(low=0, high=max_int)
@@ -263,7 +237,30 @@ for run in range(NUMBER_OF_RUNS):
     all_test_monitors.append(test_time_monitor)
     test_monitors_manager = MonitorsManager(all_test_monitors,
                                             print_prefix="Test | ")
-
+    if USE_WANDB:
+        wandb.init(
+        # set the wandb project where this run will be logged
+        project="Residual-SNN",
+        name="Residual-SNN_"+ str(FUSE_FUNCTION)+"_run_CIFAR_"+str(run),
+        
+        # track hyperparameters and run metadata4
+        config={
+        "Cluster": CLUSTER,
+        "FUSE_FUNCTION": FUSE_FUNCTION,
+        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
+        "train_batch_size": TRAIN_BATCH_SIZE,
+        "residual_every_n": RESIDUAL_EVERY_N,
+        "use_residual": USE_RESIDUAL,
+        "n_of_train_samples": N_TRAIN_SAMPLES,
+        "n_of_test_samples": N_TEST_SAMPLES,
+        "n_neurons": N_NEURONS_1,
+        "learning_rate": LEARNING_RATE,
+        "architecture": "SNN",
+        "dataset": "CIFAR",
+        "epochs": N_TRAINING_EPOCHS,
+        "version": "4.0.0_cluster_" + str(CLUSTER),
+        }
+        )
     best_acc = 0.0
     tracker = [0.0]* len(network.layers)
     print("Training...")
