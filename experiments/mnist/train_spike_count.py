@@ -120,30 +120,6 @@ for run in range(NUMBER_OF_RUNS):
     print(USE_RESIDUAL, CLUSTER, FUSE_FUNCTION, N_HIDDEN_LAYERS, RESIDUAL_EVERY_N, run)
     if ALTERNATE and CLUSTER:
         USE_RESIDUAL = run%2 == 0
-    if USE_WANDB:
-        wandb.init(
-        # set the wandb project where this run will be logged
-        project="Residual-SNN",
-        name="Residual-SNN_"+str(N_HIDDEN_LAYERS)+"_run_"+str(run)+"verifications",
-        
-        # track hyperparameters and run metadata4
-        config={
-        "Cluster": CLUSTER,
-        "FUSE_FUNCTION": FUSE_FUNCTION,
-        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-        "train_batch_size": TRAIN_BATCH_SIZE,
-        "residual_every_n": RESIDUAL_EVERY_N,
-        "use_residual": USE_RESIDUAL,
-        "n_of_train_samples": N_TRAIN_SAMPLES,
-        "n_of_test_samples": N_TEST_SAMPLES,
-        "n_neurons": N_NEURONS_1,
-        "learning_rate": LEARNING_RATE,
-        "architecture": "SNN",
-        "dataset": "MNIST",
-        "epochs": N_TRAINING_EPOCHS,
-        "version": "2.0.0_cluster_" + str(CLUSTER),
-        }
-        )
 
 
     
@@ -263,6 +239,33 @@ for run in range(NUMBER_OF_RUNS):
 
     best_acc = 0.0
     tracker = [0.0]* len(network.layers)
+
+    
+    if USE_WANDB:
+        wandb.init(
+        # set the wandb project where this run will be logged
+        project="Residual-SNN",
+        name="Residual-SNN_"+str(N_HIDDEN_LAYERS)+"_run_"+str(run)+"verifications",
+        
+        # track hyperparameters and run metadata4
+        config={
+        "Cluster": CLUSTER,
+        "FUSE_FUNCTION": FUSE_FUNCTION,
+        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
+        "train_batch_size": TRAIN_BATCH_SIZE,
+        "residual_every_n": RESIDUAL_EVERY_N,
+        "use_residual": USE_RESIDUAL,
+        "n_of_train_samples": N_TRAIN_SAMPLES,
+        "n_of_test_samples": N_TEST_SAMPLES,
+        "n_neurons": N_NEURONS_1,
+        "learning_rate": LEARNING_RATE,
+        "architecture": "SNN",
+        "dataset": "MNIST",
+        "epochs": N_TRAINING_EPOCHS,
+        "version": "2.0.0_cluster_" + str(CLUSTER),
+        }
+        )
+
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
