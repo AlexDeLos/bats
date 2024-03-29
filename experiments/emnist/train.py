@@ -6,6 +6,8 @@ import wandb
 import os
 import sys
 
+from experiments.cifar.train_spike_count import FUSE_FUNCTION
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from Dataset import Dataset
@@ -24,6 +26,7 @@ N_HIDDEN_LAYERS = arguments.n_hidden_layers
 USE_RESIDUAL = arguments.use_residual
 print("Using residual: ", USE_RESIDUAL)
 RESIDUAL_EVERY_N = arguments.residual_every_n
+FUSE_FUNCTION = arguments.fuse_func
 
 CLUSTER = arguments.cluster
 USE_WANDB = arguments.use_wanb
@@ -87,31 +90,6 @@ def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
 
 for run in range(NUMBER_OF_RUNS):
 
-
-    if USE_WANDB:
-        wandb.init(
-        # set the wandb project where this run will be logged
-        project="Final_thesis_testing",
-        name="MLP_emnist_"+ str(USE_RESIDUAL)+" # hidden_"+ str(N_HIDDEN_LAYERS),
-        
-        # track hyperparameters and run metadata4
-        config={
-        "Cluster": CLUSTER,
-        "Use_residual": USE_RESIDUAL,
-        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-        "train_batch_size": TRAIN_BATCH_SIZE,
-        "residual_every_n": RESIDUAL_EVERY_N,
-        "n_of_train_samples": N_TRAIN_SAMPLES,
-        "n_of_test_samples": N_TEST_SAMPLES,
-        "learning_rate": LEARNING_RATE,
-        "batch_size": TRAIN_BATCH_SIZE,
-        "architecture": "MLP",
-        "dataset": "emnist",
-        "epochs": N_TRAINING_EPOCHS,
-        "version": "2.0.0_cluster_" + str(CLUSTER),
-        }
-        )
-
     max_int = np.iinfo(np.int32).max
     np_seed = np.random.randint(low=0, high=max_int)
     cp_seed = np.random.randint(low=0, high=max_int)
@@ -145,11 +123,12 @@ for run in range(NUMBER_OF_RUNS):
             if USE_RESIDUAL and i % RESIDUAL_EVERY_N == 0:
                 hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[-1], jump_layer= hidden_layers[i- RESIDUAL_EVERY_N], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                         theta=THRESHOLD_HAT_1,
+                                        fuse_function=FUSE_FUNCTION,
                                         delta_theta=DELTA_THRESHOLD_1,
                                         weight_initializer=weight_initializer,
                                         max_n_spike=SPIKE_BUFFER_SIZE_1,
                                         name="Residual layer " + str(i + 1))
-            elif i == N_HIDDEN_LAYERS-1 and USE_RESIDUAL:
+            elif i == N_HIDDEN_LAYERS-1 and USE_RESIDUAL and False:
                 if N_HIDDEN_LAYERS >= RESIDUAL_EVERY_N:
                     hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[-1], jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                         theta=THRESHOLD_HAT_1,
@@ -216,6 +195,30 @@ for run in range(NUMBER_OF_RUNS):
     all_test_monitors.append(test_time_monitor)
     test_monitors_manager = MonitorsManager(all_test_monitors,
                                             print_prefix="Test | ")
+
+    if USE_WANDB:
+        wandb.init(
+        # set the wandb project where this run will be logged
+        project="Final_thesis_testing",
+        name="MLP_emnist_"+ str(USE_RESIDUAL)+" # hidden_"+ str(N_HIDDEN_LAYERS),
+        
+        # track hyperparameters and run metadata4
+        config={
+        "Cluster": CLUSTER,
+        "Use_residual": USE_RESIDUAL,
+        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
+        "train_batch_size": TRAIN_BATCH_SIZE,
+        "residual_every_n": RESIDUAL_EVERY_N,
+        "n_of_train_samples": N_TRAIN_SAMPLES,
+        "n_of_test_samples": N_TEST_SAMPLES,
+        "learning_rate": LEARNING_RATE,
+        "batch_size": TRAIN_BATCH_SIZE,
+        "architecture": "MLP",
+        "dataset": "emnist",
+        "epochs": N_TRAINING_EPOCHS,
+        "version": "2.0.0_cluster_" + str(CLUSTER),
+        }
+        )
 
     best_acc = 0.0
     tracker = [0.0]* len(network.layers)
