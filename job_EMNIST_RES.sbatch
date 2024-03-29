@@ -23,10 +23,6 @@ module load miniconda/3.9
 conda activate myHomeEnv
 
 echo "EMNIST_RES -----------------------------------------------------------------------"
-echo "Starting 1 layers No residual MLP on EMNIST"
-srun python3 experiments/emnist/train.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 1 --batch_size 70 --use_residual True --use_wanb True
-echo "Starting 2 layers No residual MLP on EMNIST"
-srun python3 experiments/emnist/train.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 2 --batch_size 70 --use_residual True --use_wanb True
 echo "Starting 4 layers No residual MLP on EMNIST"
 srun python3 experiments/emnist/train.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 4 --batch_size 70 --use_residual True --use_wanb True
 echo "Starting 6 layers No residual MLP on EMNIST"
