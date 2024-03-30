@@ -57,8 +57,16 @@ class Network:
                 #! errors might have different shapes
                 # if this is connected to a res layer we run it two times
                 if layer._is_residual:
-                    weights_grad, (errors1,errors_jump1) = layer.backward(errors)
-                    weights_grad_jump, (errors2,errors_jump2) = layer.backward(errors_jump_array[index])
+                    weights_grad, errors1 = layer.backward(errors)
+                    if type(errors1) is tuple:
+                        (errors1,errors_jump1) = errors1
+                        if errors_jump1 is None:
+                            jump_layer_is_input = True
+                    weights_grad_jump, errors2 = layer.backward(errors_jump_array[index])
+                    if type(errors2) is tuple:
+                        (errors2,errors_jump2) = errors2
+                        if errors_jump2 is None:
+                            jump_layer_is_input = True
                     #! we are adding the errors, is this good?
                     jump_layers.pop(index)
                     errors_jump_array.pop(index)
@@ -68,12 +76,15 @@ class Network:
                         errors = errors1
                     else:
                         errors = errors1 + errors2
-                    if errors_jump1 is None:
-                        errors_jump = errors_jump2
-                    elif errors_jump2 is None:
-                        errors_jump = errors_jump1
-                    else:
-                        errors_jump = errors_jump1 + errors_jump2
+                    try:
+                        if errors_jump1 is None:
+                            errors_jump = errors_jump2
+                        elif errors_jump2 is None:
+                            errors_jump = errors_jump1
+                        else:
+                            errors_jump = errors_jump1 + errors_jump2
+                    except:
+                        errors_jump = errors
 
                     if errors_jump is None:
                         jump_layer_is_input = True

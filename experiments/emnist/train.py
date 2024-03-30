@@ -56,8 +56,8 @@ if CLUSTER:
     TRAIN_BATCH_SIZE = arguments.batch_size
     TEST_BATCH_SIZE = arguments.batch_size_test
 else:
-    N_TRAIN_SAMPLES = 112800
-    N_TEST_SAMPLES = 18800
+    N_TRAIN_SAMPLES = 1128
+    N_TEST_SAMPLES = 188
     TRAIN_BATCH_SIZE = 50
     TEST_BATCH_SIZE = 100
 # Training parameters
