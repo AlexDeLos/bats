@@ -38,7 +38,7 @@ USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
 USE_RESIDUAL = arguments.use_residual
 FIX_SEED = False
-USE_PADDING = True #! residual and padd gives nans
+USE_PADDING = False #! residual and padd gives nans
 USE_CIFAR100 = arguments.cifar100	
 USE_COURSE_LABELS = arguments.use_coarse_labels
 USE_3_CHANNELS = arguments.use_3_channels #! false could be broken
@@ -254,19 +254,19 @@ for run in range(NUMBER_OF_RUNS):
         pool_1 = PoolingLayer(conv_1, name="Pooling 1")
         network.add_layer(pool_1)
 
-        conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 8]),
-                            use_padding=USE_PADDING,
-                            #   filter_from_next = FILTER_FROM_NEXT,
-                            tau_s=TAU_S_1,
-                            theta=THRESHOLD_HAT_1,
-                            delta_theta=DELTA_THRESHOLD_1,
-                            weight_initializer=weight_initializer_conv,
-                            max_n_spike=SPIKE_BUFFER_SIZE_1,
-                            name="Convolution 2")
-        network.add_layer(conv_2)
+        # conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 8]),
+        #                     use_padding=USE_PADDING,
+        #                     #   filter_from_next = FILTER_FROM_NEXT,
+        #                     tau_s=TAU_S_1,
+        #                     theta=THRESHOLD_HAT_1,
+        #                     delta_theta=DELTA_THRESHOLD_1,
+        #                     weight_initializer=weight_initializer_conv,
+        #                     max_n_spike=SPIKE_BUFFER_SIZE_1,
+        #                     name="Convolution 2")
+        # network.add_layer(conv_2)
 
-        pool_2 = PoolingLayer(conv_2, name="Pooling 2")
-        network.add_layer(pool_2)
+        # pool_2 = PoolingLayer(conv_2, name="Pooling 2")
+        # network.add_layer(pool_2)
 
         conv_3 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 8]),
                             use_padding=USE_PADDING,
