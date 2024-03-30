@@ -102,22 +102,15 @@ class ConvLIFLayer(AbstractConvLayer):
         self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
         
         # how are the spikes used? and how do I add padding?
-        if self._use_padding: #! using this causes random nans for some reason
         #? what is I don't use padding in the forward pass?
-            self.__pre_spike_per_neuron, self.__pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron, self.__pre_shape, self._padding)
-            pre_spike_per_neuron = self.__pre_spike_per_neuron
-            pre_n_spike_per_neuron = self.__pre_n_spike_per_neuron
-            self.__padded_pre_exp_tau_s, self.__padded_pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
-            padded_pre_exp_tau_s = self.__padded_pre_exp_tau_s
-            padded_pre_exp_tau = self.__padded_pre_exp_tau
-            new_shape_previous = (self.__previous_layer.neurons_shape[0]+ self._padding[0], self.__previous_layer.neurons_shape[1] + self._padding[1], self.__previous_layer.neurons_shape[2])
-            new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
-        else:
-            self.__pre_spike_per_neuron, self.__pre_n_spike_per_neuron = pre_spike_per_neuron, pre_n_spike_per_neuron
-            self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
-            padded_pre_exp_tau_s = self.__pre_exp_tau_s
-            padded_pre_exp_tau = self.__pre_exp_tau
-            new_shape_previous = self.__previous_layer.neurons_shape
+        self.__pre_spike_per_neuron, self.__pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron, self.__pre_shape, self._padding)
+        pre_spike_per_neuron = self.__pre_spike_per_neuron
+        pre_n_spike_per_neuron = self.__pre_n_spike_per_neuron
+        self.__padded_pre_exp_tau_s, self.__padded_pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
+        padded_pre_exp_tau_s = self.__padded_pre_exp_tau_s
+        padded_pre_exp_tau = self.__padded_pre_exp_tau
+        new_shape_previous = (self.__previous_layer.neurons_shape[0]+ self._padding[0], self.__previous_layer.neurons_shape[1] + self._padding[1], self.__previous_layer.neurons_shape[2])
+        new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
 
         # Sort spikes for inference
         #? what if I add padding to the indeces? increase theyr number to what they should be?
