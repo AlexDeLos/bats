@@ -55,7 +55,13 @@ def split_spike_per_neuron_on_channel_dim(spike_per_neuron, n_spike_per_neuron, 
     spike_per_neuron_pre = cp.reshape(spike_per_neuron_pre, (spike_per_neuron_pre.shape[0], int(x*y*c), spike_per_neuron_pre.shape[-1]))
     spike_per_neuron_jump = cp.reshape(spike_per_neuron_jump, (spike_per_neuron_jump.shape[0], int(x*y*c), spike_per_neuron_jump.shape[-1]))
     return spike_per_neuron_pre, n_spike_per_neuron_pre, spike_per_neuron_jump, n_spike_per_neuron_jump
- 
+
+def average_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike_per_neuron, jump_n_spike_per_neuron, shape_of_neurons):
+    batch_size, spikes, max_n_spikes = pre_spike_per_neuron.shape
+    jump_batch_size, jump_spikes, jump_max_n_spikes = jump_spike_per_neuron.shape
+
+    return None, None
+
 def aped_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike_per_neuron, jump_n_spike_per_neuron, shape_of_neurons):
     batch_size, spikes, max_n_spikes = pre_spike_per_neuron.shape
     jump_batch_size, jump_spikes, jump_max_n_spikes = jump_spike_per_neuron.shape
@@ -87,7 +93,6 @@ def aped_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike
 
     new_n_spike_per_neuron = cp.append(pre_n_spike_per_neuron, jump_n_spike_per_neuron, axis=3)
     new_n_spike_per_neuron = cp.reshape(new_n_spike_per_neuron, (batch_size, pre_x*pre_y*(pre_c+pre_c)))
-    #TODO: finish this function
     return new_spike_per_neuron, new_n_spike_per_neuron
     
 

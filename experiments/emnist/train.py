@@ -5,9 +5,6 @@ import wandb
 
 import os
 import sys
-
-from experiments.cifar.train_spike_count import FUSE_FUNCTION
-
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from Dataset import Dataset

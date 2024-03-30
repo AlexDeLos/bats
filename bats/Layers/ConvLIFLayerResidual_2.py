@@ -10,7 +10,7 @@ from bats.CudaKernels.Wrappers.Backpropagation.propagate_errors_to_pre_spikes_co
 from bats.CudaKernels.Wrappers.Inference import *
 from bats.CudaKernels.Wrappers.Backpropagation import *
 from bats.CudaKernels.Wrappers.Inference.compute_spike_times_conv import compute_spike_times_conv
-from bats.Utils.utils import add_padding, trimed_errors, aped_on_channel_dim, split_errors_on_channel_dim, split_spike_per_neuron_on_channel_dim
+from bats.Utils.utils import add_padding, aped_on_channel_dim, split_errors_on_channel_dim, average_on_channel_dim, trimed_errors, split_spike_per_neuron_on_channel_dim
 
 class ConvLIFLayerResidual_2(AbstractConvLayer):
     def __init__(self, previous_layer: AbstractConvLayer, jump_layer: AbstractConvLayer, filters_shape: cp.ndarray,
@@ -112,6 +112,12 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         st_jump = self.__spike_times_per_neuron_jump
         n_pre = self.__n_spike_per_neuron
         n_jump = self.__n_spike_per_neuron_jump
+        spikes_avg, number_avg = average_on_channel_dim(self.__spike_times_per_neuron, self.__n_spike_per_neuron,
+                                            #  self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
+                                             self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
+                                            #  self.__spike_times_per_neuron, self.__n_spike_per_neuron,
+                                             self.neurons_shape)
+
         spikes, number = aped_on_channel_dim(self.__spike_times_per_neuron, self.__n_spike_per_neuron,
                                             #  self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
                                              self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
