@@ -25,6 +25,9 @@ print("Using residual: ", USE_RESIDUAL)
 RESIDUAL_EVERY_N = arguments.residual_every_n
 FUSE_FUNCTION = arguments.fuse_func
 
+#Residual parameters
+RESIDUAL_JUMP_LENGTH = arguments.residual_jump_length
+
 CLUSTER = arguments.cluster
 USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
@@ -41,6 +44,15 @@ TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.2
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 30
+# Residual layer
+if CLUSTER:
+    N_NEURONS_RES = 750 #!800 #? Should I lower it?
+else:
+    N_NEURONS_RES = 400
+TAU_S_RES = 0.130
+THRESHOLD_HAT_RES = 0.2
+DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES
+SPIKE_BUFFER_SIZE_RES = 20
 
 # Output_layer
 N_OUTPUTS = 47
@@ -102,7 +114,7 @@ for run in range(NUMBER_OF_RUNS):
     dataset = Dataset(path=DATASET_PATH)
 
     print("Creating network...")
-    print("USE_RESIDUAL: ", USE_RESIDUAL)
+    print("USE_RESIDUAL: ", USE_RESIDUAL)    print("Creating network...")
     network = Network()
     input_layer = InputLayer(n_neurons=N_INPUTS, name="Input layer")
     network.add_layer(input_layer, input=True)
@@ -115,50 +127,53 @@ for run in range(NUMBER_OF_RUNS):
                                     delta_theta=DELTA_THRESHOLD_1,
                                     weight_initializer=weight_initializer,
                                     max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                    name="Hidden layer 1")
-        else:
-            if USE_RESIDUAL and i % RESIDUAL_EVERY_N == 0:
-                hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[-1], jump_layer= hidden_layers[i- RESIDUAL_EVERY_N], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-                                        theta=THRESHOLD_HAT_1,
-                                        fuse_function=FUSE_FUNCTION,
-                                        delta_theta=DELTA_THRESHOLD_1,
-                                        weight_initializer=weight_initializer,
-                                        max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                        name="Residual layer " + str(i + 1))
-            elif i == N_HIDDEN_LAYERS-1 and USE_RESIDUAL and False:
-                if N_HIDDEN_LAYERS >= RESIDUAL_EVERY_N:
-                    hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[-1], jump_layer= input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-                                        theta=THRESHOLD_HAT_1,
-                                        delta_theta=DELTA_THRESHOLD_1,
-                                        weight_initializer=weight_initializer,
-                                        max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                        name="Residual layer " + str(i + 1))
-                else:
-                    hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[-1], jump_layer= hidden_layers[i- RESIDUAL_EVERY_N], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-                                            theta=THRESHOLD_HAT_1,
-                                            delta_theta=DELTA_THRESHOLD_1,
-                                            weight_initializer=weight_initializer,
-                                            max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                            name="Residual layer " + str(i + 1))
-                
-            else:
-                hidden_layer = LIFLayer(previous_layer=hidden_layers[-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-                                        theta=THRESHOLD_HAT_1,
-                                        delta_theta=DELTA_THRESHOLD_1,
-                                        weight_initializer=weight_initializer,
-                                        max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                        name="Hidden layer " + str(i + 1))
-                
-        network.add_layer(hidden_layer)
-        hidden_layers.append(hidden_layer)
+                                    name="Hidden layer 0")
+            
+        elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL and False:
+            hidden_layer = LIFLayerResidual_copy(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[0], n_neurons=N_NEURONS_1, tau_s=TAU_S_RES,
+                                    theta=THRESHOLD_HAT_RES,
+                                    fuse_function=FUSE_FUNCTION,
+                                    delta_theta=DELTA_THRESHOLD_RES,
+                                    weight_initializer=weight_initializer,
+                                    max_n_spike=SPIKE_BUFFER_SIZE_RES,
+                                    name="Residual layer " + str(i))
+        elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
+            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1],
+                                            # jump_layer= hidden_layers[i-1],
+                                            jump_layer = hidden_layers[i - RESIDUAL_JUMP_LENGTH],
+                                            n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
+                                    theta=THRESHOLD_HAT_RES,
+                                    fuse_function=FUSE_FUNCTION,
+                                    delta_theta=DELTA_THRESHOLD_RES,
+                                    weight_initializer=weight_initializer,
+                                    max_n_spike=SPIKE_BUFFER_SIZE_RES,
+                                    name="Residual layer " + str(i))
+        elif i % RESIDUAL_EVERY_N ==0 and not USE_RESIDUAL:
+            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=int(N_NEURONS_1/2), tau_s=TAU_S_1,
+                                    theta=THRESHOLD_HAT_1,
+                                    delta_theta=DELTA_THRESHOLD_1,
+                                    weight_initializer=weight_initializer,
+                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                    name="Hidden layer " + str(i))
 
-    output_layer = LIFLayer(previous_layer=hidden_layer, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT,
+        else:
+            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+                                    theta=THRESHOLD_HAT_1,
+                                    delta_theta=DELTA_THRESHOLD_1,
+                                    weight_initializer=weight_initializer,
+                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                    name="Hidden layer " + str(i))
+        hidden_layers.append(hidden_layer)
+        network.add_layer(hidden_layer)
+
+    output_layer = LIFLayer(previous_layer=hidden_layer, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT, # type: ignore
                             theta=THRESHOLD_HAT_OUTPUT,
                             delta_theta=DELTA_THRESHOLD_OUTPUT,
                             weight_initializer=weight_initializer,
                             max_n_spike=SPIKE_BUFFER_SIZE_OUTPUT,
                             name="Output layer")
     network.add_layer(output_layer)
+    
     for layer in network.layers:
         print(layer.name)
     loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
