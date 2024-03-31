@@ -114,7 +114,8 @@ for run in range(NUMBER_OF_RUNS):
     dataset = Dataset(path=DATASET_PATH)
 
     print("Creating network...")
-    print("USE_RESIDUAL: ", USE_RESIDUAL)    print("Creating network...")
+    print("USE_RESIDUAL: ", USE_RESIDUAL)
+    print("Creating network...")
     network = Network()
     input_layer = InputLayer(n_neurons=N_INPUTS, name="Input layer")
     network.add_layer(input_layer, input=True)
