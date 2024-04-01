@@ -290,14 +290,14 @@ for run in range(NUMBER_OF_RUNS):
                             for j in range(len(avg_gradient[i])):
                                 tracker[i] = (tracker[i] + float(cp.mean(cp.abs(avg_gradient[i][j]))))/2
                             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
-                                wandb.log({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
+                                # wandb.log({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
                                 if not CLUSTER:
                                     print("Mean Gradient Magnitude at residual layer "+str(i)+": ", tracker[i])
                                 tracker = [0.0]* len(network.layers)
                         else:
                             tracker[i] = (tracker[i] + float(cp.mean(cp.abs(avg_gradient[i]))))/2
                             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
-                                wandb.log({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
+                                # wandb.log({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
                                 if not CLUSTER:
                                     print("Mean Gradient Magnitude at layer "+str(i)+": ", tracker[i])
                                 tracker = [0.0]* len(network.layers)
