@@ -124,7 +124,7 @@ class Network:
                     if errors_jump is None:
                         jump_layer_is_input = True
                 else:
-                    errors_jump = errors
+                    errors_jump = errors.copy()
                 errors_jump_array.append(errors_jump)
                 jump_layers.append(layer.jump_layer)# type: ignore
             else:

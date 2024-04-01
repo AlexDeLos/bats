@@ -84,8 +84,8 @@ if CLUSTER:
     TRAIN_BATCH_SIZE = arguments.batch_size
     TEST_BATCH_SIZE = arguments.batch_size_test
 else:
-    N_TRAIN_SAMPLES = 600
-    N_TEST_SAMPLES = 100
+    N_TRAIN_SAMPLES = 6000
+    N_TEST_SAMPLES = 1000
     TRAIN_BATCH_SIZE = 20
     TEST_BATCH_SIZE = 40
 
@@ -154,6 +154,16 @@ for run in range(NUMBER_OF_RUNS):
                                     weight_initializer=weight_initializer,
                                     max_n_spike=SPIKE_BUFFER_SIZE_1,
                                     name="Hidden layer 0")
+            # hidden_layer = LIFLayerResidual(previous_layer=input_layer,
+            #                                 # jump_layer= hidden_layers[i-1],
+            #                                 jump_layer = input_layer,
+            #                                 n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
+            #                         theta=THRESHOLD_HAT_RES,
+            #                         fuse_function=FUSE_FUNCTION,
+            #                         delta_theta=DELTA_THRESHOLD_RES,
+            #                         weight_initializer=weight_initializer,
+            #                         max_n_spike=SPIKE_BUFFER_SIZE_RES,
+            #                         name="Residual layer " + str(i))
             
         elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL and False:
             hidden_layer = LIFLayerResidual_copy(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[0], n_neurons=N_NEURONS_1, tau_s=TAU_S_RES,
@@ -308,7 +318,7 @@ for run in range(NUMBER_OF_RUNS):
             for g, layer in zip(gradient, network.layers):
                 if g is None:
                     avg_gradient.append(None)
-                elif isinstance(layer, LIFLayerResidual):
+                elif isinstance(layer, LIFLayerResidual) and FUSE_FUNCTION == "Append":
                     grad_entry = []
                     for i in range(len(g)):
                         try:
