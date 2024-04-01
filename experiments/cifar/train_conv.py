@@ -350,7 +350,7 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "CNN",
         "dataset": "CIFAR-100" if USE_CIFAR100 else "CIFAR-10",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "2.0.0_cluster_" + str(CLUSTER),
+        "version": "1.0.0_cluster_" + str(CLUSTER),
         "use_multi_channel": USE_3_CHANNELS,
         }
         )
