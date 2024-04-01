@@ -1,9 +1,12 @@
+from ast import arg
 from pathlib import Path
 import cupy as cp
 import numpy as np
 import os
 import wandb
-import sys  
+import sys
+
+from experiments.cifar.train_conv import USE_CIFAR100  
 
 # if it is not working try going back to the pip 3.9 interpreter
 
@@ -18,21 +21,29 @@ from bats.Layers import InputLayer, LIFLayer, LIFLayerResidual
 from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *
+from bats.Utils.utils import get_arguments
 
 
 # Dataset
 # DATASET_PATH = Path("../../datasets/mnist.npz")
 
+arguments = get_arguments()
+# Residual arguments
+N_HIDDEN_LAYERS = arguments.n_hidden_layers
+USE_RESIDUAL = arguments.use_residual
+RESIDUAL_EVERY_N = arguments.residual_every_n
 
+# Change from small test on computer to big test on cluster
+CLUSTER = arguments.cluster
+USE_WANDB = arguments.use_wanb
+ALTERNATE = arguments.alternate
+USE_RESIDUAL = arguments.use_residual
+USE_CIFAR100 = arguments.cifar100
 
 
 # Change from small test on computer to big test on cluster
-CLUSTER = False
-USE_WANDB = False
-ALTERNATE = True
-USE_CIFAR100 = False
-USE_COURSE_LABELS = False
-USE_3_CHANNELS = True #! false could be broken
+USE_COURSE_LABELS = arguments.use_coarse_labels
+USE_3_CHANNELS = arguments.use_3_channels
 FUSE_FUNCTION = "Append"
 #TODO: try to get the non append function to run out of memory
 if USE_CIFAR100:
@@ -92,7 +103,7 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 
 # Training parameters
-N_TRAINING_EPOCHS = 10 #! used to  be 100
+N_TRAINING_EPOCHS = arguments.n_epochs
 if CLUSTER:
     N_TRAIN_SAMPLES = 50000
     N_TEST_SAMPLES = 10000 #! used to be 10000
@@ -110,7 +121,7 @@ TRAIN_PRINT_PERIOD = 0.1
 TRAIN_PRINT_PERIOD_STEP = int(N_TRAIN_SAMPLES * TRAIN_PRINT_PERIOD / TRAIN_BATCH_SIZE)
 TEST_PERIOD = 1.0  # Evaluate on test batch every TEST_PERIOD epochs
 TEST_PERIOD_STEP = int(N_TRAIN_SAMPLES * TEST_PERIOD / TRAIN_BATCH_SIZE)
-LEARNING_RATE = 0.0005
+LEARNING_RATE = arguments.learning_rate
 LR_DECAY_EPOCH = int(N_TRAINING_EPOCHS/10)  # Perform decay very n epochs
 LR_DECAY_FACTOR = 1.0
 MIN_LEARNING_RATE = 0

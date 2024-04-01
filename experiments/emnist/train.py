@@ -1,4 +1,5 @@
 from pathlib import Path
+from re import L
 import cupy as cp
 import numpy as np
 import wandb
@@ -24,6 +25,7 @@ USE_RESIDUAL = arguments.use_residual
 print("Using residual: ", USE_RESIDUAL)
 RESIDUAL_EVERY_N = arguments.residual_every_n
 FUSE_FUNCTION = arguments.fuse_func
+LEARNING_RATE = arguments.learning_rate
 
 #Residual parameters
 RESIDUAL_JUMP_LENGTH = arguments.residual_jump_length
@@ -80,7 +82,6 @@ TRAIN_PRINT_PERIOD = 0.1
 TRAIN_PRINT_PERIOD_STEP = int(N_TRAIN_SAMPLES * TRAIN_PRINT_PERIOD / TRAIN_BATCH_SIZE)
 TEST_PERIOD = 1.0  # Evaluate on test batch every TEST_PERIOD epochs
 TEST_PERIOD_STEP = int(N_TRAIN_SAMPLES * TEST_PERIOD / TRAIN_BATCH_SIZE)
-LEARNING_RATE = 0.003
 LR_DECAY_EPOCH = 10  # Perform decay very n epochs
 LR_DECAY_FACTOR = 1.0
 MIN_LEARNING_RATE = 1e-4
