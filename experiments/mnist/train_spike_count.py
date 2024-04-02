@@ -343,14 +343,14 @@ for run in range(NUMBER_OF_RUNS):
                     if avg_gradient[i] is not None:
                         if isinstance(avg_gradient[i], list):
                             for j in range(len(avg_gradient[i])):
-                                tracker[i] = (tracker[i] + float(cp.mean(cp.abs(avg_gradient[i][j]))))/2
+                                tracker[i] = (tracker[i] + float(cp.mean(avg_gradient[i][j])))/2
                             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
                                 if USE_WANDB:
                                     wandb.log({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
                                 print("Mean Gradient Magnitude at residual layer "+str(i)+": ", tracker[i])
                                 tracker = [0.0]* len(network.layers)
                         else:
-                            tracker[i] = (tracker[i] + float(cp.mean(cp.abs(avg_gradient[i]))))/2
+                            tracker[i] = (tracker[i] + float(cp.mean(avg_gradient[i])))/2
                             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
                                 if USE_WANDB:
                                     wandb.log({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
