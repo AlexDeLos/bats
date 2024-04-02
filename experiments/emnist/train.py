@@ -99,6 +99,7 @@ def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
 
 
 for run in range(NUMBER_OF_RUNS):
+    print(USE_RESIDUAL, CLUSTER, FUSE_FUNCTION, N_HIDDEN_LAYERS, RESIDUAL_EVERY_N, run)
 
     max_int = np.iinfo(np.int32).max
     np_seed = np.random.randint(low=0, high=max_int)
@@ -115,7 +116,6 @@ for run in range(NUMBER_OF_RUNS):
     dataset = Dataset(path=DATASET_PATH)
 
     print("Creating network...")
-    print("USE_RESIDUAL: ", USE_RESIDUAL)
     network = Network()
     input_layer = InputLayer(n_neurons=N_INPUTS, name="Input layer")
     network.add_layer(input_layer, input=True)

@@ -23,9 +23,9 @@ module load miniconda/3.9
 conda activate myHomeEnv
 
 echo "EMNIST_RES_APPEND -----------------------------------------------------------------------"
-echo "Starting 4 layers No residual MLP on EMNIST"
+echo "Starting 4 layers residual APPEND MLP on EMNIST"
 srun python3 experiments/emnist/train.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 4 --batch_size 50 --use_residual True --fuse_func Append --use_wanb True
-echo "Starting 6 layers No residual MLP on EMNIST"
+echo "Starting 6 layers residual APPEND MLP on EMNIST"
 srun python3 experiments/emnist/train.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 6 --batch_size 50 --use_residual True --fuse_func Append --use_wanb True
-echo "Starting 12 layers No residual MLP on EMNIST"
+echo "Starting 12 layers residual APPEND MLP on EMNIST"
 srun python3 experiments/emnist/train.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 12 --batch_size 50 --use_residual True --fuse_func Append --use_wanb True

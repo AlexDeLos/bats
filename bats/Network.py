@@ -100,8 +100,6 @@ class Network:
                         weights_grad_jump, errors2 = layer.backward(errors_jump_array[index])
                     else:
                         errors2 = None
-                    #! TESTING
-                    weights_grad_jump = weights_grad_pre
                     jump_layers.pop(index)
                     errors_jump_array.pop(index)
                     if errors1 is None:
@@ -115,7 +113,7 @@ class Network:
                     if weights_grad_jump is None and weights_grad_pre is None:
                         weights_grad = None
                     else:
-                        weights_grad = (weights_grad_jump + weights_grad_pre) / 2
+                        weights_grad = (weights_grad_jump + weights_grad_pre)/2
 
             elif layer._is_residual:
                 weights_grad, errors = layer.backward(errors)

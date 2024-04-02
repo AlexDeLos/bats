@@ -1,3 +1,4 @@
+from cgi import test
 from pickle import NONE
 from re import split
 from typing import Callable, Tuple
@@ -42,7 +43,7 @@ class LIFLayerResidual(AbstractLayer):
             if fuse_function == "Append":
                 self.__weights_res: cp.ndarray = weight_initializer(int(cp.floor(self.n_neurons/2)), previous_layer.n_neurons)
                 self.__weights_jump: cp.ndarray = weight_initializer(int(cp.ceil(self.n_neurons/2)), jump_layer.n_neurons)
-                # self.__weights_res: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons) # type: ignore
+                # self.__weights_jump: cp.ndarray = cp.zeros((int(cp.floor(self.n_neurons/2)), jump_layer.n_neurons), dtype=cp.float32) # type: ignore
 
 
             else:
@@ -170,6 +171,7 @@ class LIFLayerResidual(AbstractLayer):
                                                       self.__delta_theta_tau_res,
                                                       self.__tau_res, cp.float32(max_simulation), self.__max_n_spike)
             testing = self.__spike_times_per_neuron_res
+            count = self.__n_spike_per_neuron_res
             cp.where(cp.isnan(testing))
             cp.any(cp.isnan(testing))
             sdfds = 'f'
@@ -204,7 +206,7 @@ class LIFLayerResidual(AbstractLayer):
             sorted_pre_exp_tau_s = cp.take_along_axis(cp.reshape(self.__pre_exp_tau_s_jump, new_shape), sorted_indices, axis=1)
             sorted_pre_exp_tau = cp.take_along_axis(cp.reshape(self.__pre_exp_tau_jump, new_shape), sorted_indices, axis=1)
             if self.__fuse_function == "Append":
-                w = self.weights[0]
+                w = self.weights[1]
             else:
                 w = self.weights
             pre_spike_weights = get_spike_weights(w, sorted_spike_indices)
@@ -215,7 +217,8 @@ class LIFLayerResidual(AbstractLayer):
                                                       pre_spike_weights, self.__c_jump,
                                                       self.__delta_theta_tau_jump,
                                                       self.__tau_jump, cp.float32(max_simulation), self.__max_n_spike)
-            testing = self.__spike_times_per_neuron_res
+            count = self.__n_spike_per_neuron_jump
+            testing = self.__spike_times_per_neuron_jump    
             cp.any(cp.isnan(testing))
             sdfds = 'f'
     

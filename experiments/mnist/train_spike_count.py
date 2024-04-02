@@ -14,7 +14,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 
 from Dataset import Dataset
 from bats.Monitors import *
-from bats.Layers import InputLayer, LIFLayer, LIFLayerResidual, LIFLayerResidual_copy
+from bats.Layers import InputLayer, LIFLayer, LIFLayerResidual
 from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *

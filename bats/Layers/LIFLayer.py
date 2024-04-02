@@ -21,6 +21,7 @@ class LIFLayer(AbstractLayer):
             self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons), dtype=cp.float32)
         else:
             self.__weights: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons)
+            # self.__weights: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons), dtype=cp.float32)
         self.__max_n_spike: cp.int32 = cp.int32(max_n_spike)
 
         self.__n_spike_per_neuron: Optional[cp.ndarray] = None
