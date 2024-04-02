@@ -273,16 +273,20 @@ for run in range(NUMBER_OF_RUNS):
             for g, layer in zip(gradient, network.layers):
                 if g is None:
                     avg_gradient.append(None)
-                elif layer._is_residual:
+                elif isinstance(layer, LIFLayerResidual) and FUSE_FUNCTION == "Append":
                     grad_entry = []
                     for i in range(len(g)):
-                        averaged_values = cp.mean(g[i], axis=0)
+                        try:
+                            averaged_values = cp.mean(g[i], axis=0)
+                        except:
+                            averaged_values = cp.mean(g[0], axis=0)
                         grad_entry.append(averaged_values)
                     avg_gradient.append(grad_entry)
                 else:
                     averaged_values = cp.mean(g, axis=0)
                     avg_gradient.append(averaged_values)
             del gradient
+
             if USE_WANDB:
                 for i in range(len(avg_gradient)):
                     if avg_gradient[i] is not None:
