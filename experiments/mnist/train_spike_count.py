@@ -1,4 +1,5 @@
 from pathlib import Path
+from re import U
 import cupy as cp
 import numpy as np
 import os
@@ -22,6 +23,7 @@ from bats.Utils.utils import get_arguments
 
 arguments = get_arguments()
 
+FULL_METRIC = True
 # Dataset
 # DATASET_PATH = Path("../../datasets/mnist.npz")
 DATASET_PATH = Path("./datasets/mnist.npz")
@@ -177,7 +179,7 @@ for run in range(NUMBER_OF_RUNS):
             hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1],
                                             # jump_layer= hidden_layers[i-1],
                                             jump_layer = hidden_layers[i - RESIDUAL_JUMP_LENGTH],
-                                            n_neurons=N_NEURONS_RES*2, tau_s=TAU_S_RES,
+                                            n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
                                     theta=THRESHOLD_HAT_RES,
                                     fuse_function=FUSE_FUNCTION,
                                     delta_theta=DELTA_THRESHOLD_RES,
@@ -336,23 +338,23 @@ for run in range(NUMBER_OF_RUNS):
             #gradient 
             del gradient
             # keep track of the gradient
-            if USE_WANDB:
+            if FULL_METRIC:
                 for i in range(len(avg_gradient)):
                     if avg_gradient[i] is not None:
                         if isinstance(avg_gradient[i], list):
                             for j in range(len(avg_gradient[i])):
                                 tracker[i] = (tracker[i] + float(cp.mean(cp.abs(avg_gradient[i][j]))))/2
                             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
-                                wandb.log({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
-                                if not CLUSTER:
-                                    print("Mean Gradient Magnitude at residual layer "+str(i)+": ", tracker[i])
+                                if USE_WANDB:
+                                    wandb.log({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
+                                print("Mean Gradient Magnitude at residual layer "+str(i)+": ", tracker[i])
                                 tracker = [0.0]* len(network.layers)
                         else:
                             tracker[i] = (tracker[i] + float(cp.mean(cp.abs(avg_gradient[i]))))/2
                             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
-                                wandb.log({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
-                                if not CLUSTER:
-                                    print("Mean Gradient Magnitude at layer "+str(i)+": ", tracker[i])
+                                if USE_WANDB:
+                                    wandb.log({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
+                                print("Mean Gradient Magnitude at layer "+str(i)+": ", tracker[i])
                                 tracker = [0.0]* len(network.layers)
             # Apply step
             #! problem is here, in has no nans but deltas has nans
@@ -381,7 +383,7 @@ for run in range(NUMBER_OF_RUNS):
 
                 mean_res = cp.mean(cp.array(mean_spikes_for_times))
                 mean_first = cp.mean(cp.array(first_spike_for_times))
-                if not CLUSTER:
+                if FULL_METRIC:
                     print(f'Output layer mean times: {mean_res}')
                     print(f'Output layer first spike: {mean_first}')
                 if USE_WANDB:
