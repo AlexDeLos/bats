@@ -177,7 +177,7 @@ for run in range(NUMBER_OF_RUNS):
             hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1],
                                             # jump_layer= hidden_layers[i-1],
                                             jump_layer = hidden_layers[i - RESIDUAL_JUMP_LENGTH],
-                                            n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
+                                            n_neurons=N_NEURONS_RES*2, tau_s=TAU_S_RES,
                                     theta=THRESHOLD_HAT_RES,
                                     fuse_function=FUSE_FUNCTION,
                                     delta_theta=DELTA_THRESHOLD_RES,
@@ -272,7 +272,7 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "SNN",
         "dataset": "MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "2.1.0_cluster_" + str(CLUSTER),
+        "version": "2.2.0_cluster_" + str(CLUSTER),
         }
         )
 
@@ -425,6 +425,7 @@ for run in range(NUMBER_OF_RUNS):
 
                 for l, mon in test_norm_monitors.items():
                     #TODO what does this do?
+                    # moni
                     if type(l.weights) is tuple:
                         mon.add(l.weights[0])
                         mon.add(l.weights[1])

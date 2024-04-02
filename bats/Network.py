@@ -97,7 +97,8 @@ class Network:
                     #! this is never used, how should we deal with the layer that recieves the jump?
                     #! error shape in conv can be wrong
                     if errors_jump_array[index] is not None:
-                        weights_grad_jump, errors2 = layer.backward(errors_jump_array[index])
+                        # weights_grad_jump, errors2 = layer.backward(errors_jump_array[index])
+                        weights_grad_jump, errors2 = None,None
                     else:
                         errors2 = None
                     jump_layers.pop(index)
@@ -112,6 +113,8 @@ class Network:
 
                     if weights_grad_jump is None and weights_grad_pre is None:
                         weights_grad = None
+                    elif weights_grad_jump is None:
+                        weights_grad = weights_grad_pre
                     else:
                         weights_grad = (weights_grad_jump + weights_grad_pre)/2
 

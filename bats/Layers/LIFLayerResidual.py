@@ -42,8 +42,8 @@ class LIFLayerResidual(AbstractLayer):
         else:
             if fuse_function == "Append":
                 self.__weights_res: cp.ndarray = weight_initializer(int(cp.floor(self.n_neurons/2)), previous_layer.n_neurons)
-                self.__weights_jump: cp.ndarray = weight_initializer(int(cp.ceil(self.n_neurons/2)), jump_layer.n_neurons)
-                # self.__weights_jump: cp.ndarray = cp.zeros((int(cp.floor(self.n_neurons/2)), jump_layer.n_neurons), dtype=cp.float32) # type: ignore
+                # self.__weights_jump: cp.ndarray = weight_initializer(int(cp.ceil(self.n_neurons/2)), jump_layer.n_neurons)
+                self.__weights_jump: cp.ndarray = cp.zeros((int(cp.floor(self.n_neurons/2)), jump_layer.n_neurons), dtype=cp.float32) # type: ignore
 
 
             else:
@@ -322,7 +322,7 @@ class LIFLayerResidual(AbstractLayer):
         #? I could allow this to be seperate
         # TODO: to make this separate I need to make the gradient separate instead of averaging them in the backward function
         # delta_split = cp.split(delta_weights, 2, axis=1)
-        if self.__fuse_function == "Append":
+        if self.__fuse_function == "Append" and type(delta_weights) is tuple:
             self.__weights_res += delta_weights[0]
             self.__weights_jump += delta_weights[1]
         else:
