@@ -199,13 +199,22 @@ class LIFLayerResidual(AbstractLayer):
         new_shape, sorted_indices, spike_times_reshaped = get_sorted_spikes_indices(pre_spike_per_neuron,
                                                                                     pre_n_spike_per_neuron)
         if sorted_indices.size == 0:  # No input spike in the batch
-            batch_size = pre_spike_per_neuron.shape[0]
-            shape = (batch_size, int(cp.ceil(self.n_neurons/2)), self.__max_n_spike)
-            self.__n_spike_per_neuron_jump = cp.zeros((batch_size, int(cp.ceil(self.n_neurons/2))), dtype=cp.int32)
-            self.__spike_times_per_neuron_jump = cp.full(shape, cp.inf, dtype=cp.float32)
-            self.__post_exp_tau_jump = cp.full(shape, cp.inf, dtype=cp.float32)
-            self.__a_jump = cp.full(shape, cp.inf, dtype=cp.float32)
-            self.__x_jump = cp.full(shape, cp.inf, dtype=cp.float32)
+            if self.__fuse_function == "Append":
+                batch_size = pre_spike_per_neuron.shape[0]
+                shape = (batch_size, int(cp.floor(self.n_neurons/2)), self.__max_n_spike)
+                self.__n_spike_per_neuron_res = cp.zeros((batch_size, int(cp.floor(self.n_neurons/2))), dtype=cp.int32)
+                self.__spike_times_per_neuron_res = cp.full(shape, cp.inf, dtype=cp.float32)
+                self.__post_exp_tau_res = cp.full(shape, cp.inf, dtype=cp.float32)
+                self.__a_res = cp.full(shape, cp.inf, dtype=cp.float32)
+                self.__x_res = cp.full(shape, cp.inf, dtype=cp.float32)
+            else:
+                batch_size = pre_spike_per_neuron.shape[0]
+                shape = (batch_size, int(self.n_neurons), self.__max_n_spike)
+                self.__n_spike_per_neuron_res = cp.zeros((batch_size, int(self.n_neurons)), dtype=cp.int32)
+                self.__spike_times_per_neuron_res = cp.full(shape, cp.inf, dtype=cp.float32)
+                self.__post_exp_tau_res = cp.full(shape, cp.inf, dtype=cp.float32)
+                self.__a_res = cp.full(shape, cp.inf, dtype=cp.float32)
+                self.__x_res = cp.full(shape, cp.inf, dtype=cp.float32)
         else:
             #? What are they sorting the spikes by? TIME obviously
             sorted_spike_indices = (sorted_indices.astype(cp.int32) // pre_spike_per_neuron.shape[2])
