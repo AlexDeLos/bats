@@ -23,7 +23,7 @@ from bats.Utils.utils import get_arguments
 
 arguments = get_arguments()
 
-FULL_METRIC = True
+FULL_METRIC = False
 # Dataset
 # DATASET_PATH = Path("../../datasets/mnist.npz")
 DATASET_PATH = Path("./datasets/mnist.npz")

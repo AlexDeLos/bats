@@ -26,6 +26,7 @@ print("Using residual: ", USE_RESIDUAL)
 RESIDUAL_EVERY_N = arguments.residual_every_n
 FUSE_FUNCTION = arguments.fuse_func
 LEARNING_RATE = arguments.learning_rate
+FULL_METRIC = False
 
 #Residual parameters
 RESIDUAL_JUMP_LENGTH = arguments.residual_jump_length
@@ -287,23 +288,23 @@ for run in range(NUMBER_OF_RUNS):
                     avg_gradient.append(averaged_values)
             del gradient
 
-            if USE_WANDB:
+            if FULL_METRIC:
                 for i in range(len(avg_gradient)):
                     if avg_gradient[i] is not None:
                         if isinstance(avg_gradient[i], list):
                             for j in range(len(avg_gradient[i])):
-                                tracker[i] = (tracker[i] + float(cp.mean(cp.abs(avg_gradient[i][j]))))/2
+                                tracker[i] = (tracker[i] + float(cp.mean(avg_gradient[i][j])))/2
                             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
-                                # wandb.log({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
-                                if not CLUSTER:
-                                    print("Mean Gradient Magnitude at residual layer "+str(i)+": ", tracker[i])
+                                if USE_WANDB:
+                                    wandb.log({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
+                                print("Mean Gradient Magnitude at residual layer "+str(i)+": ", tracker[i])
                                 tracker = [0.0]* len(network.layers)
                         else:
-                            tracker[i] = (tracker[i] + float(cp.mean(cp.abs(avg_gradient[i]))))/2
+                            tracker[i] = (tracker[i] + float(cp.mean(avg_gradient[i])))/2
                             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
-                                # wandb.log({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
-                                if not CLUSTER:
-                                    print("Mean Gradient Magnitude at layer "+str(i)+": ", tracker[i])
+                                if USE_WANDB:
+                                    wandb.log({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
+                                print("Mean Gradient Magnitude at layer "+str(i)+": ", tracker[i])
                                 tracker = [0.0]* len(network.layers)
             # Apply step
             deltas = optimizer.step(avg_gradient)
