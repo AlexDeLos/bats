@@ -181,7 +181,10 @@ for run in range(NUMBER_OF_RUNS):
     network.add_layer(output_layer)
     
     for layer in network.layers:
-        print(layer.name)
+        if isinstance(layer, LIFLayerResidual):
+            print(layer.name, layer.jump_layer.name)
+        else:
+            print(layer.name)
     loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
 
