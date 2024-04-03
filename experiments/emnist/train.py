@@ -338,7 +338,7 @@ for run in range(NUMBER_OF_RUNS):
 
                 mean_res = cp.mean(cp.array(mean_spikes_for_times))
                 mean_first = cp.mean(cp.array(first_spike_for_times))
-                if not CLUSTER:
+                if FULL_METRIC:
                     print(f'Output layer mean times: {mean_res}')
                     print(f'Output layer first spike: {mean_first}')
                 if USE_WANDB:
