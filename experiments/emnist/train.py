@@ -1,5 +1,4 @@
 from pathlib import Path
-from re import L
 import cupy as cp
 import numpy as np
 import wandb
