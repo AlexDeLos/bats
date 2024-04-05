@@ -65,13 +65,13 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 # Training parameters
 N_TRAINING_EPOCHS = arguments.n_epochs #! used to  be 100
 if CLUSTER:
-    N_TRAIN_SAMPLES = 112800
-    N_TEST_SAMPLES = 18800
+    N_TRAIN_SAMPLES = 60000
+    N_TEST_SAMPLES = 10000
     TRAIN_BATCH_SIZE = arguments.batch_size
     TEST_BATCH_SIZE = arguments.batch_size_test
 else:
-    N_TRAIN_SAMPLES = 1128
-    N_TEST_SAMPLES = 188
+    N_TRAIN_SAMPLES = 6000
+    N_TEST_SAMPLES = 1000
     TRAIN_BATCH_SIZE = 50
     TEST_BATCH_SIZE = 100
 # Training parameters

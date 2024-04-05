@@ -28,6 +28,7 @@ def get_sorted_spikes_indices(spike_times_per_neuron, n_spike_per_neuron):
         print('max_n_spike:', max_n_spike)
         print('total_spikes:', total_spikes)
         print('total_spikes:', total_spikes)
+        
         raise ValueError('Triggered error')
     """sorted_indices = cp.argsort(spike_times_reshaped, axis=1)[:, :max_total_spike]"""
     # creates keys? (was orriginally just called n)
