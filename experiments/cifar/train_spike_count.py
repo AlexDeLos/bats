@@ -269,7 +269,7 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "SNN",
         "dataset": "CIFAR",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "2.1.0_cluster_" + str(CLUSTER),
+        "version": "2.3.0_cluster_" + str(CLUSTER),
         }
         )
     best_acc = 0.0

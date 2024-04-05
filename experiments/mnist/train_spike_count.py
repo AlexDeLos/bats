@@ -174,7 +174,7 @@ for run in range(NUMBER_OF_RUNS):
                                     weight_initializer=weight_initializer,
                                     max_n_spike=SPIKE_BUFFER_SIZE_RES,
                                     name="Residual layer " + str(i))
-        elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
+        elif (i -1)  % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
             if i - RESIDUAL_JUMP_LENGTH < 0:
                 jump_layer = input_layer
             else:
@@ -222,8 +222,10 @@ for run in range(NUMBER_OF_RUNS):
     for layer in network.layers:
         if isinstance(layer, LIFLayerResidual):
             print(layer.name, layer.jump_layer.name)
+            print(layer.n_neurons)
         else:
             print(layer.name)
+            print(layer.n_neurons)
     # Metrics
     training_steps = 0
     train_loss_monitor = LossMonitor(export_path=EXPORT_DIR / "loss_train")
@@ -280,7 +282,7 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "SNN",
         "dataset": "MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "2.2.0_cluster_" + str(CLUSTER),
+        "version": "2.3.0_cluster_" + str(CLUSTER),
         }
         )
 

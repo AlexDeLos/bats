@@ -37,13 +37,13 @@ class LIFLayerResidual(AbstractLayer):
                 self.__weights_res: cp.ndarray = cp.zeros((int(cp.ceil(self.n_neurons/2)), previous_layer.n_neurons), dtype=cp.float32) # type: ignore
                 self.__weights_jump: cp.ndarray = cp.zeros((int(cp.floor(self.n_neurons/2)), jump_layer.n_neurons), dtype=cp.float32) # type: ignore
             else:
-                self.__weights_res: cp.ndarray = cp.zeros((int(cp.ceil(self.n_neurons/2)), previous_layer.n_neurons), dtype=cp.float32) # type: ignore
+                self.__weights_res: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons), dtype=cp.float32) # type: ignore
 
         else:
             if fuse_function == "Append":
                 self.__weights_res: cp.ndarray = weight_initializer(int(cp.floor(self.n_neurons/2)), previous_layer.n_neurons)
-                self.__weights_jump: cp.ndarray = weight_initializer(int(cp.ceil(self.n_neurons/2)), jump_layer.n_neurons)
-                # self.__weights_jump: cp.ndarray = cp.zeros((int(cp.floor(self.n_neurons/2)), jump_layer.n_neurons), dtype=cp.float32) # type: ignore
+                # self.__weights_jump: cp.ndarray = weight_initializer(int(cp.ceil(self.n_neurons/2)), jump_layer.n_neurons)
+                self.__weights_jump: cp.ndarray = cp.zeros((int(cp.floor(self.n_neurons/2)), jump_layer.n_neurons), dtype=cp.float32) # type: ignore
 
 
             else:
@@ -317,11 +317,6 @@ class LIFLayerResidual(AbstractLayer):
         # the order of this split has been checked and is correct the first half is residual and the second half is jump
         if self.__fuse_function == "Append":
             errors_res, errors_jump = cp.split(errors, 2, axis=1)
-        # if split_index_jump != errors_jump.shape[1]:
-        #     raise ValueError("The split index of the jump layer is not the same as the shape of the jump errors")
-        # if split_index != errors_res.shape[1]:
-        #     raise ValueError("The split index of the residual layer is not the same as the shape of the residual errors")
-
         
         #DONE: flip the inputs, where flipped to test ->the problem is not the input
         #! problem is with the function, not the inputs:
@@ -330,6 +325,7 @@ class LIFLayerResidual(AbstractLayer):
             weights_grad_res, pre_errors_res = self.backward_res(errors_res) # type: ignore
             weights_grad_jump, pre_errors_jump = self.backward_jump(errors_jump) # type: ignore
             return (weights_grad_res, weights_grad_jump), (pre_errors_res, pre_errors_jump)
+        #! problem with the errors
         else:
             weights_grad_res, pre_errors_res = self.backward_res(errors)
             return weights_grad_res, pre_errors_res

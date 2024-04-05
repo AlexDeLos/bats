@@ -1,78 +1,106 @@
 from pathlib import Path
 import cupy as cp
 import numpy as np
+import wandb
 
 import os
 import sys
-
-sys.path.insert(0, "../../")  # Add repository root to python path
-
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from Dataset import Dataset
 from bats.Monitors import *
-from bats.Layers import InputLayer, LIFLayer
+from bats.Layers import InputLayer, LIFLayer, LIFLayerResidual
 from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *
+from bats.Utils.utils import get_arguments
 
-# Dataset
 DATASET_PATH = Path("./datasets/")
+
+arguments = get_arguments()
+# Residual arguments
+N_HIDDEN_LAYERS = arguments.n_hidden_layers
+USE_RESIDUAL = arguments.use_residual
+print("Using residual: ", USE_RESIDUAL)
+RESIDUAL_EVERY_N = arguments.residual_every_n
+FUSE_FUNCTION = arguments.fuse_func
+LEARNING_RATE = arguments.learning_rate
+FULL_METRIC = False
+
+#Residual parameters
+RESIDUAL_JUMP_LENGTH = arguments.residual_jump_length
+
+CLUSTER = arguments.cluster
+USE_WANDB = arguments.use_wanb
+ALTERNATE = arguments.alternate
+
+
+NUMBER_OF_RUNS = arguments.runs
 
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Hidden layer
-N_NEURONS_1 = 400
+N_NEURONS_1 = 800
 TAU_S_1 = 0.130
-THRESHOLD_HAT_1 = 0.13
+THRESHOLD_HAT_1 = 0.2
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
-SPIKE_BUFFER_SIZE_1 = 5
-
-# Hidden layer
-N_NEURONS_2 = 400
-TAU_S_2 = 0.130
-THRESHOLD_HAT_2 = 0.45
-DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
-SPIKE_BUFFER_SIZE_2 = 5
+SPIKE_BUFFER_SIZE_1 = 30
+# Residual layer
+if CLUSTER:
+    N_NEURONS_RES = 750 #!800 #? Should I lower it?
+else:
+    N_NEURONS_RES = 400
+TAU_S_RES = 0.130
+THRESHOLD_HAT_RES = 0.2
+DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES
+SPIKE_BUFFER_SIZE_RES = 20
 
 # Output_layer
-N_OUTPUTS = 10
+N_OUTPUTS = 47
 TAU_S_OUTPUT = 0.130
-THRESHOLD_HAT_OUTPUT = 0.7
+THRESHOLD_HAT_OUTPUT = 1.3
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
-SPIKE_BUFFER_SIZE_OUTPUT = 20
-
+SPIKE_BUFFER_SIZE_OUTPUT = 30
 # Training parameters
-N_TRAINING_EPOCHS = 100
-N_TRAIN_SAMPLES = 60000
-N_TEST_SAMPLES = 10000
-TRAIN_BATCH_SIZE = 5
-TEST_BATCH_SIZE = 100
+N_TRAINING_EPOCHS = arguments.n_epochs #! used to  be 100
+if CLUSTER:
+    N_TRAIN_SAMPLES = 112800
+    N_TEST_SAMPLES = 18800
+    TRAIN_BATCH_SIZE = arguments.batch_size
+    TEST_BATCH_SIZE = arguments.batch_size_test
+else:
+    N_TRAIN_SAMPLES = 1128
+    N_TEST_SAMPLES = 188
+    TRAIN_BATCH_SIZE = 50
+    TEST_BATCH_SIZE = 100
+# Training parameters
+
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
 TRAIN_PRINT_PERIOD = 0.1
 TRAIN_PRINT_PERIOD_STEP = int(N_TRAIN_SAMPLES * TRAIN_PRINT_PERIOD / TRAIN_BATCH_SIZE)
 TEST_PERIOD = 1.0  # Evaluate on test batch every TEST_PERIOD epochs
 TEST_PERIOD_STEP = int(N_TRAIN_SAMPLES * TEST_PERIOD / TRAIN_BATCH_SIZE)
-LEARNING_RATE = 0.0005
 LR_DECAY_EPOCH = 10  # Perform decay very n epochs
-LR_DECAY_FACTOR = 0.5
+LR_DECAY_FACTOR = 1.0
 MIN_LEARNING_RATE = 1e-4
 TARGET_FALSE = 3
 TARGET_TRUE = 15
 
 # Plot parameters
-EXPORT_METRICS = True
-EXPORT_DIR = Path("./output_metrics")
-SAVE_DIR = Path("./best_model")
+EXPORT_METRICS = False
+EXPORT_DIR = Path("output_metrics")
+SAVE_DIR = Path("best_model")
 
 
 def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
     return cp.random.uniform(-1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
 
 
-if __name__ == "__main__":
+for run in range(NUMBER_OF_RUNS):
+    print(USE_RESIDUAL, CLUSTER, FUSE_FUNCTION, N_HIDDEN_LAYERS, RESIDUAL_EVERY_N, run)
+
     max_int = np.iinfo(np.int32).max
     np_seed = np.random.randint(low=0, high=max_int)
     cp_seed = np.random.randint(low=0, high=max_int)
@@ -85,41 +113,80 @@ if __name__ == "__main__":
 
     # Dataset
     print("Loading datasets...")
-    dataset = Dataset(DATASET_PATH)
+    dataset = Dataset(path=DATASET_PATH)
 
     print("Creating network...")
     network = Network()
     input_layer = InputLayer(n_neurons=N_INPUTS, name="Input layer")
     network.add_layer(input_layer, input=True)
 
-    hidden_layer = LIFLayer(previous_layer=input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-                            theta=THRESHOLD_HAT_1,
-                            delta_theta=DELTA_THRESHOLD_1,
-                            weight_initializer=weight_initializer,
-                            max_n_spike=SPIKE_BUFFER_SIZE_1,
-                            name="Hidden layer 1")
-    network.add_layer(hidden_layer)
+    hidden_layers = []
+    for i in range(N_HIDDEN_LAYERS):
+        if i == 0:
+            hidden_layer = LIFLayer(previous_layer=input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+                                    theta=THRESHOLD_HAT_1,
+                                    delta_theta=DELTA_THRESHOLD_1,
+                                    weight_initializer=weight_initializer,
+                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                    name="Hidden layer 0")
+            
+        elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL and False:
+            hidden_layer = LIFLayerResidual_copy(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[0], n_neurons=N_NEURONS_1, tau_s=TAU_S_RES,
+                                    theta=THRESHOLD_HAT_RES,
+                                    fuse_function=FUSE_FUNCTION,
+                                    delta_theta=DELTA_THRESHOLD_RES,
+                                    weight_initializer=weight_initializer,
+                                    max_n_spike=SPIKE_BUFFER_SIZE_RES,
+                                    name="Residual layer " + str(i))
+        elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
+            if i - RESIDUAL_JUMP_LENGTH < 0:
+                jump_layer = input_layer
+            else:
+                jump_layer = hidden_layers[i - RESIDUAL_JUMP_LENGTH]
+            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1],
+                                            # jump_layer= hidden_layers[i-1],
+                                            jump_layer = jump_layer,
+                                            n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
+                                            theta=THRESHOLD_HAT_RES,
+                                            fuse_function=FUSE_FUNCTION,
+                                            delta_theta=DELTA_THRESHOLD_RES,
+                                            weight_initializer=weight_initializer,
+                                            max_n_spike=SPIKE_BUFFER_SIZE_RES,
+                                            name="Residual layer " + str(i))
+        elif i % RESIDUAL_EVERY_N ==0 and not USE_RESIDUAL:
+            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=int(N_NEURONS_1/2), tau_s=TAU_S_1,
+                                    theta=THRESHOLD_HAT_1,
+                                    delta_theta=DELTA_THRESHOLD_1,
+                                    weight_initializer=weight_initializer,
+                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                    name="Hidden layer " + str(i))
 
-    hidden_layer_2 = LIFLayer(previous_layer=hidden_layer, n_neurons=N_NEURONS_2, tau_s=TAU_S_2,
-                              theta=THRESHOLD_HAT_2,
-                              delta_theta=DELTA_THRESHOLD_2,
-                              weight_initializer=weight_initializer,
-                              max_n_spike=SPIKE_BUFFER_SIZE_2,
-                              name="Hidden layer 2")
-    network.add_layer(hidden_layer_2)
+        else:
+            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+                                    theta=THRESHOLD_HAT_1,
+                                    delta_theta=DELTA_THRESHOLD_1,
+                                    weight_initializer=weight_initializer,
+                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                    name="Hidden layer " + str(i))
+        hidden_layers.append(hidden_layer)
+        network.add_layer(hidden_layer)
 
-    output_layer = LIFLayer(previous_layer=hidden_layer_2, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT,
+    output_layer = LIFLayer(previous_layer=hidden_layer, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT, # type: ignore
                             theta=THRESHOLD_HAT_OUTPUT,
                             delta_theta=DELTA_THRESHOLD_OUTPUT,
                             weight_initializer=weight_initializer,
                             max_n_spike=SPIKE_BUFFER_SIZE_OUTPUT,
                             name="Output layer")
     network.add_layer(output_layer)
-
+    
+    for layer in network.layers:
+        if isinstance(layer, LIFLayerResidual):
+            print(layer.name, layer.jump_layer.name)
+        else:
+            print(layer.name)
     loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
-    for layer in network.layers:
-        print(layer.name)
+
     # Metrics
     training_steps = 0
     train_loss_monitor = LossMonitor(export_path=EXPORT_DIR / "loss_train")
@@ -149,7 +216,32 @@ if __name__ == "__main__":
     test_monitors_manager = MonitorsManager(all_test_monitors,
                                             print_prefix="Test | ")
 
+    if USE_WANDB:
+        wandb.init(
+        # set the wandb project where this run will be logged
+        project="Final_thesis_testing",
+        name="MLP_emnist_"+ str(USE_RESIDUAL)+" # hidden_"+ str(N_HIDDEN_LAYERS),
+        
+        # track hyperparameters and run metadata4
+        config={
+        "Cluster": CLUSTER,
+        "Use_residual": USE_RESIDUAL,
+        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
+        "train_batch_size": TRAIN_BATCH_SIZE,
+        "residual_every_n": RESIDUAL_EVERY_N,
+        "n_of_train_samples": N_TRAIN_SAMPLES,
+        "n_of_test_samples": N_TEST_SAMPLES,
+        "learning_rate": LEARNING_RATE,
+        "batch_size": TRAIN_BATCH_SIZE,
+        "architecture": "MLP",
+        "dataset": "emnist",
+        "epochs": N_TRAINING_EPOCHS,
+        "version": "2.3.0_cluster_" + str(CLUSTER),
+        }
+        )
+
     best_acc = 0.0
+    tracker = [0.0]* len(network.layers)
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
@@ -183,17 +275,49 @@ if __name__ == "__main__":
 
             # Compute gradient
             gradient = network.backward(errors)
-            avg_gradient = [None if g is None else cp.mean(g, axis=0) for g in gradient]
+            avg_gradient = []
+
+            for g, layer in zip(gradient, network.layers):
+                if g is None:
+                    avg_gradient.append(None)
+                elif isinstance(layer, LIFLayerResidual) and FUSE_FUNCTION == "Append":
+                    grad_entry = []
+                    for i in range(len(g)):
+                        try:
+                            averaged_values = cp.mean(g[i], axis=0)
+                        except:
+                            averaged_values = cp.mean(g[0], axis=0)
+                        grad_entry.append(averaged_values)
+                    avg_gradient.append(grad_entry)
+                else:
+                    averaged_values = cp.mean(g, axis=0)
+                    avg_gradient.append(averaged_values)
             del gradient
 
+            if FULL_METRIC:
+                for i in range(len(avg_gradient)):
+                    if avg_gradient[i] is not None:
+                        if isinstance(avg_gradient[i], list):
+                            for j in range(len(avg_gradient[i])):
+                                tracker[i] = (tracker[i] + float(cp.mean(avg_gradient[i][j])))/2
+                            if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
+                                if USE_WANDB:
+                                    wandb.log({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
+                                print("Mean Gradient Magnitude at residual layer "+str(i)+": ", tracker[i])
+                                tracker = [0.0]* len(network.layers)
+                        else:
+                            tracker[i] = (tracker[i] + float(cp.mean(avg_gradient[i])))/2
+                            if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
+                                if USE_WANDB:
+                                    wandb.log({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
+                                print("Mean Gradient Magnitude at layer "+str(i)+": ", tracker[i])
+                                tracker = [0.0]* len(network.layers)
             # Apply step
             deltas = optimizer.step(avg_gradient)
             del avg_gradient
 
             network.apply_deltas(deltas)
             del deltas
-            """hidden_layer.weights = cp.clip(hidden_layer.weights, -2.0, 2.0)
-            hidden_layer_2.weights = cp.clip(hidden_layer_2.weights, -2.0, 2.0)"""
 
             training_steps += 1
             epoch_metrics = training_steps * TRAIN_BATCH_SIZE / N_TRAIN_SAMPLES
@@ -203,8 +327,22 @@ if __name__ == "__main__":
                 # Compute metrics
 
                 train_monitors_manager.record(epoch_metrics)
-                train_monitors_manager.print(epoch_metrics)
+                train_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB)
                 train_monitors_manager.export()
+                out_copy = cp.copy(out_spikes)
+                mask = cp.isinf(out_copy)
+                out_copy[mask] = cp.nan
+                mean_spikes_for_times = cp.nanmean(out_copy)
+
+                first_spike_for_times = cp.nanmin(out_copy)
+
+                mean_res = cp.mean(cp.array(mean_spikes_for_times))
+                mean_first = cp.mean(cp.array(first_spike_for_times))
+                if FULL_METRIC:
+                    print(f'Output layer mean times: {mean_res}')
+                    print(f'Output layer first spike: {mean_first}')
+                if USE_WANDB:
+                    wandb.log({"Train_mean_spikes_for_times": float(mean_res), "Train_first_spike_for_times": float(mean_first)})
 
             # Test evaluation
             if training_steps % TEST_PERIOD_STEP == 0:
@@ -235,11 +373,22 @@ if __name__ == "__main__":
                 test_learning_rate_monitor.add(optimizer.learning_rate)
 
                 records = test_monitors_manager.record(epoch_metrics)
-                test_monitors_manager.print(epoch_metrics)
+                test_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB)
                 test_monitors_manager.export()
+                
+                mean_res = cp.mean(cp.array(mean_spikes_for_times))
+                mean_first = cp.mean(cp.array(first_spike_for_times))
+                if not CLUSTER:
+                    print(f'Output layer mean times: {mean_res}')
+                    print(f'Output layer first spike: {mean_first}')
+                if USE_WANDB:
+                    wandb.log({"Test_mean_spikes_for_times": float(mean_res), "Test_first_spike_for_times": float(mean_first)})
 
                 acc = records[test_accuracy_monitor]
                 if acc > best_acc:
                     best_acc = acc
-                    network.store(SAVE_DIR)
-                    print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks save to: {SAVE_DIR}")
+                    # network.store(SAVE_DIR)
+                    print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks NOT save to: {SAVE_DIR}")
+    if USE_WANDB:
+        wandb.finish()
+    print("Done!: ", run)   

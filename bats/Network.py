@@ -1,3 +1,4 @@
+from math import e
 from pathlib import Path
 from typing import List, Tuple, Optional
 import numpy as np
@@ -44,8 +45,6 @@ class Network:
         errors_jump_array = []
         using_fuse = False
         for i, layer in enumerate(reversed(self.__layers)):
-            
-
             if not layer.trainable:  # Reached input layer
                 gradient.insert(0, None)
                 break
@@ -57,79 +56,50 @@ class Network:
                 #! errors might have different shapes
                 # if this is connected to a res layer we run it two times
                 if layer._is_residual:
-                    weights_grad, errors1 = layer.backward(errors)
-                    if type(errors1) is tuple:
-                        (errors1,errors_jump1) = errors1
-                        if errors_jump1 is None:
-                            jump_layer_is_input = True
-                    weights_grad_jump, errors2 = layer.backward(errors_jump_array[index])
-                    if type(errors2) is tuple:
-                        (errors2,errors_jump2) = errors2
-                        if errors_jump2 is None:
+                    # Residual jump layer
+                    if errors_jump_array[index] is None:
+                        pass
+                    else:
+                        errors = (errors + errors_jump_array[index])/2
+
+                    weights_grad, errors_temp = layer.backward(errors)
+                    if type(errors_temp) is tuple:
+                        (errors,errors_jump) = errors_temp
+                        if errors_jump is None:
                             jump_layer_is_input = True
                     #! we are adding the errors, is this good?
                     jump_layers.pop(index)
                     errors_jump_array.pop(index)
-                    if errors1 is None:
-                        errors = errors2
-                    elif errors2 is None:
-                        errors = errors1
-                    else:
-                        errors = errors1 + errors2
-                    try:
-                        if errors_jump1 is None:
-                            errors_jump = errors_jump2
-                        elif errors_jump2 is None:
-                            errors_jump = errors_jump1
-                        else:
-                            errors_jump = errors_jump1 + errors_jump2
-                    except:
-                        errors_jump = errors
-
-                    if errors_jump is None:
-                        jump_layer_is_input = True
 
                     errors_jump_array.append(errors_jump)
                     jump_layers.append(layer.jump_layer)# type: ignore
 
                 else:
-                    weights_grad_pre, errors1 = layer.backward(errors)
-                    #! this is never used, how should we deal with the layer that recieves the jump?
-                    #! error shape in conv can be wrong
-                    if errors_jump_array[index] is not None:
-                        # weights_grad_jump, errors2 = layer.backward(errors_jump_array[index])
-                        weights_grad_jump, errors2 = None,None
+                    # jump layer that is not a residual
+                    if errors_jump_array[index] is None:
+                        pass
                     else:
-                        errors2 = None
-                    jump_layers.pop(index)
-                    errors_jump_array.pop(index)
-                    if errors1 is None:
-                        errors = errors2
-                    elif errors2 is None:
-                        errors = errors1
-                    else:
-                        errors = (errors1 + errors2)/2
-                        # errors = errors1
-
-                    if weights_grad_jump is None and weights_grad_pre is None:
-                        weights_grad = None
-                    elif weights_grad_jump is None:
-                        weights_grad = weights_grad_pre
-                    else:
-                        weights_grad = (weights_grad_jump + weights_grad_pre)/2
+                        errors = (errors + errors_jump_array[index])/2
+                    weights_grad, errors = layer.backward(errors)
 
             elif layer._is_residual:
-                weights_grad, errors = layer.backward(errors)
-                if type(errors) is tuple:
-                    (errors,errors_jump) = errors
-                    if errors_jump is None:
-                        jump_layer_is_input = True
+                weights_grad, errors_temp = layer.backward(errors)
+                if type(errors_temp) is tuple:
+                    (errors,errors_jump) = errors_temp
+                    # what if I make an average of the errors? and feed the same error to both layers?
+                    #! this doesn't work, the errors are different
+                    # errors_temp = (errors + errors_jump)/2
+                    # errors_jump = errors_temp.copy()
+                    # errors = errors_temp.copy()
                 else:
-                    errors_jump = errors.copy()
+                    try:
+                        errors = errors_temp
+                        errors_jump = errors_temp.copy()
+                    except AttributeError:
+                        errors_jump = None
                 errors_jump_array.append(errors_jump)
                 jump_layers.append(layer.jump_layer)# type: ignore
             else:
-                #? how on earth is the gradient flowing in the residual?
                 weights_grad, errors = layer.backward(errors) # type: ignore
                 # TODO: Look into this thing
                 #? how does back propagation work with residual?
