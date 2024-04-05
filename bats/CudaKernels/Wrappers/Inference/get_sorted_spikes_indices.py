@@ -15,21 +15,7 @@ def get_sorted_spikes_indices(spike_times_per_neuron, n_spike_per_neuron):
     total_spikes = cp.sum(n_spike_per_neuron, axis=1)
     #max spikes a neuron got
     #memory error here
-    try:
-        max_total_spike = int(cp.max(total_spikes))
-    except ValueError:
-        print('total_spikes:', total_spikes)
-        print('n_spike_per_neuron:', n_spike_per_neuron)
-        print('spike_times_per_neuron:', spike_times_per_neuron)
-        print('spike_times_reshaped:', spike_times_reshaped)
-        print('new_shape:', new_shape)
-        print('batch_size:', batch_size)
-        print('n_neurons:', n_neurons)
-        print('max_n_spike:', max_n_spike)
-        print('total_spikes:', total_spikes)
-        print('total_spikes:', total_spikes)
-        
-        raise ValueError('Triggered error')
+    max_total_spike = int(cp.max(total_spikes))
     """sorted_indices = cp.argsort(spike_times_reshaped, axis=1)[:, :max_total_spike]"""
     # creates keys? (was orriginally just called n)
     keys = np.arange(max_total_spike)
