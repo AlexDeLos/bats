@@ -199,6 +199,7 @@ class ConvLIFLayer(AbstractConvLayer):
         new_x = self.__x
         new_post_exp_tau = self.__post_exp_tau
         if new_x.shape != errors_in.shape:
+            print("Error in the shapes")
             raise RuntimeError("This should not happen")
         else:
             errors = errors_in
