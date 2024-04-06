@@ -96,8 +96,8 @@ class ConvLIFLayer(AbstractConvLayer):
             self.forward_no_pad(max_simulation, training)
             return        
         pre_spike_per_neuron_pre_pad, pre_n_spike_per_neuron_pre_pad = self.__previous_layer.spike_trains
-
-        self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron_pre_pad, self.__tau_s, self.__tau)
+        # should have the size of the previous layer
+        # self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron_pre_pad, self.__tau_s, self.__tau) 
         
         # how are the spikes used? and how do I add padding?
         #? what is I don't use padding in the forward pass?
@@ -134,6 +134,7 @@ class ConvLIFLayer(AbstractConvLayer):
             print(cp.where(sorted_spike_indices != 0))
             print(sorted_spike_times)
             print(new_shape_previous)
+            new_shape_previous = self.__previous_layer.neurons_shape #-> I dont like this
             self.__n_spike_per_neuron, self.__a, self.__x, self.__spike_times_per_neuron, \
             self.__post_exp_tau = compute_spike_times_conv(sorted_spike_indices, sorted_spike_times,
                                                            sorted_pre_exp_tau_s, sorted_pre_exp_tau,
@@ -171,8 +172,8 @@ class ConvLIFLayer(AbstractConvLayer):
             sorted_pre_exp_tau = cp.take_along_axis(cp.reshape(self.__pre_exp_tau, new_shape), sorted_indices, axis=1)
 
             self.__n_spike_per_neuron, self.__a, self.__x, self.__spike_times_per_neuron, \
-            self.__post_exp_tau = compute_spike_times_conv(sorted_spike_indices, sorted_spike_times,
-                                                           sorted_pre_exp_tau_s, sorted_pre_exp_tau,
+            self.__post_exp_tau = compute_spike_times_conv(sorted_spike_indices, sorted_spike_times, # some other size
+                                                           sorted_pre_exp_tau_s, sorted_pre_exp_tau,# some other size
                                                            self.weights, self.__c, self.__delta_theta_tau,
                                                            self.__tau, cp.float32(max_simulation), self.__max_n_spike,
                                                            self.__previous_layer.neurons_shape, self.neurons_shape,
