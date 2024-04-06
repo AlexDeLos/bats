@@ -61,35 +61,23 @@ INPUT_SHAPE = np.array([28, 28, 1])
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
-FILTER_1 = np.array([3, 3, 1]) #? could it be the size of this filter's channels?
+FILTER_1 = np.array([3, 3, 15]) #? could it be the size of this filter's channels?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 10
-if USE_PADDING:
-    FILTER_FROM_NEXT = np.array([5, 5, 1])
-else:
-    FILTER_FROM_NEXT = None
 
-FILTER_1_5 = np.array([5, 5, 1]) #? could it be the size of this filter's channels?
+FILTER_1_5 = np.array([5, 5, 25]) #? could it be the size of this filter's channels?
 TAU_S_1_5 = 0.130
 THRESHOLD_HAT_1_5 = 0.04
 DELTA_THRESHOLD_1_5 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1_5 = 10
-if USE_PADDING:
-    FILTER_FROM_NEXT_1_5 = np.array([3, 3, 1])
-else:
-    FILTER_FROM_NEXT_1_5 = None
 
-FILTER_2 = np.array([5, 5, 1]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_2 = np.array([5, 5, 25]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_2 = 0.130
 THRESHOLD_HAT_2 = 0.8
 DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
 SPIKE_BUFFER_SIZE_2 = 21
-if USE_PADDING:
-    FILTER_FROM_NEXT_2 = None
-else:
-    FILTER_FROM_NEXT_2 = None
 
 N_NEURONS_FC = 100
 TAU_S_FC = 0.130
