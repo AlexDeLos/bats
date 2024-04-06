@@ -26,7 +26,10 @@ def compute_spike_times_conv(spike_indices: cp.ndarray, spike_times: cp.ndarray,
     x = cp.ndarray(res_shape, dtype=cp.float32)
     post_spike_times = cp.full(res_shape, cp.inf, dtype=cp.float32)
     post_exp_tau = cp.full(res_shape, cp.inf, dtype=cp.float32)
-
+    print('spike_indices')
+    print(spike_indices)
+    print('spike_times')
+    print(spike_times)
     args = (spike_indices, spike_times, exp_tau_s, exp_tau, weights, pre_shape, post_shape, filters_shape,
             n_neurons, c, delta_theta_tau, tau, max_simulation, max_n_pre_spike, max_n_post_spikes,
             n_spikes, a, x, post_spike_times, post_exp_tau)
