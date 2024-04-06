@@ -191,19 +191,19 @@ for run in range(NUMBER_OF_RUNS):
     #                         name="Convolution 1.5")
     # network.add_layer(conv_1_5)
     
-    # pool_1_5 = PoolingLayer(conv_1_5, name="Pooling 1.5")
-    # network.add_layer(pool_1_5)
+    pool_1_5 = PoolingLayer(conv, name="Pooling 1.5")
+    network.add_layer(pool_1_5)
 
-    # conv_2 = ConvLIFLayer(previous_layer=pool_1_5, filters_shape=FILTER_2, tau_s=TAU_S_2,
-    #                       use_padding=USE_PADDING,
-    #                       theta=THRESHOLD_HAT_2,
-    #                       delta_theta=DELTA_THRESHOLD_2,
-    #                       weight_initializer=weight_initializer_conv,
-    #                       max_n_spike=SPIKE_BUFFER_SIZE_2,
-    #                       name="Convolution 2")
-    # network.add_layer(conv_2)
+    conv_2 = ConvLIFLayer(previous_layer=pool_1_5, filters_shape=FILTER_2, tau_s=TAU_S_2,
+                          use_padding=USE_PADDING,
+                          theta=THRESHOLD_HAT_2,
+                          delta_theta=DELTA_THRESHOLD_2,
+                          weight_initializer=weight_initializer_conv,
+                          max_n_spike=SPIKE_BUFFER_SIZE_2,
+                          name="Convolution 2")
+    network.add_layer(conv_2)
 
-    pool_2 = PoolingLayer(conv, name="Pooling 2")
+    pool_2 = PoolingLayer(conv_2, name="Pooling 2")
     network.add_layer(pool_2)
 
     feedforward = LIFLayer(previous_layer=pool_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
