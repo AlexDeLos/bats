@@ -67,7 +67,8 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
             self.__weights_jump: cp.ndarray = cp.zeros((filter_c, filter_x, filter_y, prev_c_jump), dtype=cp.float32)
         else:
             self.__weights_pre: cp.ndarray = weight_initializer(filter_c, filter_x, filter_y, prev_c)
-            self.__weights_jump: cp.ndarray = weight_initializer(filter_c, filter_x, filter_y, prev_c_jump) 
+            # self.__weights_jump: cp.ndarray = weight_initializer(filter_c, filter_x, filter_y, prev_c_jump) 
+            self.__weights_jump: cp.ndarray = cp.zeros((filter_c, filter_x, filter_y, prev_c_jump), dtype=cp.float32)
         self.__max_n_spike: cp.int32 = cp.int32(max_n_spike)
 
         self.__n_spike_per_neuron: Optional[cp.ndarray] = None
@@ -112,11 +113,11 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         st_jump = self.__spike_times_per_neuron_jump
         n_pre = self.__n_spike_per_neuron
         n_jump = self.__n_spike_per_neuron_jump
-        spikes_avg, number_avg = average_on_channel_dim(self.__spike_times_per_neuron, self.__n_spike_per_neuron,
-                                            #  self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
-                                             self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
-                                            #  self.__spike_times_per_neuron, self.__n_spike_per_neuron,
-                                             self.neurons_shape)
+        # spikes_avg, number_avg = average_on_channel_dim(self.__spike_times_per_neuron, self.__n_spike_per_neuron,
+        #                                     #  self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
+        #                                      self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
+        #                                     #  self.__spike_times_per_neuron, self.__n_spike_per_neuron,
+        #                                      self.neurons_shape)
 
         spikes, number = aped_on_channel_dim(self.__spike_times_per_neuron, self.__n_spike_per_neuron,
                                             #  self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_jump,
@@ -330,7 +331,7 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         # Compute gradient
         if cp.any(cp.isnan(errors)):
             raise ValueError("NaNs in errors")
-        jump_spike_per_neuron, _ = self.__jump_layer.spike_trains
+        jump_spike_per_neuron, count = self.__jump_layer.spike_trains
         if self._use_padding: #-> adding this alone seems to have no effect on the loss of the model or anything else
             #? what is I don't use padding in the backward pass?
             
@@ -396,27 +397,20 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         jump_spike_per_neuron, jump_n_spike_per_neuron = self.__jump_layer.spike_trains
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
         #if padded this needs to be changed
-        if self._is_residual:
-        # if True:
-            errors_pre, errors_jump = split_errors_on_channel_dim(errors, self.neurons_shape)
-        else:
-            old_errors = errors
-            errors,_  = aped_on_channel_dim(errors,cp.zeros((errors.shape[0], errors.shape[1])),errors,cp.zeros((errors.shape[0], errors.shape[1])), self.neurons_shape)
-            errors_pre, errors_jump = split_errors_on_channel_dim(errors, self.neurons_shape)
-        #* the splitting is correct, they both have the same shape and values when the same previous layer is used
-        teste = errors_pre == errors_jump
-
+        errors_pre, errors_jump = split_errors_on_channel_dim(errors, self.neurons_shape)
         weights_grad_pre, pre_errors_pre = self.backward_pre(errors_pre)
         #! when i put errors I get a similar type nans
         weights_grad_jump, pre_errors_jump = self.backward_jump(errors_jump)
 
+        #? what if I trim the errors here?
+        # errors = trimed_errors(errors_in, self.__filter_from_next, self.neurons_shape[2])
+        if self._use_padding:
+            pre_errors_pre = trimed_errors(pre_errors_pre, self.__filters_shape)
+            pre_errors_jump = trimed_errors(pre_errors_jump, self.__filters_shape_jump)
         #problem with the input?
         #! NaNs show up here
         testing_break = 's'
-        if not self._is_residual:
-            return weights_grad_jump, pre_errors_jump
-        else:
-            return (weights_grad_pre, weights_grad_jump), (pre_errors_pre, pre_errors_jump)
+        return (weights_grad_pre, weights_grad_jump), (pre_errors_pre, pre_errors_jump)
         
 
     def add_deltas(self, delta_weights: cp.ndarray) -> None:

@@ -39,7 +39,7 @@ USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
 USE_RESIDUAL = arguments.use_residual
 FIX_SEED = False
-USE_PADDING = False #! residual and padd gives nans
+USE_PADDING = True #! residual and padd gives nans
 USE_CIFAR100 = arguments.cifar100	
 USE_COURSE_LABELS = arguments.use_coarse_labels
 USE_3_CHANNELS = arguments.use_3_channels #! false could be broken
@@ -100,12 +100,12 @@ if CLUSTER:
     TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
     TEST_BATCH_SIZE = arguments.batch_size_test
 else:
-    N_TRAIN_SAMPLES = 5000
-    N_TEST_SAMPLES = 1000
+    N_TRAIN_SAMPLES = 500
+    N_TEST_SAMPLES = 100
     TRAIN_BATCH_SIZE = 5
     TEST_BATCH_SIZE = 5
-    TRAIN_BATCH_SIZE = 20 # 20
-    TEST_BATCH_SIZE = 50
+    TRAIN_BATCH_SIZE = arguments.batch_size # 20
+    TEST_BATCH_SIZE = arguments.batch_size_test
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
 TRAIN_PRINT_PERIOD = 0.1
@@ -242,7 +242,7 @@ for run in range(NUMBER_OF_RUNS):
     # pool_2 = PoolingLayer(conv, name="Pooling 2")
     # network.add_layer(pool_2)
     else:
-        conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=np.array([5, 5, 36]), use_padding=USE_PADDING,
+        conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=np.array([5, 5, 18]), use_padding=USE_PADDING,
                             #   filter_from_next = FILTER_FROM_NEXT,
                             tau_s=TAU_S_1,
                             theta=THRESHOLD_HAT_1,
@@ -255,21 +255,21 @@ for run in range(NUMBER_OF_RUNS):
         pool_1 = PoolingLayer(conv_1, name="Pooling 1")
         network.add_layer(pool_1)
 
-        # conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 8]),
-        #                     use_padding=USE_PADDING,
-        #                     #   filter_from_next = FILTER_FROM_NEXT,
-        #                     tau_s=TAU_S_1,
-        #                     theta=THRESHOLD_HAT_1,
-        #                     delta_theta=DELTA_THRESHOLD_1,
-        #                     weight_initializer=weight_initializer_conv,
-        #                     max_n_spike=SPIKE_BUFFER_SIZE_1,
-        #                     name="Convolution 2")
-        # network.add_layer(conv_2)
+        conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 18]),
+                            use_padding=USE_PADDING,
+                            #   filter_from_next = FILTER_FROM_NEXT,
+                            tau_s=TAU_S_1,
+                            theta=THRESHOLD_HAT_1,
+                            delta_theta=DELTA_THRESHOLD_1,
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=SPIKE_BUFFER_SIZE_1,
+                            name="Convolution 2")
+        network.add_layer(conv_2)
 
-        # pool_2 = PoolingLayer(conv_2, name="Pooling 2")
-        # network.add_layer(pool_2)
+        pool_2 = PoolingLayer(conv_2, name="Pooling 2")
+        network.add_layer(pool_2)
 
-        conv_3 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 36]),
+        conv_3 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 18]),
                             use_padding=USE_PADDING,
                         #   filter_from_next = FILTER_FROM_NEXT,
                             tau_s=TAU_S_1,
@@ -302,7 +302,8 @@ for run in range(NUMBER_OF_RUNS):
     loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
     for layer in network.layers:
-        print(layer.name)
+            print(layer.name)
+            print(layer.n_neurons)
     # Metrics
     training_steps = 0
     train_loss_monitor = LossMonitor(export_path=EXPORT_DIR / "loss_train")

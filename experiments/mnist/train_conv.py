@@ -21,6 +21,8 @@ from bats.Optimizers import *
 from bats.Layers.ConvInputLayer import ConvInputLayer
 from bats.Layers.ConvLIFLayer import ConvLIFLayer
 from bats.Layers.ConvLIFLayerResidual_2 import ConvLIFLayerResidual_2
+from bats.Layers.ConvLIFLayerResidual import ConvLIFLayerResidual
+from bats.Layers.ConvLIFLayer_new_Residual import ConvLIFLayer_new_Residual
 
 from bats.Layers.PoolingLayer import PoolingLayer
 
@@ -32,8 +34,9 @@ CLUSTER = arguments.cluster
 USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
 USE_RESIDUAL = arguments.use_residual
-FIX_SEED = False
-USE_PADDING = False #! residual and padd gives nans
+FIX_SEED = True
+USE_PADDING = True
+#! residual and padd gives nans
 # what causes nans:
 #! residual layers with pre = jump and nans
 # Why is it not learning?
@@ -49,7 +52,7 @@ USE_PADDING = False #! residual and padd gives nans
 if CLUSTER:
     NUMBER_OF_RUNS = arguments.runs
 else:
-    NUMBER_OF_RUNS = 10
+    NUMBER_OF_RUNS = 1
 
 
 
@@ -58,27 +61,27 @@ INPUT_SHAPE = np.array([28, 28, 1])
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
-FILTER_1 = np.array([3, 3, 15]) #? could it be the size of this filter's channels?
+FILTER_1 = np.array([3, 3, 1]) #? could it be the size of this filter's channels?
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 10
 if USE_PADDING:
-    FILTER_FROM_NEXT = np.array([3, 3, 40])
+    FILTER_FROM_NEXT = np.array([5, 5, 1])
 else:
     FILTER_FROM_NEXT = None
 
-FILTER_1_5 = np.array([3, 3, 40]) #? could it be the size of this filter's channels?
+FILTER_1_5 = np.array([5, 5, 1]) #? could it be the size of this filter's channels?
 TAU_S_1_5 = 0.130
 THRESHOLD_HAT_1_5 = 0.04
 DELTA_THRESHOLD_1_5 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1_5 = 10
 if USE_PADDING:
-    FILTER_FROM_NEXT_1_5 = np.array([3, 3, 12])
+    FILTER_FROM_NEXT_1_5 = np.array([3, 3, 1])
 else:
     FILTER_FROM_NEXT_1_5 = None
 
-FILTER_2 = np.array([3, 3, 12]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_2 = np.array([5, 5, 1]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_2 = 0.130
 THRESHOLD_HAT_2 = 0.8
 DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
@@ -100,6 +103,7 @@ TAU_S_OUTPUT = 0.130
 THRESHOLD_HAT_OUTPUT = 0.3
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
+N_TRAINING_EPOCHS = arguments.n_epochs
 
 # Training parameters
 if CLUSTER:
@@ -107,13 +111,11 @@ if CLUSTER:
     N_TEST_SAMPLES = 10000 #! used to be 10000
     TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
     TEST_BATCH_SIZE = arguments.batch_size_test
-    N_TRAINING_EPOCHS = 10
 else:
-    N_TRAINING_EPOCHS = 10
     N_TRAIN_SAMPLES = 6000
     N_TEST_SAMPLES = 1000
-    TRAIN_BATCH_SIZE = 20 
-TEST_BATCH_SIZE = arguments.batch_size_test
+    TRAIN_BATCH_SIZE = 10
+    TEST_BATCH_SIZE = 10
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
 TRAIN_PRINT_PERIOD = 0.1
@@ -146,33 +148,6 @@ for run in range(NUMBER_OF_RUNS):
     if ALTERNATE and CLUSTER:
         USE_RESIDUAL = run%2 == 0
         print("Using Residual: ", USE_RESIDUAL)
-    if USE_WANDB:
-        wandb.init(
-        # set the wandb project where this run will be logged
-        project="Residual-SCNN",
-        name="Residual-SCNN_Padding_test_"+ str(USE_PADDING)+"_run_"+str(run),
-        
-        # track hyperparameters and run metadata4
-        config={
-        "Cluster": CLUSTER,
-        "Use_residual": USE_RESIDUAL,
-        # "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-        "train_batch_size": TRAIN_BATCH_SIZE,
-        # "residual_every_n": RESIDUAL_EVERY_N,
-        "use_residual": "Not implemented yet",
-        "use_padding": USE_PADDING,
-        "n_of_train_samples": N_TRAIN_SAMPLES,
-        "n_of_test_samples": N_TEST_SAMPLES,
-        "Filter": str(FILTER_1)+'|'+str(FILTER_2),#+'|'+str(FILTER_3)+'|',
-        "learning_rate": LEARNING_RATE,
-        "architecture": "CNN",
-        "dataset": "MNIST",
-        "epochs": N_TRAINING_EPOCHS,
-        "version": "0.0.1_cluster_" + str(CLUSTER),
-        }
-        )
-
-
 
     max_int = np.iinfo(np.int32).max
     # np_seed = 319596201
@@ -180,12 +155,12 @@ for run in range(NUMBER_OF_RUNS):
     if not FIX_SEED:
         np_seed = int(cp.random.randint(low=0, high=max_int))
     else:
-        np_seed = 733255843
+        np_seed = 2059925285
         print('fixing seed np', np_seed)
     if not FIX_SEED:
         cp_seed = int(cp.random.randint(low=0, high=max_int))
     else:
-        cp_seed = 1598833012
+        cp_seed = 877493822
         print('fixing seed cp', cp_seed)
 
     np.random.seed(np_seed)
@@ -203,51 +178,59 @@ for run in range(NUMBER_OF_RUNS):
     input_layer = ConvInputLayer(neurons_shape=INPUT_SHAPE, name="Input layer")
     network.add_layer(input_layer, input=True)
 
-    conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=np.array([5, 5, 3]), use_padding=True,
-                        #   filter_from_next = np.array([5, 5, 3]),
-                        tau_s=TAU_S_1,
-                        theta=THRESHOLD_HAT_1,
-                        delta_theta=DELTA_THRESHOLD_1,
-                        weight_initializer=weight_initializer_conv,
-                        max_n_spike=1,
-                        name="Convolution 1")
+    conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, tau_s=TAU_S_1,
+                          use_padding=USE_PADDING,
+                          theta=THRESHOLD_HAT_1,
+                          delta_theta=DELTA_THRESHOLD_1,
+                          weight_initializer=weight_initializer_conv,
+                          max_n_spike=SPIKE_BUFFER_SIZE_1,
+                          name="Convolution 1")
     network.add_layer(conv_1)
 
-    pool_1 = PoolingLayer(conv_1, name="Pooling 1")
-    network.add_layer(pool_1)
+    # pool_1 = PoolingLayer(conv_1, name="Pooling 1")
+    # network.add_layer(pool_1)
 
-    conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 3]), use_padding=True,
-                        #   filter_from_next = np.array([3, 3, 3]),
-                        tau_s=TAU_S_1,
-                        theta=THRESHOLD_HAT_1,
-                        delta_theta=DELTA_THRESHOLD_1,
-                        weight_initializer=weight_initializer_conv,
-                        max_n_spike=1,
-                        name="Convolution 2")
+    conv = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_1, tau_s=TAU_S_1,
+                          use_padding=USE_PADDING,
+                          filter_from_next=FILTER_1_5,
+                          theta=THRESHOLD_HAT_1,
+                          delta_theta=DELTA_THRESHOLD_1,
+                          weight_initializer=weight_initializer_conv,
+                          max_n_spike=SPIKE_BUFFER_SIZE_1,
+                          name="Convolution 1.1")
+    network.add_layer(conv)
+
+    conv_1_5 = ConvLIFLayer_new_Residual(previous_layer=conv, jump_layer= conv_1,
+                            filters_shape=FILTER_1_5, tau_s=TAU_S_1_5,
+                            use_padding=USE_PADDING,
+                            theta=THRESHOLD_HAT_1_5,
+                            delta_theta=DELTA_THRESHOLD_1_5,
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=SPIKE_BUFFER_SIZE_1_5,
+                            name="Convolution 1.5")
+    network.add_layer(conv_1_5)
+    
+    pool_1_5 = PoolingLayer(conv_1_5, name="Pooling 1.5")
+    network.add_layer(pool_1_5)
+
+    conv_2 = ConvLIFLayer(previous_layer=pool_1_5, filters_shape=FILTER_2, tau_s=TAU_S_2,
+                          use_padding=USE_PADDING,
+                          theta=THRESHOLD_HAT_2,
+                          delta_theta=DELTA_THRESHOLD_2,
+                          weight_initializer=weight_initializer_conv,
+                          max_n_spike=SPIKE_BUFFER_SIZE_2,
+                          name="Convolution 2")
     network.add_layer(conv_2)
 
     pool_2 = PoolingLayer(conv_2, name="Pooling 2")
     network.add_layer(pool_2)
 
-    conv_3 = ConvLIFLayer(previous_layer=pool_2, filters_shape=np.array([5, 5, 3]), use_padding=True,
-                    #   filter_from_next = FILTER_FROM_NEXT,
-                        tau_s=TAU_S_1,
-                        theta=THRESHOLD_HAT_1,
-                        delta_theta=DELTA_THRESHOLD_1,
-                        weight_initializer=weight_initializer_conv,
-                        max_n_spike=1,
-                        name="Convolution 3")
-    network.add_layer(conv_3)
-
-    pool_3 = PoolingLayer(conv_3, name="Pooling 3")
-    network.add_layer(pool_3)
-
-    feedforward = LIFLayer(previous_layer=pool_3, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
-                        theta=THRESHOLD_HAT_FC,
-                        delta_theta=DELTA_THRESHOLD_FC,
-                        weight_initializer=weight_initializer_ff,
-                        max_n_spike=SPIKE_BUFFER_SIZE_FC,
-                        name="Feedforward 1")
+    feedforward = LIFLayer(previous_layer=pool_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+                           theta=THRESHOLD_HAT_FC,
+                           delta_theta=DELTA_THRESHOLD_FC,
+                           weight_initializer=weight_initializer_ff,
+                           max_n_spike=SPIKE_BUFFER_SIZE_FC,
+                           name="Feedforward 1")
     network.add_layer(feedforward)
 
     output_layer = LIFLayer(previous_layer=feedforward, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT,
@@ -261,6 +244,14 @@ for run in range(NUMBER_OF_RUNS):
     loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
 
+    print('with padding: ', USE_PADDING)
+    for layer in network.layers:
+        if layer._is_residual:
+            print(layer.name, layer.jump_layer.name)
+            print(layer.n_neurons)
+        else:
+            print(layer.name)
+            print(layer.n_neurons)
     # Metrics
     training_steps = 0
     train_loss_monitor = LossMonitor(export_path=EXPORT_DIR / "loss_train")
@@ -291,6 +282,33 @@ for run in range(NUMBER_OF_RUNS):
 
     best_acc = 0.0
     tracker = [0.0]* len(network.layers)
+
+
+    if USE_WANDB:
+        wandb.init(
+        # set the wandb project where this run will be logged
+        project="Residual-SCNN",
+        name="Residual-SCNN_Padding_test_"+ str(USE_PADDING)+"_run_"+str(run),
+        
+        # track hyperparameters and run metadata4
+        config={
+        "Cluster": CLUSTER,
+        "Use_residual": USE_RESIDUAL,
+        # "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
+        "train_batch_size": TRAIN_BATCH_SIZE,
+        # "residual_every_n": RESIDUAL_EVERY_N,
+        "use_residual": "Not implemented yet",
+        "use_padding": USE_PADDING,
+        "n_of_train_samples": N_TRAIN_SAMPLES,
+        "n_of_test_samples": N_TEST_SAMPLES,
+        "Filter": str(FILTER_1)+'|'+str(FILTER_2),#+'|'+str(FILTER_3)+'|',
+        "learning_rate": LEARNING_RATE,
+        "architecture": "CNN",
+        "dataset": "MNIST",
+        "epochs": N_TRAINING_EPOCHS,
+        "version": "0.0.1_cluster_" + str(CLUSTER),
+        }
+        )
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
@@ -332,7 +350,7 @@ for run in range(NUMBER_OF_RUNS):
             for g, layer in zip(gradient, network.layers):
                 if g is None:
                     avg_gradient.append(None)
-                elif layer._is_residual:#! this was changed to make it non residual for TESTING
+                elif layer._is_residual and isinstance(g, tuple):#! this was changed to make it non residual for TESTING
                     grad_entry = []
                     for i in range(len(g)):
                         averaged_values = cp.mean(g[i], axis=0)

@@ -68,7 +68,8 @@ class ConvLIFLayerResidual(AbstractConvLayer):
             self.__weights_jump: cp.ndarray = cp.zeros((filter_c, filter_x, filter_y, prev_c_jump), dtype=cp.float32)
         else:
             self.__weights_pre: cp.ndarray = weight_initializer(filter_c, filter_x, filter_y, prev_c)
-            self.__weights_jump: cp.ndarray = weight_initializer(filter_c, filter_x, filter_y, prev_c_jump) 
+            # self.__weights_jump: cp.ndarray = weight_initializer(filter_c, filter_x, filter_y, prev_c_jump) 
+            self.__weights_jump: cp.ndarray = cp.zeros((filter_c, filter_x, filter_y, prev_c_jump), dtype=cp.float32)
         self.__max_n_spike: cp.int32 = cp.int32(max_n_spike)
 
         self.__n_spike_per_neuron: Optional[cp.ndarray] = None
@@ -321,6 +322,7 @@ class ConvLIFLayerResidual(AbstractConvLayer):
         #TODO: split the errors into pre and jump
         split_index = self.__number_of_neurons_pre
         split_index_jump = self.__number_of_neurons_jump
+        # we should split the errors in the channel somehow...
         errors_pre, errors_jump = cp.split(errors, [int(split_index)], axis=1)
         if split_index != errors_pre.shape[1]:
             raise ValueError("The split index is not correct")

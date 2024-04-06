@@ -1,5 +1,4 @@
-from hmac import new
-from turtle import forward
+from multiprocessing import Pool
 from typing import Callable, Tuple
 from typing import Optional
 import cupy as cp
@@ -12,6 +11,7 @@ from bats.CudaKernels.Wrappers.Backpropagation.propagate_errors_to_pre_spikes_co
 from bats.CudaKernels.Wrappers.Inference import *
 from bats.CudaKernels.Wrappers.Backpropagation import *
 from bats.CudaKernels.Wrappers.Inference.compute_spike_times_conv import compute_spike_times_conv
+from bats.Layers import PoolingLayer
 from bats.Utils.utils import add_padding, trimed_errors
 
 
@@ -93,17 +93,15 @@ class ConvLIFLayer(AbstractConvLayer):
 
     def forward(self, max_simulation: float, training: bool = False) -> None:
         if not self._use_padding:
-            return self.forward_no_pad(max_simulation, training)
-        pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
+            self.forward_no_pad(max_simulation, training)
+            return        
+        pre_spike_per_neuron_pre_pad, pre_n_spike_per_neuron_pre_pad = self.__previous_layer.spike_trains
 
-        
-        pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
-
-        self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
+        self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron_pre_pad, self.__tau_s, self.__tau)
         
         # how are the spikes used? and how do I add padding?
         #? what is I don't use padding in the forward pass?
-        self.__pre_spike_per_neuron, self.__pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron, self.__pre_shape, self._padding)
+        self.__pre_spike_per_neuron, self.__pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron_pre_pad, pre_n_spike_per_neuron_pre_pad, self.__pre_shape, self._padding)
         pre_spike_per_neuron = self.__pre_spike_per_neuron
         pre_n_spike_per_neuron = self.__pre_n_spike_per_neuron
         self.__padded_pre_exp_tau_s, self.__padded_pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
@@ -186,23 +184,30 @@ class ConvLIFLayer(AbstractConvLayer):
         
         #? what is I don't use padding in the backward pass?
         
-        pre_spike_per_neuron = self.__pre_spike_per_neuron
+        pre_spike_per_neuron = self.__pre_spike_per_neuron #? this is the padded, what if I don't feed it the padded?
         new_shape_previous = (self.__previous_layer.neurons_shape[0]+ self._padding[0], self.__previous_layer.neurons_shape[1] + self._padding[1], self.__previous_layer.neurons_shape[2])
-        #! new_shape_previous is never used
+        # pre_spike_per_neuron = pre_spike_per_neuron_real #?
+
+
         new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
+        # new_shape_previous = self.__previous_layer.neurons_shape
         padded_pre_exp_tau_s = self.__padded_pre_exp_tau_s
         padded_pre_exp_tau = self.__padded_pre_exp_tau
+        # padded_pre_exp_tau_s = self.__pre_exp_tau_s
+        # padded_pre_exp_tau = self.__pre_exp_tau
         new_x = self.__x
         new_post_exp_tau = self.__post_exp_tau
         if new_x.shape != errors_in.shape:
             #! watch out for channel dimension differences
-            errors = trimed_errors(errors_in, self.__filter_from_next, self.neurons_shape[2])
-            # print("errors shape is not the same as the x shape")
+            print("errors shape is not the same as the x shape")
             if new_x.shape[2] != errors_in.shape[2]:
                 raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors_in.shape}")
             if new_x.shape != errors.shape:
                 #* here I could check on a list of filters_from_next - Talk to supervisors about this
                 raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors.shape}")
+
+            else:
+                raise RuntimeError("This should not happen")
         else:
             errors = errors_in
         
@@ -241,6 +246,15 @@ class ConvLIFLayer(AbstractConvLayer):
 
         stop_for_errors = 0
         #? should I do some reshaping of the pre_errors?
+        pre_layer = self.__previous_layer
+        #! this is a bad fix 
+        if pre_layer.name.__contains__("Pooling") or pre_errors is None:
+            pass
+        else:
+            pass
+        #? if using this code where we don't use padding in the backward pass, we need not 
+            pre_errors = trimed_errors(pre_errors, self.__filters_shape, self.__filters_shape[3])
+
         return weights_grad, pre_errors
     
     def backward_no_pad(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
@@ -267,6 +281,8 @@ class ConvLIFLayer(AbstractConvLayer):
                                                              self.__filters_shape)
         else:
             pre_errors = None
+
+        #? maybe trim the errors here
 
         return weights_grad, pre_errors
 

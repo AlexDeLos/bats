@@ -1,3 +1,4 @@
+from calendar import c
 import cupy as cp
 from math import sqrt
 import argparse
@@ -135,9 +136,10 @@ def add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron, shape, padding):
 
 
 
-def trimed_errors(errors, previous_filter, channels):
-    channels = int(channels)
-    x_filter, y_filter, pre_channels = previous_filter
+def trimed_errors(errors, previous_filter, pre_channels):
+    #! Future me, keep in mind these names do not really reflect the actual meaning of the variables
+    _, x_filter, y_filter, _  = previous_filter
+    channels = int(pre_channels)
     padding_x_to_remove = int((x_filter-1)/2)
     padding_y_to_remove = int((y_filter-1)/2)
     batch_size, n_neurons, max_n_spike = errors.shape
