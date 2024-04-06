@@ -119,8 +119,8 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
             self.__padded_pre_exp_tau_s, self.__padded_pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
             padded_pre_exp_tau_s = self.__padded_pre_exp_tau_s
             padded_pre_exp_tau = self.__padded_pre_exp_tau
-            # new_shape_previous = (self.__previous_layer.neurons_shape[0]+ self._padding[0], self.__previous_layer.neurons_shape[1] + self._padding[1], self.__previous_layer.neurons_shape[2]+self.jump_layer.neurons_shape[2])
-            # new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
+            new_shape_previous = (self.__previous_layer.neurons_shape[0]+ self._padding[0], self.__previous_layer.neurons_shape[1] + self._padding[1], self.__previous_layer.neurons_shape[2]+self.jump_layer.neurons_shape[2])
+            new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
         else:
             self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
             padded_pre_exp_tau_s = self.__pre_exp_tau_s

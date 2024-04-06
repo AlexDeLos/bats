@@ -107,8 +107,7 @@ class ConvLIFLayer(AbstractConvLayer):
         self.__padded_pre_exp_tau_s, self.__padded_pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
         padded_pre_exp_tau_s = self.__padded_pre_exp_tau_s
         padded_pre_exp_tau = self.__padded_pre_exp_tau
-        new_shape_previous = (self.__previous_layer.neurons_shape[0]+ self._padding[0], self.__previous_layer.neurons_shape[1] + self._padding[1], self.__previous_layer.neurons_shape[2])
-        new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
+        new_shape_previous = self.__pre_shape
 
         # Sort spikes for inference
         #? what if I add padding to the indeces? increase theyr number to what they should be?
@@ -131,6 +130,7 @@ class ConvLIFLayer(AbstractConvLayer):
             sorted_pre_exp_tau = cp.take_along_axis(cp.reshape(padded_pre_exp_tau, new_shape), sorted_indices, axis=1)
             
             print(self.name)
+            new_shape_previous = cp.array(new_shape_previous)
             self.__n_spike_per_neuron, self.__a, self.__x, self.__spike_times_per_neuron, \
             self.__post_exp_tau = compute_spike_times_conv(sorted_spike_indices, sorted_spike_times,
                                                            sorted_pre_exp_tau_s, sorted_pre_exp_tau,
@@ -199,16 +199,7 @@ class ConvLIFLayer(AbstractConvLayer):
         new_x = self.__x
         new_post_exp_tau = self.__post_exp_tau
         if new_x.shape != errors_in.shape:
-            #! watch out for channel dimension differences
-            print("errors shape is not the same as the x shape")
-            if new_x.shape[2] != errors_in.shape[2]:
-                raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors_in.shape}")
-            if new_x.shape != errors.shape:
-                #* here I could check on a list of filters_from_next - Talk to supervisors about this
-                raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors.shape}")
-
-            else:
-                raise RuntimeError("This should not happen")
+            raise RuntimeError("This should not happen")
         else:
             errors = errors_in
         
