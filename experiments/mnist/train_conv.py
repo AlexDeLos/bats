@@ -320,7 +320,7 @@ for run in range(NUMBER_OF_RUNS):
 
             # check for silent labels
             print("Silent labels: ", cp.sum(n_out_spikes, axis=1))
-
+            raise ValueError("Up to here")
             # Predictions, loss and errors
             pred = loss_fct.predict(out_spikes, n_out_spikes)
             loss, errors = loss_fct.compute_loss_and_errors(out_spikes, n_out_spikes, labels)
