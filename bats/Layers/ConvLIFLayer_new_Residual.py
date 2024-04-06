@@ -23,6 +23,7 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
                  **kwargs):
         prev_x, prev_y, prev_c = previous_layer._neurons_shape.get()
         jump_layer_x, jump_layer_y, jump_layer_c = jump_layer._neurons_shape.get()
+        prev_c = prev_c + jump_layer_c
         if prev_x != jump_layer_x or prev_y != jump_layer_y:
             raise ValueError("The previous layer and the jump layer must have the same shape")
         filter_x, filter_y, filter_c = filters_shape
@@ -31,7 +32,7 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
         if use_padding:
             prev_x += padding[0]
             prev_y += padding[1]
-        self.__pre_shape = (prev_x, prev_y, prev_c+ jump_layer_c)
+        self.__pre_shape = (prev_x, prev_y, prev_c)
         n_x = prev_x - filter_x + 1 # why this equation? -> this is the reduction of dimensions because of the filter
         n_y = prev_y - filter_y + 1
         neurons_shape: cp.ndarray = np.array([n_x, n_y, filter_c], dtype=cp.int32)
@@ -48,9 +49,9 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
         self.__delta_theta_tau: cp.float32 = cp.float32(delta_theta / self.__tau)
         self._is_residual = True
         if weight_initializer is None:
-            self.__weights: cp.ndarray = cp.zeros((filter_c, filter_x, filter_y, prev_c + jump_layer_c), dtype=cp.float32)
+            self.__weights: cp.ndarray = cp.zeros((filter_c, filter_x, filter_y, prev_c), dtype=cp.float32)
         else:
-            self.__weights: cp.ndarray = weight_initializer(filter_c, filter_x, filter_y, prev_c + jump_layer_c)
+            self.__weights: cp.ndarray = weight_initializer(filter_c, filter_x, filter_y, prev_c)
         self.__max_n_spike: cp.int32 = cp.int32(max_n_spike)
 
         self.__n_spike_per_neuron: Optional[cp.ndarray] = None
