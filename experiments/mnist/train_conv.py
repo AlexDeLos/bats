@@ -61,7 +61,7 @@ INPUT_SHAPE = np.array([28, 28, 1])
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
-FILTER_1 = np.array([5, 5, 20]) #? could it be the size of this filter's channels?
+FILTER_1 = np.array([5, 5, 2]) #? could it be the size of this filter's channels?
 TAU_S_1 = 0.3
 THRESHOLD_HAT_1 = 0.004
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
