@@ -153,6 +153,7 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
             # print("sorted indices: ")
             # print(sorted_indices)
             #! why does this give a different output in the clurster?
+            print(self.name)
             self.__n_spike_per_neuron, self.__a, self.__x, self.__spike_times_per_neuron, \
             self.__post_exp_tau = compute_spike_times_conv(sorted_spike_indices, sorted_spike_times,
                                                            sorted_pre_exp_tau_s, sorted_pre_exp_tau,
