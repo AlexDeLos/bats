@@ -34,7 +34,7 @@ CLUSTER = arguments.cluster
 USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
 USE_RESIDUAL = arguments.use_residual
-FIX_SEED = False
+FIX_SEED = True
 USE_PADDING = True
 #! residual and padd gives nans
 # what causes nans:
