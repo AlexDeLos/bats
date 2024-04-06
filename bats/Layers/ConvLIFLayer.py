@@ -133,6 +133,7 @@ class ConvLIFLayer(AbstractConvLayer):
             new_shape_previous = cp.array(new_shape_previous)
             print(cp.where(sorted_spike_indices != 0))
             print(sorted_spike_times)
+            print(new_shape_previous)
             self.__n_spike_per_neuron, self.__a, self.__x, self.__spike_times_per_neuron, \
             self.__post_exp_tau = compute_spike_times_conv(sorted_spike_indices, sorted_spike_times,
                                                            sorted_pre_exp_tau_s, sorted_pre_exp_tau,
