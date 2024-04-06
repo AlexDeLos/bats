@@ -36,7 +36,8 @@ def compute_spike_times_conv(spike_indices: cp.ndarray, spike_times: cp.ndarray,
     print('running compute_spike_times_conv with the following args:')
     for arg in args:
         if type(arg) == cp.ndarray:
-                print(arg.shape)
+                print(arg.shape, cp.where(arg != 0))
+
         else:
                 print(arg)
     __compute_spike_times_kernel(grid_dim, block_dim, args)
