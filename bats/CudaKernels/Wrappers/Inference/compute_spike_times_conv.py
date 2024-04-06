@@ -30,6 +30,7 @@ def compute_spike_times_conv(spike_indices: cp.ndarray, spike_times: cp.ndarray,
     args = (spike_indices, spike_times, exp_tau_s, exp_tau, weights, pre_shape, post_shape, filters_shape,
             n_neurons, c, delta_theta_tau, tau, max_simulation, max_n_pre_spike, max_n_post_spikes,
             n_spikes, a, x, post_spike_times, post_exp_tau)
+    print('running compute_spike_times_conv')
     __compute_spike_times_kernel(grid_dim, block_dim, args)
 
     return n_spikes, a, x, post_spike_times, post_exp_tau
