@@ -22,4 +22,4 @@ module use /opt/insy/modulefiles
 module load miniconda/3.9
 conda activate myHomeEnv
 echo "testing CIFAR10"
-srun python3 experiments/cifar/train_conv.py --cluster True --n_epochs 50 --runs 1 --standard True --batch_size 2 --use_wanb True
+srun python3 experiments/mnist/train_conv.py --cluster True --n_epochs 50 --runs 1  --batch_size 20
