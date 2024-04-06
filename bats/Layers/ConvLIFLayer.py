@@ -146,7 +146,7 @@ class ConvLIFLayer(AbstractConvLayer):
                                                            self.__filters_shape)
             # #? what does the X represent?
             count = self.__n_spike_per_neuron
-            print(count.shape)
+            # print(count.shape)
             ewrwe = 0
 
     def forward_no_pad(self, max_simulation: float, training: bool = False) -> None:
