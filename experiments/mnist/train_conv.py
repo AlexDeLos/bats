@@ -160,41 +160,41 @@ for run in range(NUMBER_OF_RUNS):
     input_layer = ConvInputLayer(neurons_shape=INPUT_SHAPE, name="Input layer")
     network.add_layer(input_layer, input=True)
 
-    conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, tau_s=TAU_S_1,
-                          use_padding=USE_PADDING,
-                          theta=THRESHOLD_HAT_1,
-                          delta_theta=DELTA_THRESHOLD_1,
-                          weight_initializer=weight_initializer_conv,
-                          max_n_spike=SPIKE_BUFFER_SIZE_1,
-                          name="Convolution 1")
-    network.add_layer(conv_1)
+    # conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, tau_s=TAU_S_1,
+    #                       use_padding=USE_PADDING,
+    #                       theta=THRESHOLD_HAT_1,
+    #                       delta_theta=DELTA_THRESHOLD_1,
+    #                       weight_initializer=weight_initializer_conv,
+    #                       max_n_spike=SPIKE_BUFFER_SIZE_1,
+    #                       name="Convolution 1")
+    # network.add_layer(conv_1)
 
-    # pool_1 = PoolingLayer(conv_1, name="Pooling 1")
-    # network.add_layer(pool_1)
+    # # pool_1 = PoolingLayer(conv_1, name="Pooling 1")
+    # # network.add_layer(pool_1)
 
-    conv = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_1, tau_s=TAU_S_1,
-                          use_padding=USE_PADDING,
-                          theta=THRESHOLD_HAT_1,
-                          delta_theta=DELTA_THRESHOLD_1,
-                          weight_initializer=weight_initializer_conv,
-                          max_n_spike=SPIKE_BUFFER_SIZE_1,
-                          name="Convolution 1.1")
-    network.add_layer(conv)
+    # conv = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_1, tau_s=TAU_S_1,
+    #                       use_padding=USE_PADDING,
+    #                       theta=THRESHOLD_HAT_1,
+    #                       delta_theta=DELTA_THRESHOLD_1,
+    #                       weight_initializer=weight_initializer_conv,
+    #                       max_n_spike=SPIKE_BUFFER_SIZE_1,
+    #                       name="Convolution 1.1")
+    # network.add_layer(conv)
 
-    conv_1_5 = ConvLIFLayer_new_Residual(previous_layer=conv, jump_layer= conv_1,
-                            filters_shape=FILTER_1, tau_s=TAU_S_1,
-                            use_padding=USE_PADDING,
-                            theta=THRESHOLD_HAT_1,
-                            delta_theta=DELTA_THRESHOLD_1,
-                            weight_initializer=weight_initializer_conv,
-                            max_n_spike=SPIKE_BUFFER_SIZE_1,
-                            name="Convolution 1.5")
-    network.add_layer(conv_1_5)
+    # conv_1_5 = ConvLIFLayer_new_Residual(previous_layer=conv, jump_layer= conv_1,
+    #                         filters_shape=FILTER_1, tau_s=TAU_S_1,
+    #                         use_padding=USE_PADDING,
+    #                         theta=THRESHOLD_HAT_1,
+    #                         delta_theta=DELTA_THRESHOLD_1,
+    #                         weight_initializer=weight_initializer_conv,
+    #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
+    #                         name="Convolution 1.5")
+    # network.add_layer(conv_1_5)
     
-    pool_1_5 = PoolingLayer(conv_1_5, name="Pooling 1.5")
-    network.add_layer(pool_1_5)
+    # pool_1_5 = PoolingLayer(conv_1_5, name="Pooling 1.5")
+    # network.add_layer(pool_1_5)
 
-    conv_2 = ConvLIFLayer(previous_layer=pool_1_5, filters_shape=FILTER_2, tau_s=TAU_S_2,
+    conv_2 = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_2, tau_s=TAU_S_2,
                           use_padding=USE_PADDING,
                           theta=THRESHOLD_HAT_2,
                           delta_theta=DELTA_THRESHOLD_2,
