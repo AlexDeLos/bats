@@ -168,7 +168,7 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
             # new_x = self.__x #-> the X here is always the same size as the spikes
             # #? what does the X represent?
             # ewrwe = 0
-            print(cp.where(count !=0))
+            # print(cp.where(count !=0))
             sad = ""
 
     def backward(self, errors_in: cp.array, from_res = False) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
