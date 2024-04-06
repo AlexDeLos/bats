@@ -97,8 +97,12 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
     def forward(self, max_simulation: float, training: bool = False) -> None:
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
         jump_spike_per_neuron, jump_n_spike_per_neuron = self.jump_layer.spike_trains
+        print("pre ins: "+ cp.where(pre_n_spike_per_neuron != 0))
+        print("Jump ins: "+ cp.where(jump_n_spike_per_neuron != 0))
+
         pre_spike_per_neuron_pre_pad, pre_n_spike_per_neuron_pre_pad = aped_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike_per_neuron, jump_n_spike_per_neuron, self.__previous_layer.neurons_shape)
-        
+        print("combined ins: "+ cp.where(pre_n_spike_per_neuron_pre_pad != 0))
+
         #TODO: change the size to reflect the new channel size->DONE, not tested
         new_shape_previous = self.__pre_shape# (self.__previous_layer.neurons_shape[0], self.__previous_layer.neurons_shape[1], self.__previous_layer.neurons_shape[2]+self.jump_layer.neurons_shape[2])
         if self._use_padding: #! using this causes random nans for some reason
@@ -107,6 +111,7 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
             # add_padding(pre_spike_per_neuron_pre_pad, pre_n_spike_per_neuron_pre_pad, self.__pre_shape, self._padding)
             pre_spike_per_neuron, pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron_pre_pad, pre_n_spike_per_neuron_pre_pad,
                                                                        new_shape_previous, self._padding)
+            print("after padding: "+ cp.where(pre_n_spike_per_neuron != 0))
             self.__padded_pre_exp_tau_s, self.__padded_pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
             padded_pre_exp_tau_s = self.__padded_pre_exp_tau_s
             padded_pre_exp_tau = self.__padded_pre_exp_tau
@@ -141,6 +146,7 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
                                                       axis=1)
             sorted_pre_exp_tau = cp.take_along_axis(cp.reshape(padded_pre_exp_tau, new_shape), sorted_indices, axis=1)
             new_shape_previous = cp.array(new_shape_previous)
+            print("sorted indices: "+ cp.where(sorted_spike_indices != 0))
             self.__n_spike_per_neuron, self.__a, self.__x, self.__spike_times_per_neuron, \
             self.__post_exp_tau = compute_spike_times_conv(sorted_spike_indices, sorted_spike_times,
                                                            sorted_pre_exp_tau_s, sorted_pre_exp_tau,
