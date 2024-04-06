@@ -40,5 +40,5 @@ def compute_spike_times_conv(spike_indices: cp.ndarray, spike_times: cp.ndarray,
         else:
                 print(arg)
     __compute_spike_times_kernel(grid_dim, block_dim, args)
-
+    print(cp.where(n_spikes != 0))
     return n_spikes, a, x, post_spike_times, post_exp_tau
