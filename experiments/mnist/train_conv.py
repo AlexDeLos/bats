@@ -102,7 +102,7 @@ if CLUSTER:
 else:
     N_TRAIN_SAMPLES = 6000
     N_TEST_SAMPLES = 1000
-    TRAIN_BATCH_SIZE = 10
+    TRAIN_BATCH_SIZE = 15
     TEST_BATCH_SIZE = 10
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
@@ -316,6 +316,9 @@ for run in range(NUMBER_OF_RUNS):
             network.reset()
             network.forward(spikes, n_spikes, max_simulation=SIMULATION_TIME, training=True)
             out_spikes, n_out_spikes = network.output_spike_trains
+
+            # check for silent labels
+            print("Silent labels: ", cp.sum(n_out_spikes, axis=1))
 
             # Predictions, loss and errors
             pred = loss_fct.predict(out_spikes, n_out_spikes)
