@@ -34,13 +34,13 @@ def compute_spike_times_conv(spike_indices: cp.ndarray, spike_times: cp.ndarray,
             n_neurons, c, delta_theta_tau, tau, max_simulation, max_n_pre_spike, max_n_post_spikes,
             n_spikes, a, x, post_spike_times, post_exp_tau)
     print('running compute_spike_times_conv with the following args:')
-    for arg in args:
-        if type(arg) == cp.ndarray:
-                print(arg.shape, cp.where(arg != 0))
+#     for arg in args:
+#         if type(arg) == cp.ndarray:
+#                 print(arg.shape, cp.where(arg != 0))
 
-        else:
-                print(arg)
+#         else:
+#                 print(arg)
     __compute_spike_times_kernel(grid_dim, block_dim, args)
-    print(cp.where(n_spikes != 0))
-    print('--------------------------------------------------------------')
+#     print(cp.where(n_spikes != 0))
+#     print('--------------------------------------------------------------')
     return n_spikes, a, x, post_spike_times, post_exp_tau

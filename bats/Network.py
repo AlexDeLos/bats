@@ -35,6 +35,8 @@ class Network:
         self.__input_layer.set_spike_trains(spikes_per_neuron, n_spikes_per_neuron)# type: ignore
         for layer in self.__layers:
             layer.forward(max_simulation, training)
+            print(layer.name)
+            print(cp.where(layer.spike_trains[1] != 0))
             n = ''
 
     def backward(self, output_errors: cp.ndarray) \
