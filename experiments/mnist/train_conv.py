@@ -61,13 +61,13 @@ INPUT_SHAPE = np.array([28, 28, 1])
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
-FILTER_1 = np.array([5, 5, 1]) #? could it be the size of this filter's channels?
+FILTER_1 = np.array([5, 5, 40]) #? could it be the size of this filter's channels?
 TAU_S_1 = 0.3
 THRESHOLD_HAT_1 = 0.004
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 10
 
-FILTER_2 = np.array([5, 5, 1]) # used to be [5,5,40] -> is the 40 the channels?
+FILTER_2 = np.array([5, 5, 40]) # used to be [5,5,40] -> is the 40 the channels?
 TAU_S_2 = 0.3
 THRESHOLD_HAT_2 = 0.004
 DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
@@ -181,22 +181,22 @@ for run in range(NUMBER_OF_RUNS):
                           name="Convolution 1.1")
     network.add_layer(conv)
 
-    # conv_1_5 = ConvLIFLayer_new_Residual(previous_layer=conv, jump_layer= conv_1,
-    #                         filters_shape=FILTER_1, tau_s=TAU_S_1,
-    #                         use_padding=USE_PADDING,
-    #                         theta=THRESHOLD_HAT_1,
-    #                         delta_theta=DELTA_THRESHOLD_1,
-    #                         weight_initializer=weight_initializer_conv,
-    #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
-    #                         name="Convolution-res 1.5")
+    conv_1_5 = ConvLIFLayer_new_Residual(previous_layer=conv, jump_layer= conv_1,
+                            filters_shape=FILTER_1, tau_s=TAU_S_1,
+                            use_padding=USE_PADDING,
+                            theta=THRESHOLD_HAT_1,
+                            delta_theta=DELTA_THRESHOLD_1,
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=SPIKE_BUFFER_SIZE_1,
+                            name="Convolution-res 1.5")
     
-    conv_1_5 = ConvLIFLayer(previous_layer=conv, filters_shape=FILTER_1, tau_s=TAU_S_1,
-                          use_padding=USE_PADDING,
-                          theta=THRESHOLD_HAT_1,
-                          delta_theta=DELTA_THRESHOLD_1,
-                          weight_initializer=weight_initializer_conv,
-                          max_n_spike=SPIKE_BUFFER_SIZE_1,
-                          name="Convolution 1.5")
+    # conv_1_5 = ConvLIFLayer(previous_layer=conv, filters_shape=FILTER_1, tau_s=TAU_S_1,
+    #                       use_padding=USE_PADDING,
+    #                       theta=THRESHOLD_HAT_1,
+    #                       delta_theta=DELTA_THRESHOLD_1,
+    #                       weight_initializer=weight_initializer_conv,
+    #                       max_n_spike=SPIKE_BUFFER_SIZE_1,
+    #                       name="Convolution 1.5")
     network.add_layer(conv_1_5)
     
     pool_1_5 = PoolingLayer(conv_1_5, name="Pooling 1.5")
@@ -320,7 +320,7 @@ for run in range(NUMBER_OF_RUNS):
 
             # check for silent labels
             print("Silent labels: ", cp.sum(n_out_spikes, axis=1))
-            # raise ValueError("Up to here")
+            raise ValueError("Up to here")
             # Predictions, loss and errors
             pred = loss_fct.predict(out_spikes, n_out_spikes)
             loss, errors = loss_fct.compute_loss_and_errors(out_spikes, n_out_spikes, labels)
