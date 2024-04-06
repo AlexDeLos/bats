@@ -35,8 +35,8 @@ class Network:
         self.__input_layer.set_spike_trains(spikes_per_neuron, n_spikes_per_neuron)# type: ignore
         for layer in self.__layers:
             layer.forward(max_simulation, training)
-            print(layer.name)
-            print(cp.where(layer.spike_trains[1] != 0))
+            # print(layer.name)
+            # print(cp.where(layer.spike_trains[1] != 0))
             if not (layer.spike_trains[1] != 0).any():
                 raise ValueError(f"Layer {layer.name} has no spikes")
             n = ''
