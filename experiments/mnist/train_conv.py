@@ -35,7 +35,7 @@ USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
 USE_RESIDUAL = arguments.use_residual
 FIX_SEED = False
-USE_PADDING = False
+USE_PADDING = True
 #! residual and padd gives nans
 # what causes nans:
 #! residual layers with pre = jump and nans
