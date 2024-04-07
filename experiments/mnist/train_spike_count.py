@@ -50,7 +50,7 @@ else:
 
 # Hidden layer
 if CLUSTER:
-    N_NEURONS_1 = 750 #!800 #? Should I lower it?
+    N_NEURONS_1 = 500 #!800 #? Should I lower it?
 else:
     N_NEURONS_1 = 400
 TAU_S_1 = 0.130
@@ -60,7 +60,7 @@ SPIKE_BUFFER_SIZE_1 = 20
 
 # Residual layer
 if CLUSTER:
-    N_NEURONS_RES = 750 #!800 #? Should I lower it?
+    N_NEURONS_RES = 500 #!800 #? Should I lower it?
 else:
     N_NEURONS_RES = 400
 TAU_S_RES = 0.130
