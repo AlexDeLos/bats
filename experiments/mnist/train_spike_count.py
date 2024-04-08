@@ -320,7 +320,7 @@ for run in range(NUMBER_OF_RUNS):
             for g, layer in zip(gradient, network.layers):
                 if g is None:
                     avg_gradient.append(None)
-                elif isinstance(layer, LIFLayerResidual) and FUSE_FUNCTION == "Append":
+                elif isinstance(layer, LIFLayerResidual) and FUSE_FUNCTION == "Append#TEST":
                     grad_entry = []
                     for i in range(len(g)):
                         try:

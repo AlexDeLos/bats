@@ -1,6 +1,7 @@
 from cgi import test
 from pickle import NONE
 from re import split
+import re
 from typing import Callable, Tuple
 from typing import Optional
 import cupy as cp
@@ -34,8 +35,8 @@ class LIFLayerResidual(AbstractLayer):
         #TODO: Change the initial state of the weights
         if weight_initializer is None:
             if fuse_function == "Append": 
-                self.__weights_res: cp.ndarray = cp.zeros((int(cp.ceil(self.n_neurons/2)), previous_layer.n_neurons), dtype=cp.float32) # type: ignore
-                self.__weights_jump: cp.ndarray = cp.zeros((int(cp.floor(self.n_neurons/2)), jump_layer.n_neurons), dtype=cp.float32) # type: ignore
+                self.__weights_res: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons+jump_layer.n_neurons), dtype=cp.float32) # type: ignore
+                # self.__weights_jump: cp.ndarray = cp.zeros((int(cp.floor(self.n_neurons/2)), jump_layer.n_neurons), dtype=cp.float32) # type: ignore
             else:
                 self.__weights_res: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons), dtype=cp.float32) # type: ignore
 
@@ -84,7 +85,10 @@ class LIFLayerResidual(AbstractLayer):
 
             #! FOR TESTING
             # return self.__spike_times_per_neuron_res, self.__n_spike_per_neuron_res
-            res =  fuse_inputs_append(self.__spike_times_per_neuron_res, self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_res, self.__n_spike_per_neuron_jump, self.__max_n_spike)
+            spikes = self.__spike_times_per_neuron
+            count = self.__n_spike_per_neuron
+            res = (spikes, count)
+            # res =  fuse_inputs_append(self.__spike_times_per_neuron_res, self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_res, self.__n_spike_per_neuron_jump, self.__max_n_spike)
         else:
             #! shape is different here than in the other option don;t belive it fits with n_neurons
             res = fuse_inputs(self.__spike_times_per_neuron_res, self.__spike_times_per_neuron_jump, self.__n_spike_per_neuron_res, self.__n_spike_per_neuron_jump, self.__max_n_spike)
@@ -93,7 +97,8 @@ class LIFLayerResidual(AbstractLayer):
     @property
     def weights(self) -> Tuple[Optional[cp.ndarray], Optional[cp.ndarray]]:
         try:
-            return (self.__weights_res, self.__weights_jump)
+            # return (self.__weights_res, self.__weights_jump)
+            return self.__weights_res
         except:
             return self.__weights_res
         
@@ -242,9 +247,52 @@ class LIFLayerResidual(AbstractLayer):
             sdfds = 'f'
     
     def forward(self, max_simulation: float, training: bool = False) -> None:
-        self.forward_res(max_simulation, training)
-        self.forward_jump(max_simulation, training)
+        if self.__fuse_function != "Append":
+            self.forward_res(max_simulation, training)
+            self.forward_jump(max_simulation, training)
+        else:
+            pre_spike_per_neuron1, pre_n_spike_per_neuron1 = self.__previous_layer.spike_trains
+            pre_spike_per_neuron2, pre_n_spike_per_neuron2 = self.__jump_layer.spike_trains
+            pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs_append(pre_spike_per_neuron1, pre_spike_per_neuron2, pre_n_spike_per_neuron1, pre_n_spike_per_neuron2, self.__max_n_spike)
+            self.__pre_spike_trains = (pre_spike_per_neuron, pre_n_spike_per_neuron)
 
+            self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s_res, self.__tau_res)
+            # END OF PREVIOUS LAYER INPUTS
+
+            # Sort spikes for inference
+            new_shape, sorted_indices, spike_times_reshaped = get_sorted_spikes_indices(pre_spike_per_neuron,
+                                                                                        pre_n_spike_per_neuron)
+            if sorted_indices.size == 0:  # No input spike in the batch
+                batch_size = pre_spike_per_neuron.shape[0]
+                shape = (batch_size, self.n_neurons, self.__max_n_spike)
+                self.__n_spike_per_neuron = cp.zeros((batch_size, self.n_neurons), dtype=cp.int32)
+                self.__spike_times_per_neuron = cp.full(shape, cp.inf, dtype=cp.float32)
+                self.__post_exp_tau = cp.full(shape, cp.inf, dtype=cp.float32)
+                self.__a = cp.full(shape, cp.inf, dtype=cp.float32)
+                self.__x = cp.full(shape, cp.inf, dtype=cp.float32)
+            else:
+                #? What are they sorting the spikes by? TIME obviously
+                sorted_spike_indices = (sorted_indices.astype(cp.int32) // pre_spike_per_neuron.shape[2])
+                sorted_spike_times = cp.take_along_axis(spike_times_reshaped, sorted_indices, axis=1)
+
+                # Store the times of the spikes (this array A[i]<A[i+1] for all i)
+                sorted_spike_times[sorted_indices == -1] = cp.inf
+                sorted_pre_exp_tau_s = cp.take_along_axis(cp.reshape(self.__pre_exp_tau_s, new_shape), sorted_indices, axis=1)
+                sorted_pre_exp_tau = cp.take_along_axis(cp.reshape(self.__pre_exp_tau, new_shape), sorted_indices, axis=1)
+                pre_spike_weights = get_spike_weights(self.weights, sorted_spike_indices)
+
+                # Compute spikes, everything has been calculated in order to make this
+                #! nans in self.__spike_times_per_neuron-> there are no nans in the input
+                self.__n_spike_per_neuron, self.__a, self.__x, self.__spike_times_per_neuron, \
+                self.__post_exp_tau = compute_spike_times(sorted_spike_times, sorted_pre_exp_tau_s, sorted_pre_exp_tau,
+                                                        pre_spike_weights, self.__c_res,
+                                                        self.__delta_theta_tau_res,
+                                                        self.__tau_res, cp.float32(max_simulation), self.__max_n_spike)
+                spikes = self.__spike_times_per_neuron
+                count = self.__n_spike_per_neuron
+                t = 'f'
+
+                
     # backwards function for the jump part of the residual layer
     def backward_jump(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
@@ -315,15 +363,17 @@ class LIFLayerResidual(AbstractLayer):
         split_index = self.__previous_layer.n_neurons
         split_index_jump = self.__jump_layer.n_neurons
         # the order of this split has been checked and is correct the first half is residual and the second half is jump
-        if self.__fuse_function == "Append":
-            errors_res, errors_jump = cp.split(errors, 2, axis=1)
+        # if self.__fuse_function == "Append":
+        #     errors_res, errors_jump = cp.split(errors, 2, axis=1)
         
         #DONE: flip the inputs, where flipped to test ->the problem is not the input
         #! problem is with the function, not the inputs:
         # The problem was that in the forward I took the res input not the jump
         if self.__fuse_function == "Append":
-            weights_grad_res, pre_errors_res = self.backward_res(errors_res) # type: ignore
-            weights_grad_jump, pre_errors_jump = self.backward_jump(errors_jump) # type: ignore
+            weights_grad, pre_errors = self.backward_new(errors) # type: ignore
+            #! split the errors
+            pre_errors_res, pre_errors_jump=cp.split(pre_errors, 2, axis=1)
+            weights_grad_res, weights_grad_jump = cp.split(weights_grad, 2, axis=1)
             return (weights_grad_res, weights_grad_jump), (pre_errors_res, pre_errors_jump)
         #! problem with the errors
         else:
@@ -332,6 +382,30 @@ class LIFLayerResidual(AbstractLayer):
         # weights_grad = cp.divide(cp.add(weights_grad_jump, weights_grad_res),2)
         # return (weights_grad_res, None), (pre_errors_res,None)
 
+    def backward_new(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
+        # Compute gradient
+        pre_spike_per_neuron, _ = self.__pre_spike_trains
+        propagate_recurrent_errors(self.__x, self.__post_exp_tau, errors, self.__delta_theta_tau_res)# all the shape of this layer
+        f1, f2 = compute_factors(self.__spike_times_per_neuron, self.__a, self.__c_res, self.__x,
+                                 self.__post_exp_tau, self.__tau_res)
+        #! nans show up here when getting the previous layer spikes
+        test = self.__spike_times_per_neuron
+        weights_grad = compute_weights_gradient(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron,
+                                                self.__pre_exp_tau_s, self.__pre_exp_tau, errors)
+        # Propagate errors
+        # what are the dimensions of f1
+        # what are the dimensions of pre_exp_tau_s
+        if self.__previous_layer.trainable:
+            pre_errors = propagate_errors_to_pre_spikes(f1, f2, self.__spike_times_per_neuron, pre_spike_per_neuron,
+                                                        self.__pre_exp_tau_s, self.__pre_exp_tau, self.__weights_res,
+                                                        errors, self.__tau_s_res, self.__tau_res)
+            asdasd = 0
+        else:
+            pre_errors = None
+
+        asddas= ''
+        return weights_grad, pre_errors
+    
     def add_deltas(self, delta_weights: cp.ndarray) -> None:
         #!Why are the last two or three entries of delta_weights nan?
         #? I could allow this to be seperate
