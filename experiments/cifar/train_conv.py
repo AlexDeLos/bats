@@ -267,7 +267,7 @@ for run in range(NUMBER_OF_RUNS):
         pool_2 = PoolingLayer(conv_2, name="Pooling 2")
         network.add_layer(pool_2)
 
-        conv_3 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 30]),
+        conv_3 = ConvLIFLayer(previous_layer=pool_2, filters_shape=np.array([5, 5, 30]),
                             use_padding=USE_PADDING,
                         #   filter_from_next = FILTER_FROM_NEXT,
                             tau_s=TAU_S_1,
