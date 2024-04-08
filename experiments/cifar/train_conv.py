@@ -70,13 +70,13 @@ if CLUSTER:
     FILTER_1 = np.array([5, 5, 12]) #? could it be the size of this filter's channels?
 else:
     FILTER_1 = np.array([5, 5, 12])
-TAU_S_1 = 0.130
+TAU_S_1 = 0.50
 THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 10
 
 N_NEURONS_FC = 400
-TAU_S_FC = 0.130
+TAU_S_FC = 0.50
 THRESHOLD_HAT_FC = 0.06
 DELTA_THRESHOLD_FC = 1 * THRESHOLD_HAT_FC
 SPIKE_BUFFER_SIZE_FC = 10
