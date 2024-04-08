@@ -20,7 +20,7 @@ from bats.Optimizers import *
 from bats.Layers.ConvInputLayer import ConvInputLayer
 from bats.Layers.ConvLIFLayer import ConvLIFLayer
 
-from bats.Layers.ConvLIFLayerResidual_2 import ConvLIFLayerResidual_2
+from bats.Layers.ConvLIFLayer_new_Residual import ConvLIFLayer_new_Residual
 from bats.Utils.utils import get_arguments
 
 from bats.Layers.PoolingLayer import PoolingLayer
@@ -66,14 +66,18 @@ else:
 # INPUT_SHAPE = np.array([5,5,2])
 SIMULATION_TIME = 0.2
 
-if CLUSTER:
-    FILTER_1 = np.array([5, 5, 12]) #? could it be the size of this filter's channels?
-else:
-    FILTER_1 = np.array([5, 5, 12])
-TAU_S_1 = 0.50
+
+FILTER_1 = np.array([5, 5, 15])
+TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
-SPIKE_BUFFER_SIZE_1 = 10
+SPIKE_BUFFER_SIZE_1 = 1
+
+FILTER_2 = np.array([5, 5, 40])
+TAU_S_2 = 0.130
+THRESHOLD_HAT_2 = 0.8
+DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
+SPIKE_BUFFER_SIZE_2 = 3
 
 N_NEURONS_FC = 300
 TAU_S_FC = 0.130
@@ -82,11 +86,18 @@ DELTA_THRESHOLD_FC = 1 * THRESHOLD_HAT_FC
 SPIKE_BUFFER_SIZE_FC = 10
 
 # Output_layer
-N_OUTPUTS = 10
+if USE_COURSE_LABELS and USE_CIFAR100:
+    N_OUTPUTS = 20
+elif USE_CIFAR100:
+    N_OUTPUTS = 100
+else:
+    N_OUTPUTS = 10
 TAU_S_OUTPUT = 0.130
 THRESHOLD_HAT_OUTPUT = 0.3
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
+
+
 N_TRAINING_EPOCHS = arguments.n_epochs
 # Training parameters
 N_TRAINING_EPOCHS = arguments.n_epochs #! used to  be 100
@@ -182,7 +193,7 @@ for run in range(NUMBER_OF_RUNS):
                         jump_layer = input_layer
                     else:
                         jump_layer = hidden_layers[i - RESIDUAL_JUMP_LENGTH]
-                    conv = ConvLIFLayerResidual_2(previous_layer=network.layers[-1], jump_layer=jump_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
+                    conv = ConvLIFLayer_new_Residual(previous_layer=network.layers[-1], jump_layer=jump_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
                                 tau_s=TAU_S_1,
                                 filter_from_next=FILTER_1,
                                 theta=THRESHOLD_HAT_1,
@@ -235,9 +246,9 @@ for run in range(NUMBER_OF_RUNS):
     # pool_2 = PoolingLayer(conv, name="Pooling 2")
     # network.add_layer(pool_2)
     else:
-        conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=np.array([5, 5, 40]), use_padding=USE_PADDING,
-                            #   filter_from_next = FILTER_FROM_NEXT,
-                            tau_s=TAU_S_1,
+
+        conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, tau_s=TAU_S_1,
+                            use_padding=USE_PADDING,
                             theta=THRESHOLD_HAT_1,
                             delta_theta=DELTA_THRESHOLD_1,
                             weight_initializer=weight_initializer_conv,
@@ -245,38 +256,52 @@ for run in range(NUMBER_OF_RUNS):
                             name="Convolution 1")
         network.add_layer(conv_1)
 
-        pool_1 = PoolingLayer(conv_1, name="Pooling 1")
-        network.add_layer(pool_1)
+        # pool_1 = PoolingLayer(conv_1, name="Pooling 1")
+        # network.add_layer(pool_1)
 
-        conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 40]),
+        conv_1_1 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_1, tau_s=TAU_S_1,
                             use_padding=USE_PADDING,
-                            #   filter_from_next = FILTER_FROM_NEXT,
-                            tau_s=TAU_S_1,
                             theta=THRESHOLD_HAT_1,
                             delta_theta=DELTA_THRESHOLD_1,
                             weight_initializer=weight_initializer_conv,
                             max_n_spike=SPIKE_BUFFER_SIZE_1,
+                            name="Convolution 1.1")
+        network.add_layer(conv_1_1)
+
+        # conv_1_5 = ConvLIFLayer_new_Residual(previous_layer=conv_1_1, jump_layer= conv_1,
+        #                         filters_shape=FILTER_1, tau_s=TAU_S_1,
+        #                         use_padding=USE_PADDING,
+        #                         theta=THRESHOLD_HAT_1,
+        #                         delta_theta=DELTA_THRESHOLD_1,
+        #                         weight_initializer=weight_initializer_conv,
+        #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
+        #                         name="Convolution-res 1.5")
+        
+        # conv_1_5 = ConvLIFLayer(previous_layer=conv_1_1, filters_shape=FILTER_1, tau_s=TAU_S_1,
+        #                       use_padding=USE_PADDING,
+        #                       theta=THRESHOLD_HAT_1,
+        #                       delta_theta=DELTA_THRESHOLD_1,
+        #                       weight_initializer=weight_initializer_conv,
+        #                       max_n_spike=SPIKE_BUFFER_SIZE_1,
+        #                       name="Convolution 1.5")
+        # network.add_layer(conv_1_5)
+        
+        pool_1_5 = PoolingLayer(conv_1_1, name="Pooling 1.5")
+        network.add_layer(pool_1_5)
+
+        conv_2 = ConvLIFLayer(previous_layer=pool_1_5, filters_shape=FILTER_2, tau_s=TAU_S_2,
+                            use_padding=USE_PADDING,
+                            theta=THRESHOLD_HAT_2,
+                            delta_theta=DELTA_THRESHOLD_2,
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=SPIKE_BUFFER_SIZE_2,
                             name="Convolution 2")
         network.add_layer(conv_2)
 
         pool_2 = PoolingLayer(conv_2, name="Pooling 2")
         network.add_layer(pool_2)
 
-        conv_3 = ConvLIFLayer(previous_layer=pool_2, filters_shape=np.array([5, 5, 40]),
-                            use_padding=USE_PADDING,
-                        #   filter_from_next = FILTER_FROM_NEXT,
-                            tau_s=TAU_S_1,
-                            theta=THRESHOLD_HAT_1,
-                            delta_theta=DELTA_THRESHOLD_1,
-                            weight_initializer=weight_initializer_conv,
-                            max_n_spike=SPIKE_BUFFER_SIZE_1,
-                            name="Convolution 3")
-        network.add_layer(conv_3)
-
-        pool_3 = PoolingLayer(conv_3, name="Pooling 3")
-        network.add_layer(pool_3)
-
-        feedforward = LIFLayer(previous_layer=pool_3, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+        feedforward = LIFLayer(previous_layer=pool_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
                             theta=THRESHOLD_HAT_FC,
                             delta_theta=DELTA_THRESHOLD_FC,
                             weight_initializer=weight_initializer_ff,
@@ -295,6 +320,10 @@ for run in range(NUMBER_OF_RUNS):
     loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
     for layer in network.layers:
+        if layer._is_residual:
+            print(layer.name, layer.jump_layer.name)
+            print(layer.n_neurons)
+        else:
             print(layer.name)
             print(layer.n_neurons)
     # Metrics
@@ -372,10 +401,10 @@ for run in range(NUMBER_OF_RUNS):
             network.forward(spikes, n_spikes, max_simulation=SIMULATION_TIME, training=True)
             out_spikes, n_out_spikes = network.output_spike_trains
 
-            if (n_out_spikes != 0).any():
-                print(f"Spikes")
-            else:
-                print(f"No spikes")
+            # if (n_out_spikes != 0).any():
+            #     print(f"Spikes")
+            # else:
+            #     print(f"No spikes")
 
             # Predictions, loss and errors
             pred = loss_fct.predict(out_spikes, n_out_spikes)
@@ -398,7 +427,7 @@ for run in range(NUMBER_OF_RUNS):
             for g, layer in zip(gradient, network.layers):
                 if g is None:
                     avg_gradient.append(None)
-                elif layer._is_residual:
+                elif layer._is_residual and isinstance(g, tuple):
                     grad_entry = []
                     for i in range(len(g)):
                         averaged_values = cp.mean(g[i], axis=0)
