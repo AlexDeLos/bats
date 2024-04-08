@@ -372,6 +372,11 @@ for run in range(NUMBER_OF_RUNS):
             network.forward(spikes, n_spikes, max_simulation=SIMULATION_TIME, training=True)
             out_spikes, n_out_spikes = network.output_spike_trains
 
+            if (n_out_spikes != 0).any():
+                print(f"Spikes")
+            else:
+                print(f"No spikes")
+
             # Predictions, loss and errors
             pred = loss_fct.predict(out_spikes, n_out_spikes)
             loss, errors = loss_fct.compute_loss_and_errors(out_spikes, n_out_spikes, labels)

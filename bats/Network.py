@@ -37,8 +37,8 @@ class Network:
             layer.forward(max_simulation, training)
             # print(layer.name)
             # print(cp.where(layer.spike_trains[1] != 0))
-            if not (layer.spike_trains[1] != 0).any():
-                print(f"Layer {layer.name} has no spikes")
+            # if not (layer.spike_trains[1] != 0).any():
+            #     print(f"Layer {layer.name} has no spikes")
             n = ''
 
     def backward(self, output_errors: cp.ndarray) \
