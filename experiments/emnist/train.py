@@ -129,15 +129,6 @@ for run in range(NUMBER_OF_RUNS):
                                     weight_initializer=weight_initializer,
                                     max_n_spike=SPIKE_BUFFER_SIZE_1,
                                     name="Hidden layer 0")
-            
-        elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL and False:
-            hidden_layer = LIFLayerResidual_copy(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[0], n_neurons=N_NEURONS_1, tau_s=TAU_S_RES,
-                                    theta=THRESHOLD_HAT_RES,
-                                    fuse_function=FUSE_FUNCTION,
-                                    delta_theta=DELTA_THRESHOLD_RES,
-                                    weight_initializer=weight_initializer,
-                                    max_n_spike=SPIKE_BUFFER_SIZE_RES,
-                                    name="Residual layer " + str(i))
         elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
             if i - RESIDUAL_JUMP_LENGTH < 0:
                 jump_layer = input_layer
@@ -154,7 +145,7 @@ for run in range(NUMBER_OF_RUNS):
                                             max_n_spike=SPIKE_BUFFER_SIZE_RES,
                                             name="Residual layer " + str(i))
         elif i % RESIDUAL_EVERY_N ==0 and not USE_RESIDUAL:
-            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=int(N_NEURONS_1/2), tau_s=TAU_S_1,
+            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                     theta=THRESHOLD_HAT_1,
                                     delta_theta=DELTA_THRESHOLD_1,
                                     weight_initializer=weight_initializer,

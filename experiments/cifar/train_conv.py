@@ -38,6 +38,7 @@ STANDARD = arguments.standard
 USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
 USE_RESIDUAL = arguments.use_residual
+RESIDUAL_JUMP_LENGTH = arguments.residual_jump_length
 FIX_SEED = False
 USE_PADDING = True #! residual and padd gives nans
 USE_CIFAR100 = arguments.cifar100	
@@ -168,6 +169,7 @@ for run in range(NUMBER_OF_RUNS):
 
     #! Standard network builder
     if not STANDARD:
+        print(USE_RESIDUAL, CLUSTER, N_HIDDEN_LAYERS, RESIDUAL_EVERY_N, run)
         hidden_layers = []
         for i in range(N_HIDDEN_LAYERS):
             if i == 0:
@@ -179,17 +181,13 @@ for run in range(NUMBER_OF_RUNS):
                                 weight_initializer=weight_initializer_conv,
                                 max_n_spike=SPIKE_BUFFER_SIZE_1,
                                 name="Convolution "+str(i))
-            elif i % RESIDUAL_EVERY_N == 0 or i == N_HIDDEN_LAYERS-1:
-                if USE_RESIDUAL and i == N_HIDDEN_LAYERS-1:
-                    conv = ConvLIFLayerResidual_2(previous_layer=network.layers[-1], jump_layer=hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_1, use_padding=USE_PADDING,
-                                tau_s=TAU_S_1,
-                                theta=THRESHOLD_HAT_1,
-                                delta_theta=DELTA_THRESHOLD_1,
-                                weight_initializer=weight_initializer_conv,
-                                max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                name="Convolution Residual "+str(i))
-                elif USE_RESIDUAL:
-                    conv = ConvLIFLayerResidual_2(previous_layer=network.layers[-1], jump_layer=hidden_layers[i-RESIDUAL_EVERY_N], filters_shape=FILTER_1, use_padding=USE_PADDING,
+            elif i % RESIDUAL_EVERY_N == 0:
+                if USE_RESIDUAL:
+                    if i - RESIDUAL_JUMP_LENGTH < 0:
+                        jump_layer = input_layer
+                    else:
+                        jump_layer = hidden_layers[i - RESIDUAL_JUMP_LENGTH]
+                    conv = ConvLIFLayerResidual_2(previous_layer=network.layers[-1], jump_layer=jump_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
                                 tau_s=TAU_S_1,
                                 filter_from_next=FILTER_1,
                                 theta=THRESHOLD_HAT_1,

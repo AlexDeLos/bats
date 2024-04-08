@@ -161,7 +161,7 @@ for run in range(NUMBER_OF_RUNS):
     print("Loading datasets...")
     dataset = Dataset(target_dir=DATASET_PATH, use_multi_channel=USE_3_CHANNELS, cifar100=USE_CIFAR100, use_coarse_labels=USE_COURSE_LABELS)
 
-
+    print(USE_RESIDUAL, CLUSTER, FUSE_FUNCTION, N_HIDDEN_LAYERS, RESIDUAL_EVERY_N, run)
     
     # building the network
     print("Creating network...")
