@@ -67,7 +67,7 @@ else:
 SIMULATION_TIME = 0.2
 
 
-FILTER_1 = np.array([5, 5, 15])
+FILTER_1 = np.array([5, 5, 20])
 TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
