@@ -405,8 +405,8 @@ class ConvLIFLayerResidual_2(AbstractConvLayer):
         #? what if I trim the errors here?
         # errors = trimed_errors(errors_in, self.__filter_from_next, self.neurons_shape[2])
         if self._use_padding:
-            pre_errors_pre = trimed_errors(pre_errors_pre, self.__filters_shape)
-            pre_errors_jump = trimed_errors(pre_errors_jump, self.__filters_shape_jump)
+            pre_errors_pre = trimed_errors(pre_errors_pre, self.__filters_shape, self.__previous_layer.neurons_shape[2])
+            pre_errors_jump = trimed_errors(pre_errors_jump, self.__filters_shape_jump, self.__previous_layer.neurons_shape[2])
         #problem with the input?
         #! NaNs show up here
         testing_break = 's'

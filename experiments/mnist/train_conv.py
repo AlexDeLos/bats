@@ -169,7 +169,8 @@ for run in range(NUMBER_OF_RUNS):
         hidden_layers = []
         for i in range(N_HIDDEN_LAYERS):
             if i == 0:
-                conv = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
+                conv = ConvLIFLayer(previous_layer=input_layer,
+                                filters_shape=FILTER_1, use_padding=USE_PADDING,
                                 tau_s=TAU_S_1,
                                 filter_from_next=FILTER_1,
                                 theta=THRESHOLD_HAT_1,
@@ -177,13 +178,23 @@ for run in range(NUMBER_OF_RUNS):
                                 weight_initializer=weight_initializer_conv,
                                 max_n_spike=SPIKE_BUFFER_SIZE_1,
                                 name="Convolution "+str(i))
+                # conv = ConvLIFLayer_new_Residual(previous_layer=input_layer,
+                #                 jump_layer=input_layer,
+                #                 filters_shape=FILTER_1, use_padding=USE_PADDING,
+                #                 tau_s=TAU_S_1,
+                #                 filter_from_next=FILTER_1,
+                #                 theta=THRESHOLD_HAT_1,
+                #                 delta_theta=DELTA_THRESHOLD_1,
+                #                 weight_initializer=weight_initializer_conv,
+                #                 max_n_spike=SPIKE_BUFFER_SIZE_1,
+                #                 name="Convolution Res"+str(i))
             elif i % RESIDUAL_EVERY_N == 0:
                 if USE_RESIDUAL:
                     if i - RESIDUAL_JUMP_LENGTH < 0:
                         jump_layer = input_layer
                     else:
                         jump_layer = hidden_layers[i - RESIDUAL_JUMP_LENGTH]
-                    conv = ConvLIFLayerResidual_2(previous_layer=network.layers[-1], jump_layer=jump_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
+                    conv = ConvLIFLayer_new_Residual(previous_layer=network.layers[-1], jump_layer=jump_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
                                 tau_s=TAU_S_1,
                                 filter_from_next=FILTER_1,
                                 theta=THRESHOLD_HAT_1,

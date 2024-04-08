@@ -242,9 +242,13 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
         stop_for_errors = 0
         #? should I do some reshaping of the pre_errors?
         if self._use_padding:
-            pre_errors = trimed_errors(pre_errors, self.__filters_shape, new_shape_previous[2])
+            if self.__previous_layer.trainable:
+                pre_errors = trimed_errors(pre_errors, self.__filters_shape, new_shape_previous[2])
         #! maybe I should split the errors to the previous layer and the jump layer
-        pre_errors, jump_errors =split_errors_on_channel_dim(pre_errors, self.neurons_shape)
+        if self.__previous_layer.trainable:
+            pre_errors, jump_errors =split_errors_on_channel_dim(pre_errors, self.neurons_shape)
+        else:
+            pre_errors, jump_errors = None, None
         return weights_grad, (pre_errors, jump_errors)
 
     def add_deltas(self, delta_weights: cp.ndarray) -> None:
