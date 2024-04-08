@@ -96,6 +96,10 @@ class ConvLIFLayer(AbstractConvLayer):
             self.forward_no_pad(max_simulation, training)
             return        
         pre_spike_per_neuron_pre_pad, pre_n_spike_per_neuron_pre_pad = self.__previous_layer.spike_trains
+        print(self.name)
+        print(pre_n_spike_per_neuron_pre_pad)
+        print(cp.where(pre_n_spike_per_neuron_pre_pad!=0))
+
         # should have the size of the previous layer
         # self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron_pre_pad, self.__tau_s, self.__tau) 
         
