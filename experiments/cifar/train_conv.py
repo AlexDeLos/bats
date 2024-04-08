@@ -281,7 +281,7 @@ for run in range(NUMBER_OF_RUNS):
         pool_3 = PoolingLayer(conv_3, name="Pooling 3")
         network.add_layer(pool_3)
 
-        feedforward = LIFLayer(previous_layer=pool_3, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
+        feedforward = LIFLayer(previous_layer=pool_3, n_neurons=N_NEURONS_FC*5, tau_s=TAU_S_FC,
                             theta=THRESHOLD_HAT_FC,
                             delta_theta=DELTA_THRESHOLD_FC,
                             weight_initializer=weight_initializer_ff,
