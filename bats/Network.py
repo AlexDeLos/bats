@@ -38,7 +38,7 @@ class Network:
             # print(layer.name)
             # print(cp.where(layer.spike_trains[1] != 0))
             if not (layer.spike_trains[1] != 0).any():
-                raise ValueError(f"Layer {layer.name} has no spikes")
+                print(f"Layer {layer.name} has no spikes")
             n = ''
 
     def backward(self, output_errors: cp.ndarray) \

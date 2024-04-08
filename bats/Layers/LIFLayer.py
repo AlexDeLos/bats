@@ -111,6 +111,8 @@ class LIFLayer(AbstractLayer):
             # print(self.name, 'out')
             # print(count)
             # print(cp.where(count!=0))
+            if not (count != 0).any():
+                print(f"Layer {self.name} has no spikes")
             test4 = self.__a
             test5 = self.__x
 
