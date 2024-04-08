@@ -75,7 +75,7 @@ THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 10
 
-N_NEURONS_FC = 400
+N_NEURONS_FC = 100
 TAU_S_FC = 0.50
 THRESHOLD_HAT_FC = 0.06
 DELTA_THRESHOLD_FC = 1 * THRESHOLD_HAT_FC
@@ -281,7 +281,7 @@ for run in range(NUMBER_OF_RUNS):
         pool_3 = PoolingLayer(conv_3, name="Pooling 3")
         network.add_layer(pool_3)
 
-        feedforward = LIFLayer(previous_layer=pool_3, n_neurons=N_NEURONS_FC*5, tau_s=TAU_S_FC,
+        feedforward = LIFLayer(previous_layer=pool_3, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
                             theta=THRESHOLD_HAT_FC,
                             delta_theta=DELTA_THRESHOLD_FC,
                             weight_initializer=weight_initializer_ff,
