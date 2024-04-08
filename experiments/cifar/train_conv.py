@@ -75,24 +75,19 @@ THRESHOLD_HAT_1 = 0.04
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 10
 
-N_NEURONS_FC = 100
-TAU_S_FC = 0.50
-THRESHOLD_HAT_FC = 0.06
+N_NEURONS_FC = 300
+TAU_S_FC = 0.130
+THRESHOLD_HAT_FC = 0.6
 DELTA_THRESHOLD_FC = 1 * THRESHOLD_HAT_FC
 SPIKE_BUFFER_SIZE_FC = 10
 
 # Output_layer
-if USE_COURSE_LABELS and USE_CIFAR100:
-    N_OUTPUTS = 20
-elif USE_CIFAR100:
-    N_OUTPUTS = 100
-else:
-    N_OUTPUTS = 10
+N_OUTPUTS = 10
 TAU_S_OUTPUT = 0.130
-THRESHOLD_HAT_OUTPUT = 0.03
+THRESHOLD_HAT_OUTPUT = 0.3
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
-
+N_TRAINING_EPOCHS = arguments.n_epochs
 # Training parameters
 N_TRAINING_EPOCHS = arguments.n_epochs #! used to  be 100
 if CLUSTER:
@@ -240,7 +235,7 @@ for run in range(NUMBER_OF_RUNS):
     # pool_2 = PoolingLayer(conv, name="Pooling 2")
     # network.add_layer(pool_2)
     else:
-        conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=np.array([5, 5, 30]), use_padding=USE_PADDING,
+        conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=np.array([5, 5, 40]), use_padding=USE_PADDING,
                             #   filter_from_next = FILTER_FROM_NEXT,
                             tau_s=TAU_S_1,
                             theta=THRESHOLD_HAT_1,
@@ -253,7 +248,7 @@ for run in range(NUMBER_OF_RUNS):
         pool_1 = PoolingLayer(conv_1, name="Pooling 1")
         network.add_layer(pool_1)
 
-        conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 30]),
+        conv_2 = ConvLIFLayer(previous_layer=pool_1, filters_shape=np.array([5, 5, 40]),
                             use_padding=USE_PADDING,
                             #   filter_from_next = FILTER_FROM_NEXT,
                             tau_s=TAU_S_1,
@@ -267,7 +262,7 @@ for run in range(NUMBER_OF_RUNS):
         pool_2 = PoolingLayer(conv_2, name="Pooling 2")
         network.add_layer(pool_2)
 
-        conv_3 = ConvLIFLayer(previous_layer=pool_2, filters_shape=np.array([5, 5, 30]),
+        conv_3 = ConvLIFLayer(previous_layer=pool_2, filters_shape=np.array([5, 5, 40]),
                             use_padding=USE_PADDING,
                         #   filter_from_next = FILTER_FROM_NEXT,
                             tau_s=TAU_S_1,
