@@ -42,13 +42,13 @@ class LIFLayerResidual(AbstractLayer):
 
         else:
             if fuse_function == "Append":
-                self.__weights_res: cp.ndarray = weight_initializer(int(cp.floor(self.n_neurons/2)), previous_layer.n_neurons)
+                self.__weights_res: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons) # type: ignore
                 # self.__weights_jump: cp.ndarray = weight_initializer(int(cp.ceil(self.n_neurons/2)), jump_layer.n_neurons)
-                self.__weights_jump: cp.ndarray = cp.zeros((int(cp.floor(self.n_neurons/2)), jump_layer.n_neurons), dtype=cp.float32) # type: ignore
+                # self.__weights_jump: cp.ndarray = cp.zeros((int(cp.floor(self.n_neurons/2)), jump_layer.n_neurons), dtype=cp.float32) # type: ignore
 
 
             else:
-                self.__weights_res: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons) # type: ignore
+                self.__weights_res: cp.ndarray = weight_initializer(self.n_neurons, previous_layer.n_neurons + jump_layer.n_neurons) # type: ignore
         self.__max_n_spike: cp.int32 = cp.int32(max_n_spike)
 
         self.__n_spike_per_neuron_res: Optional[cp.ndarray] = None
@@ -253,8 +253,18 @@ class LIFLayerResidual(AbstractLayer):
         else:
             pre_spike_per_neuron1, pre_n_spike_per_neuron1 = self.__previous_layer.spike_trains
             pre_spike_per_neuron2, pre_n_spike_per_neuron2 = self.__jump_layer.spike_trains
+            # pre_spike_per_neuron2 = cp.full(pre_spike_per_neuron2.shape, cp.inf)
+            # pre_n_spike_per_neuron2 = cp.zeros(pre_n_spike_per_neuron2.shape, dtype=cp.int32)
             pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs_append(pre_spike_per_neuron1, pre_spike_per_neuron2, pre_n_spike_per_neuron1, pre_n_spike_per_neuron2, self.__max_n_spike)
             self.__pre_spike_trains = (pre_spike_per_neuron, pre_n_spike_per_neuron)
+            #! testing the way ot checking
+            is_inf0 = cp.isinf(pre_spike_per_neuron1)
+            sum_of_infs0 = cp.sum(is_inf0, axis=2)
+
+            # I want to make sure that the spike counts are correct
+            is_inf = cp.isinf(pre_spike_per_neuron)
+            is_not_inf = cp.logical_not(is_inf)
+            sum_of_infs = cp.sum(is_not_inf, axis=2)
 
             self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s_res, self.__tau_res)
             # END OF PREVIOUS LAYER INPUTS
