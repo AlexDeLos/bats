@@ -246,8 +246,8 @@ for run in range(NUMBER_OF_RUNS):
                             name="Convolution 1")
         network.add_layer(conv_1)
 
-        pool_1 = PoolingLayer(conv_1, name="Pooling 1")
-        network.add_layer(pool_1)
+        # pool_1 = PoolingLayer(conv_1, name="Pooling 1")
+        # network.add_layer(pool_1)
 
         conv_1_1 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_1, tau_s=TAU_S_1,
                             use_padding=USE_PADDING,
