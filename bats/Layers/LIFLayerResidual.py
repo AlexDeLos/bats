@@ -373,8 +373,8 @@ class LIFLayerResidual(AbstractLayer):
             weights_grad, pre_errors = self.backward_new(errors) # type: ignore
             #! split the errors
             pre_errors_res, pre_errors_jump=cp.split(pre_errors, 2, axis=1)
-            weights_grad_res, weights_grad_jump = cp.split(weights_grad, 2, axis=1)
-            return (weights_grad_res, weights_grad_jump), (pre_errors_res, pre_errors_jump)
+            # weights_grad_res, weights_grad_jump = cp.split(weights_grad, 2, axis=1)
+            return weights_grad, (pre_errors_res, pre_errors_jump)
         #! problem with the errors
         else:
             weights_grad_res, pre_errors_res = self.backward_res(errors)
