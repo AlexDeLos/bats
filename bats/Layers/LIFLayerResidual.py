@@ -422,11 +422,11 @@ class LIFLayerResidual(AbstractLayer):
         #? I could allow this to be seperate
         # TODO: to make this separate I need to make the gradient separate instead of averaging them in the backward function
         # delta_split = cp.split(delta_weights, 2, axis=1)
-        if self.__fuse_function == "Append" and type(delta_weights) is tuple:
-            self.__weights_res += delta_weights[0]
-            self.__weights_jump += delta_weights[1]
-        else:
-            self.__weights_res += delta_weights
+        # if self.__fuse_function == "Append" and type(delta_weights) is tuple:
+        #     self.__weights_res += delta_weights[0]
+        #     self.__weights_jump += delta_weights[1]
+        # else:
+        self.__weights_res += delta_weights
     
     def store(self, dir_path: Path) -> None:
         weights = self.weights
