@@ -112,7 +112,7 @@ else:
     TRAIN_BATCH_SIZE = 5
     TEST_BATCH_SIZE = 5
     TRAIN_BATCH_SIZE = arguments.batch_size # 20
-    TEST_BATCH_SIZE = arguments.batch_size_test
+    TEST_BATCH_SIZE = arguments.batch_size
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
 TRAIN_PRINT_PERIOD = 0.1

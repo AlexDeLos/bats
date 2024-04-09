@@ -105,16 +105,14 @@ SPIKE_BUFFER_SIZE_OUTPUT = 30
 
 # Training parameters
 N_TRAINING_EPOCHS = arguments.n_epochs
+TRAIN_BATCH_SIZE = arguments.batch_size
+TEST_BATCH_SIZE = arguments.batch_size
 if CLUSTER:
     N_TRAIN_SAMPLES = 50000
     N_TEST_SAMPLES = 10000 #! used to be 10000
-    TRAIN_BATCH_SIZE = 50 #! used to be 50 -> putting it at 50 crashes the cluster when using append
-    TEST_BATCH_SIZE = 100
 else:
     N_TRAIN_SAMPLES = 10000
     N_TEST_SAMPLES = 10000
-    TRAIN_BATCH_SIZE = 20
-    TEST_BATCH_SIZE = 40
 
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)

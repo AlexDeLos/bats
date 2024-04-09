@@ -68,7 +68,7 @@ if CLUSTER:
     N_TRAIN_SAMPLES = 60000
     N_TEST_SAMPLES = 10000
     TRAIN_BATCH_SIZE = arguments.batch_size
-    TEST_BATCH_SIZE = arguments.batch_size_test
+    TEST_BATCH_SIZE = arguments.batch_size
 else:
     N_TRAIN_SAMPLES = 6000
     N_TEST_SAMPLES = 1000

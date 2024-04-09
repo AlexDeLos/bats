@@ -20,8 +20,6 @@ from bats.Network import Network
 from bats.Optimizers import *
 from bats.Layers.ConvInputLayer import ConvInputLayer
 from bats.Layers.ConvLIFLayer import ConvLIFLayer
-from bats.Layers.ConvLIFLayerResidual_2 import ConvLIFLayerResidual_2
-from bats.Layers.ConvLIFLayerResidual import ConvLIFLayerResidual
 from bats.Layers.ConvLIFLayer_new_Residual import ConvLIFLayer_new_Residual
 
 from bats.Layers.PoolingLayer import PoolingLayer
@@ -96,7 +94,7 @@ if CLUSTER:
     N_TRAIN_SAMPLES = 60000
     N_TEST_SAMPLES = 10000 #! used to be 10000
     TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
-    TEST_BATCH_SIZE = arguments.batch_size_test
+    TEST_BATCH_SIZE = arguments.batch_size
 else:
     N_TRAIN_SAMPLES = 6000
     N_TEST_SAMPLES = 1000
