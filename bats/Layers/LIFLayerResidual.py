@@ -255,7 +255,8 @@ class LIFLayerResidual(AbstractLayer):
             pre_spike_per_neuron2, pre_n_spike_per_neuron2 = self.__jump_layer.spike_trains
             # pre_spike_per_neuron2 = cp.full(pre_spike_per_neuron2.shape, cp.inf)
             # pre_n_spike_per_neuron2 = cp.zeros(pre_n_spike_per_neuron2.shape, dtype=cp.int32)
-            pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs_append(pre_spike_per_neuron1, pre_spike_per_neuron2, pre_n_spike_per_neuron1, pre_n_spike_per_neuron2, self.__max_n_spike)
+            new_max_n_spike = max(self.__previous_layer.__max_n_spike, self.__jump_layer.__max_n_spike)
+            pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs_append(pre_spike_per_neuron1, pre_spike_per_neuron2, pre_n_spike_per_neuron1, pre_n_spike_per_neuron2, new_max_n_spike)
             self.__pre_spike_trains = (pre_spike_per_neuron, pre_n_spike_per_neuron)
             #! testing the way ot checking
             is_inf0 = cp.isinf(pre_spike_per_neuron1)
