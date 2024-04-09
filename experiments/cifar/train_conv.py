@@ -179,7 +179,8 @@ for run in range(NUMBER_OF_RUNS):
         hidden_layers = []
         for i in range(N_HIDDEN_LAYERS):
             if i == 0:
-                conv = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
+                conv = ConvLIFLayer(previous_layer=input_layer,
+                                filters_shape=FILTER_1, use_padding=USE_PADDING,
                                 tau_s=TAU_S_1,
                                 filter_from_next=FILTER_1,
                                 theta=THRESHOLD_HAT_1,
@@ -268,25 +269,18 @@ for run in range(NUMBER_OF_RUNS):
                             name="Convolution 1.1")
         network.add_layer(conv_1_1)
 
-        # conv_1_5 = ConvLIFLayer_new_Residual(previous_layer=conv_1_1, jump_layer= conv_1,
-        #                         filters_shape=FILTER_1, tau_s=TAU_S_1,
-        #                         use_padding=USE_PADDING,
-        #                         theta=THRESHOLD_HAT_1,
-        #                         delta_theta=DELTA_THRESHOLD_1,
-        #                         weight_initializer=weight_initializer_conv,
-        #                         max_n_spike=SPIKE_BUFFER_SIZE_1,
-        #                         name="Convolution-res 1.5")
+        conv_1_5 = ConvLIFLayer_new_Residual(previous_layer=conv_1_1, jump_layer= conv_1,
+                                filters_shape=FILTER_1, tau_s=TAU_S_1,
+                                use_padding=USE_PADDING,
+                                theta=THRESHOLD_HAT_1,
+                                delta_theta=DELTA_THRESHOLD_1,
+                                weight_initializer=weight_initializer_conv,
+                                max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                name="Convolution-res 1.5")
         
-        # conv_1_5 = ConvLIFLayer(previous_layer=conv_1_1, filters_shape=FILTER_1, tau_s=TAU_S_1,
-        #                       use_padding=USE_PADDING,
-        #                       theta=THRESHOLD_HAT_1,
-        #                       delta_theta=DELTA_THRESHOLD_1,
-        #                       weight_initializer=weight_initializer_conv,
-        #                       max_n_spike=SPIKE_BUFFER_SIZE_1,
-        #                       name="Convolution 1.5")
-        # network.add_layer(conv_1_5)
+        network.add_layer(conv_1_5)
         
-        pool_1_5 = PoolingLayer(conv_1_1, name="Pooling 1.5")
+        pool_1_5 = PoolingLayer(conv_1_5, name="Pooling 1.5")
         network.add_layer(pool_1_5)
 
         conv_2 = ConvLIFLayer(previous_layer=pool_1_5, filters_shape=FILTER_2, tau_s=TAU_S_2,
@@ -356,26 +350,27 @@ for run in range(NUMBER_OF_RUNS):
     if USE_WANDB:
         wandb.init(
         # set the wandb project where this run will be logged
-        project="Final_thesis_testing",
-        name="CNN_"+ str(USE_RESIDUAL)+"# hidden_"+ str(N_HIDDEN_LAYERS) +" using CIFAR100? = "+str(USE_CIFAR100),
-        
+        project="Final_results",
+        name="CIFAR-10_conv_"+str(USE_PADDING)+"_run_"+str(run),
         # track hyperparameters and run metadata4
         config={
         "Cluster": CLUSTER,
         "Use_residual": USE_RESIDUAL,
+        "Standard": STANDARD,
         "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-        "train_batch_size": TRAIN_BATCH_SIZE,
+        "batch_size": TRAIN_BATCH_SIZE,
         "residual_every_n": RESIDUAL_EVERY_N,
+        "residual_jump_length": RESIDUAL_JUMP_LENGTH,
+        "use_residual": USE_RESIDUAL,
         "use_padding": USE_PADDING,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
-        "Filter": str(FILTER_1),
+        "Filter": str(FILTER_1)+'|'+str(FILTER_2),
         "learning_rate": LEARNING_RATE,
         "architecture": "CNN",
-        "dataset": "CIFAR-100" if USE_CIFAR100 else "CIFAR-10",
+        "dataset": "EMNIST",
         "epochs": N_TRAINING_EPOCHS,
         "version": "1.0.0_cluster_" + str(CLUSTER),
-        "use_multi_channel": USE_3_CHANNELS,
         }
         )
 

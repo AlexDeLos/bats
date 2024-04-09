@@ -32,6 +32,7 @@ arguments = get_arguments()
 N_HIDDEN_LAYERS = arguments.n_hidden_layers
 USE_RESIDUAL = arguments.use_residual
 RESIDUAL_EVERY_N = arguments.residual_every_n
+RESIDUAL_JUMP_LENGTH = arguments.residual_jump_length
 
 # Change from small test on computer to big test on cluster
 CLUSTER = arguments.cluster
@@ -178,25 +179,31 @@ for run in range(NUMBER_OF_RUNS):
                                     weight_initializer=weight_initializer,
                                     max_n_spike=SPIKE_BUFFER_SIZE_1,
                                     name="Hidden layer 0")
-            
-        elif i == N_HIDDEN_LAYERS - 1 and USE_RESIDUAL:
-            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[0], n_neurons=N_NEURONS_1, tau_s=TAU_S_RES,
-                                    theta=THRESHOLD_HAT_RES,
-                                    fuse_function=FUSE_FUNCTION,
-                                    delta_theta=DELTA_THRESHOLD_RES,
-                                    weight_initializer=weight_initializer,
-                                    max_n_spike=SPIKE_BUFFER_SIZE_RES,
-                                    name="Residual layer " + str(i))
         elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
-            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1], jump_layer= hidden_layers[i - RESIDUAL_EVERY_N], n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
-                                    theta=THRESHOLD_HAT_RES,
-                                    fuse_function=FUSE_FUNCTION,
-                                    delta_theta=DELTA_THRESHOLD_RES,
+            if i - RESIDUAL_JUMP_LENGTH < 0:
+                jump_layer = input_layer
+            else:
+                jump_layer = hidden_layers[i - RESIDUAL_JUMP_LENGTH]
+            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1],
+                                            # jump_layer= hidden_layers[i-1],
+                                            jump_layer = jump_layer,
+                                            n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
+                                            theta=THRESHOLD_HAT_RES,
+                                            fuse_function=FUSE_FUNCTION,
+                                            delta_theta=DELTA_THRESHOLD_RES,
+                                            weight_initializer=weight_initializer,
+                                            max_n_spike=SPIKE_BUFFER_SIZE_RES,
+                                            name="Residual layer " + str(i))
+        elif i % RESIDUAL_EVERY_N ==0 and not USE_RESIDUAL:
+            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=int(N_NEURONS_1/2), tau_s=TAU_S_1,
+                                    theta=THRESHOLD_HAT_1,
+                                    delta_theta=DELTA_THRESHOLD_1,
                                     weight_initializer=weight_initializer,
-                                    max_n_spike=SPIKE_BUFFER_SIZE_RES,
-                                    name="Residual layer " + str(i))
+                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
+                                    name="Hidden layer " + str(i))
+
         else:
-            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1 + i*10, tau_s=TAU_S_1,
+            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
                                     theta=THRESHOLD_HAT_1,
                                     delta_theta=DELTA_THRESHOLD_1,
                                     weight_initializer=weight_initializer,
@@ -251,25 +258,24 @@ for run in range(NUMBER_OF_RUNS):
     if USE_WANDB:
         wandb.init(
         # set the wandb project where this run will be logged
-        project="Residual-SNN",
-        name="Residual-SNN_"+ str(FUSE_FUNCTION)+"_run_CIFAR_"+str(run),
+        project="Final_thesis_testing",
+        name="CIFAR10-_MLP_run_"+str(run),
         
         # track hyperparameters and run metadata4
         config={
         "Cluster": CLUSTER,
-        "FUSE_FUNCTION": FUSE_FUNCTION,
+        "Use_residual": USE_RESIDUAL,
         "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-        "train_batch_size": TRAIN_BATCH_SIZE,
         "residual_every_n": RESIDUAL_EVERY_N,
-        "use_residual": USE_RESIDUAL,
+        "residual_jump_length": RESIDUAL_JUMP_LENGTH,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
-        "n_neurons": N_NEURONS_1,
         "learning_rate": LEARNING_RATE,
-        "architecture": "SNN",
-        "dataset": "CIFAR",
+        "batch_size": TRAIN_BATCH_SIZE,
+        "architecture": "MLP",
+        "dataset": "Fashion MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "2.3.0_cluster_" + str(CLUSTER),
+        "version": "1.0.0_cluster_" + str(CLUSTER),
         }
         )
     best_acc = 0.0

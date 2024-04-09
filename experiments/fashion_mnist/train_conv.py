@@ -178,16 +178,6 @@ for run in range(NUMBER_OF_RUNS):
                                 weight_initializer=weight_initializer_conv,
                                 max_n_spike=SPIKE_BUFFER_SIZE_1,
                                 name="Convolution "+str(i))
-                # conv = ConvLIFLayer_new_Residual(previous_layer=input_layer,
-                #                 jump_layer=input_layer,
-                #                 filters_shape=FILTER_1, use_padding=USE_PADDING,
-                #                 tau_s=TAU_S_1,
-                #                 filter_from_next=FILTER_1,
-                #                 theta=THRESHOLD_HAT_1,
-                #                 delta_theta=DELTA_THRESHOLD_1,
-                #                 weight_initializer=weight_initializer_conv,
-                #                 max_n_spike=SPIKE_BUFFER_SIZE_1,
-                #                 name="Convolution Res"+str(i))
             elif i % RESIDUAL_EVERY_N == 0:
                 if USE_RESIDUAL:
                     if i - RESIDUAL_JUMP_LENGTH < 0:
@@ -278,13 +268,6 @@ for run in range(NUMBER_OF_RUNS):
                                 max_n_spike=SPIKE_BUFFER_SIZE_1,
                                 name="Convolution-res 1.5")
         
-        # conv_1_5 = ConvLIFLayer(previous_layer=conv_1_1, filters_shape=FILTER_1, tau_s=TAU_S_1,
-        #                       use_padding=USE_PADDING,
-        #                       theta=THRESHOLD_HAT_1,
-        #                       delta_theta=DELTA_THRESHOLD_1,
-        #                       weight_initializer=weight_initializer_conv,
-        #                       max_n_spike=SPIKE_BUFFER_SIZE_1,
-        #                       name="Convolution 1.5")
         network.add_layer(conv_1_5)
         
         pool_1_5 = PoolingLayer(conv_1_5, name="Pooling 1.5")
@@ -364,26 +347,28 @@ for run in range(NUMBER_OF_RUNS):
     if USE_WANDB:
         wandb.init(
         # set the wandb project where this run will be logged
-        project="Residual-SCNN",
-        name="Residual-SCNN_Padding_test_"+ str(USE_PADDING)+"_run_"+str(run),
+        project="Final_results",
+        name="Fashion_mnist_conv_"+str(USE_PADDING)+"_run_"+str(run),
         
         # track hyperparameters and run metadata4
         config={
         "Cluster": CLUSTER,
         "Use_residual": USE_RESIDUAL,
-        # "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-        "train_batch_size": TRAIN_BATCH_SIZE,
-        # "residual_every_n": RESIDUAL_EVERY_N,
-        "use_residual": "Not implemented yet",
+        "Standard": STANDARD,
+        "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
+        "batch_size": TRAIN_BATCH_SIZE,
+        "residual_every_n": RESIDUAL_EVERY_N,
+        "residual_jump_length": RESIDUAL_JUMP_LENGTH,
+        "use_residual": USE_RESIDUAL,
         "use_padding": USE_PADDING,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
-        "Filter": str(FILTER_1)+'|'+str(FILTER_2),#+'|'+str(FILTER_3)+'|',
+        "Filter": str(FILTER_1)+'|'+str(FILTER_2),
         "learning_rate": LEARNING_RATE,
         "architecture": "CNN",
-        "dataset": "MNIST",
+        "dataset": "Fashion MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "0.0.1_cluster_" + str(CLUSTER),
+        "version": "1.0.0_cluster_" + str(CLUSTER),
         }
         )
     print("Training...")

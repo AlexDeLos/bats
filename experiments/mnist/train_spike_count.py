@@ -155,17 +155,6 @@ for run in range(NUMBER_OF_RUNS):
                                     weight_initializer=weight_initializer,
                                     max_n_spike=SPIKE_BUFFER_SIZE_1,
                                     name="Hidden layer 0")
-            # hidden_layer = LIFLayerResidual(previous_layer=input_layer,
-            #                                 # jump_layer= hidden_layers[i-1],
-            #                                 jump_layer = input_layer,
-            #                                 n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
-            #                         theta=THRESHOLD_HAT_RES,
-            #                         fuse_function=FUSE_FUNCTION,
-            #                         delta_theta=DELTA_THRESHOLD_RES,
-            #                         weight_initializer=weight_initializer,
-            #                         max_n_spike=SPIKE_BUFFER_SIZE_RES,
-            #                         name="Residual layer " + str(i))
-            
         elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
             if i - RESIDUAL_JUMP_LENGTH < 0:
                 jump_layer = input_layer
@@ -256,25 +245,24 @@ for run in range(NUMBER_OF_RUNS):
     if USE_WANDB:
         wandb.init(
         # set the wandb project where this run will be logged
-        project="Residual-SNN",
-        name="Residual-SNN_"+str(N_HIDDEN_LAYERS)+"_run_"+str(run)+"verifications",
+        project="Final_thesis_testing",
+        name="MNIST_MLP_run_"+str(run),
         
         # track hyperparameters and run metadata4
         config={
         "Cluster": CLUSTER,
-        "FUSE_FUNCTION": FUSE_FUNCTION,
+        "Use_residual": USE_RESIDUAL,
         "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-        "train_batch_size": TRAIN_BATCH_SIZE,
         "residual_every_n": RESIDUAL_EVERY_N,
-        "use_residual": USE_RESIDUAL,
+        "residual_jump_length": RESIDUAL_JUMP_LENGTH,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
-        "n_neurons": N_NEURONS_1,
         "learning_rate": LEARNING_RATE,
-        "architecture": "SNN",
+        "batch_size": TRAIN_BATCH_SIZE,
+        "architecture": "MLP",
         "dataset": "MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "2.3.0_cluster_" + str(CLUSTER),
+        "version": "1.0.0_cluster_" + str(CLUSTER),
         }
         )
 

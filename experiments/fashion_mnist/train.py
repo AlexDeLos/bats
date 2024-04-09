@@ -211,23 +211,23 @@ for run in range(NUMBER_OF_RUNS):
         wandb.init(
         # set the wandb project where this run will be logged
         project="Final_thesis_testing",
-        name="MLP_emnist_"+ str(USE_RESIDUAL)+" # hidden_"+ str(N_HIDDEN_LAYERS),
+        name="Fashion_mnist_MLP_run_"+str(run),
         
         # track hyperparameters and run metadata4
         config={
         "Cluster": CLUSTER,
         "Use_residual": USE_RESIDUAL,
         "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-        "train_batch_size": TRAIN_BATCH_SIZE,
         "residual_every_n": RESIDUAL_EVERY_N,
+        "residual_jump_length": RESIDUAL_JUMP_LENGTH,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
         "learning_rate": LEARNING_RATE,
         "batch_size": TRAIN_BATCH_SIZE,
         "architecture": "MLP",
-        "dataset": "emnist",
+        "dataset": "Fashion MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "2.3.0_cluster_" + str(CLUSTER),
+        "version": "1.0.0_cluster_" + str(CLUSTER),
         }
         )
 

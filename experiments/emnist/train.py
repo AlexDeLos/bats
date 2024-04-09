@@ -145,7 +145,7 @@ for run in range(NUMBER_OF_RUNS):
                                             max_n_spike=SPIKE_BUFFER_SIZE_RES,
                                             name="Residual layer " + str(i))
         elif i % RESIDUAL_EVERY_N ==0 and not USE_RESIDUAL:
-            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
+            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=int(N_NEURONS_1/2), tau_s=TAU_S_1,
                                     theta=THRESHOLD_HAT_1,
                                     delta_theta=DELTA_THRESHOLD_1,
                                     weight_initializer=weight_initializer,
@@ -161,13 +161,13 @@ for run in range(NUMBER_OF_RUNS):
                                     name="Hidden layer " + str(i))
         hidden_layers.append(hidden_layer)
         network.add_layer(hidden_layer)
-
+        
     output_layer = LIFLayer(previous_layer=hidden_layer, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT, # type: ignore
-                            theta=THRESHOLD_HAT_OUTPUT,
-                            delta_theta=DELTA_THRESHOLD_OUTPUT,
-                            weight_initializer=weight_initializer,
-                            max_n_spike=SPIKE_BUFFER_SIZE_OUTPUT,
-                            name="Output layer")
+                    theta=THRESHOLD_HAT_OUTPUT,
+                    delta_theta=DELTA_THRESHOLD_OUTPUT,
+                    weight_initializer=weight_initializer,
+                    max_n_spike=SPIKE_BUFFER_SIZE_OUTPUT,
+                    name="Output layer")
     network.add_layer(output_layer)
     
     for layer in network.layers:
@@ -211,23 +211,23 @@ for run in range(NUMBER_OF_RUNS):
         wandb.init(
         # set the wandb project where this run will be logged
         project="Final_thesis_testing",
-        name="MLP_emnist_"+ str(USE_RESIDUAL)+" # hidden_"+ str(N_HIDDEN_LAYERS),
+        name="EMNIST_MLP_run_"+str(run),
         
         # track hyperparameters and run metadata4
         config={
         "Cluster": CLUSTER,
         "Use_residual": USE_RESIDUAL,
         "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
-        "train_batch_size": TRAIN_BATCH_SIZE,
         "residual_every_n": RESIDUAL_EVERY_N,
+        "residual_jump_length": RESIDUAL_JUMP_LENGTH,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
         "learning_rate": LEARNING_RATE,
         "batch_size": TRAIN_BATCH_SIZE,
         "architecture": "MLP",
-        "dataset": "emnist",
+        "dataset": "EMNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "2.3.0_cluster_" + str(CLUSTER),
+        "version": "1.0.0_cluster_" + str(CLUSTER),
         }
         )
 
