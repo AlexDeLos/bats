@@ -271,15 +271,15 @@ for run in range(NUMBER_OF_RUNS):
             for g, layer in zip(gradient, network.layers):
                 if g is None:
                     avg_gradient.append(None)
-                elif isinstance(layer, LIFLayerResidual) and FUSE_FUNCTION == "Append":
-                    grad_entry = []
-                    for i in range(len(g)):
-                        try:
-                            averaged_values = cp.mean(g[i], axis=0)
-                        except:
-                            averaged_values = cp.mean(g[0], axis=0)
-                        grad_entry.append(averaged_values)
-                    avg_gradient.append(grad_entry)
+                # elif isinstance(layer, LIFLayerResidual) and FUSE_FUNCTION == "Append":
+                #     grad_entry = []
+                #     for i in range(len(g)):
+                #         try:
+                #             averaged_values = cp.mean(g[i], axis=0)
+                #         except:
+                #             averaged_values = cp.mean(g[0], axis=0)
+                #         grad_entry.append(averaged_values)
+                #     avg_gradient.append(grad_entry)
                 else:
                     averaged_values = cp.mean(g, axis=0)
                     avg_gradient.append(averaged_values)
