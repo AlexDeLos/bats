@@ -262,7 +262,8 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "MLP",
         "dataset": "MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "1.0.0_cluster_" + str(CLUSTER),
+        "version": "1.0.1_cluster_" + str(CLUSTER),
+        "Fuse_function": FUSE_FUNCTION,
         }
         )
 
