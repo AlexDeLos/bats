@@ -213,6 +213,8 @@ def fuse_inputs_append(residual_input, jump_input, count_residual, count_jump, m
     # this changes the effect
     # result_count = count_residual
     # result_count = cp.zeros((residual_input.shape))
+    if jump_input.shape[2] != residual_input.shape[2]:
+        jump_input = cp.pad(jump_input, ((0, 0), (0, 0), (0, residual_input.shape[2] - jump_input.shape[2])), mode='constant', constant_values=cp.inf)
     result_spikes = np.append(residual_input, jump_input, axis=1)
     if cp.any(result_count > max_n_spike):
         raise ValueError("The count of spikes is greater than the max number of spikes")
