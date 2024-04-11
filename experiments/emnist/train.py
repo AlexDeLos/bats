@@ -24,7 +24,7 @@ USE_RESIDUAL = arguments.use_residual
 print("Using residual: ", USE_RESIDUAL)
 RESIDUAL_EVERY_N = arguments.residual_every_n
 FUSE_FUNCTION = arguments.fuse_func
-LEARNING_RATE = arguments.learning_rate
+# LEARNING_RATE = arguments.learning_rate
 FULL_METRIC = False
 
 #Residual parameters
@@ -46,9 +46,11 @@ TAU_S_1 = 0.130
 THRESHOLD_HAT_1 = 0.2
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 30
+
+
 # Residual layer
 if CLUSTER:
-    N_NEURONS_RES = 750 #!800 #? Should I lower it?
+    N_NEURONS_RES = 1200 #!800 #? Should I lower it?
 else:
     N_NEURONS_RES = 400
 TAU_S_RES = 0.130
@@ -75,13 +77,13 @@ else:
     TRAIN_BATCH_SIZE = 50
     TEST_BATCH_SIZE = 100
 # Training parameters
-
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
 TRAIN_PRINT_PERIOD = 0.1
 TRAIN_PRINT_PERIOD_STEP = int(N_TRAIN_SAMPLES * TRAIN_PRINT_PERIOD / TRAIN_BATCH_SIZE)
 TEST_PERIOD = 1.0  # Evaluate on test batch every TEST_PERIOD epochs
 TEST_PERIOD_STEP = int(N_TRAIN_SAMPLES * TEST_PERIOD / TRAIN_BATCH_SIZE)
+LEARNING_RATE = 0.003
 LR_DECAY_EPOCH = 10  # Perform decay very n epochs
 LR_DECAY_FACTOR = 1.0
 MIN_LEARNING_RATE = 1e-4
