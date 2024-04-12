@@ -43,7 +43,7 @@ SIMULATION_TIME = 0.2
 # Hidden layer
 N_NEURONS_1 = 800
 TAU_S_1 = 0.130
-THRESHOLD_HAT_1 = 0.2
+THRESHOLD_HAT_1 = 0.1
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 30
 # Residual layer
@@ -52,7 +52,7 @@ if CLUSTER:
 else:
     N_NEURONS_RES = 400
 TAU_S_RES = 0.130
-THRESHOLD_HAT_RES = 0.45
+THRESHOLD_HAT_RES = 0.1
 DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES
 SPIKE_BUFFER_SIZE_RES = 5
 
@@ -95,7 +95,7 @@ SAVE_DIR = Path("best_model")
 
 
 def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
-    return cp.random.uniform(-1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
+    return cp.random.uniform(-5.0, 5.0, size=(n_post, n_pre), dtype=cp.float32)
 
 
 for run in range(NUMBER_OF_RUNS):
@@ -273,15 +273,6 @@ for run in range(NUMBER_OF_RUNS):
             for g, layer in zip(gradient, network.layers):
                 if g is None:
                     avg_gradient.append(None)
-                # elif isinstance(layer, LIFLayerResidual) and FUSE_FUNCTION == "Append":
-                #     grad_entry = []
-                #     for i in range(len(g)):
-                #         try:
-                #             averaged_values = cp.mean(g[i], axis=0)
-                #         except:
-                #             averaged_values = cp.mean(g[0], axis=0)
-                #         grad_entry.append(averaged_values)
-                #     avg_gradient.append(grad_entry)
                 else:
                     averaged_values = cp.mean(g, axis=0)
                     avg_gradient.append(averaged_values)
