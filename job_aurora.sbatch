@@ -21,5 +21,5 @@
 module use /opt/insy/modulefiles
 module load miniconda/3.9
 conda activate myHomeEnv
-echo "python3 experiments/cifar/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 13 --batch_size 5 --use_residual True --residual_every_n 4 --residual_jump_length 3"
-srun python3 experiments/cifar/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 13 --batch_size 5 --use_residual True --residual_every_n 4 --residual_jump_length 3
+echo "python3 experiments/fashion_mnist/train.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 3 --batch_size 100 --use_residual True --residual_jump_length 65 --residual_every_n 2 --fuse_func Append"
+srun python3 experiments/fashion_mnist/train.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 3 --batch_size 100 --use_residual True --residual_jump_length 65 --residual_every_n 2 --fuse_func Append
