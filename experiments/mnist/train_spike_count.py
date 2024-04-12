@@ -203,10 +203,9 @@ for run in range(NUMBER_OF_RUNS):
     for layer in network.layers:
         if isinstance(layer, LIFLayerResidual):
             print(layer.name, layer.jump_layer.name)
-            print(layer.n_neurons)
         else:
             print(layer.name)
-            print(layer.n_neurons)
+        print(layer.n_neurons)
     # Metrics
     training_steps = 0
     train_loss_monitor = LossMonitor(export_path=EXPORT_DIR / "loss_train")
