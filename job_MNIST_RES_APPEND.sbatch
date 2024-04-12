@@ -23,8 +23,8 @@ module load miniconda/3.9
 conda activate myHomeEnv
 
 echo "MNIST_RES_APPEND -----------------------------------------------------------------------"
-echo "Starting 5 layers residual MLP APPEND on MNIST"
-srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 5 --batch_size 20 --use_residual True --fuse_func Append --use_wanb True --residual_every_n 4 --residual_jump_length 3
+# echo "Starting 5 layers residual MLP APPEND on MNIST"
+# srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 5 --batch_size 20 --use_residual True --fuse_func Append --use_wanb True --residual_every_n 4 --residual_jump_length 3
 echo "Starting 9 layers residual APPEND MLP on MNIST"
 srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 9 --batch_size 20 --use_residual True --fuse_func Append --use_wanb True --residual_every_n 4 --residual_jump_length 3
 echo "Starting 13 layers residual APPEND MLP on MNIST"
