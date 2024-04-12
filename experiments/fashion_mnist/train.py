@@ -95,7 +95,7 @@ SAVE_DIR = Path("best_model")
 
 
 def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
-    return cp.random.uniform(-5.0, 5.0, size=(n_post, n_pre), dtype=cp.float32)
+    return cp.random.uniform(-1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
 
 
 for run in range(NUMBER_OF_RUNS):
