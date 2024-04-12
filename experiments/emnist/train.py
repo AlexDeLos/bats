@@ -177,6 +177,7 @@ for run in range(NUMBER_OF_RUNS):
             print(layer.name, layer.jump_layer.name)
         else:
             print(layer.name)
+        print(layer.n_neurons)
     loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
 
