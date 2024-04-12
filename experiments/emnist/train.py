@@ -43,7 +43,7 @@ SIMULATION_TIME = 0.2
 # Hidden layer
 N_NEURONS_1 = 800
 TAU_S_1 = 0.130
-THRESHOLD_HAT_1 = 0.2
+THRESHOLD_HAT_1 = 0.1
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 30
 
@@ -54,14 +54,14 @@ if CLUSTER:
 else:
     N_NEURONS_RES = 400
 TAU_S_RES = 0.130
-THRESHOLD_HAT_RES = 0.2
+THRESHOLD_HAT_RES = 0.1
 DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES
 SPIKE_BUFFER_SIZE_RES = 30
 
 # Output_layer
 N_OUTPUTS = 47
 TAU_S_OUTPUT = 0.130
-THRESHOLD_HAT_OUTPUT = 1.3
+THRESHOLD_HAT_OUTPUT = 0.2 #1.3
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 # Training parameters
@@ -230,7 +230,7 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "MLP",
         "dataset": "EMNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "1.0.1_cluster_" + str(CLUSTER),
+        "version": "1.0.2_cluster_" + str(CLUSTER),
         "Fuse_function": FUSE_FUNCTION,
         }
         )

@@ -69,7 +69,7 @@ SIMULATION_TIME = 0.2
 
 FILTER_1 = np.array([5, 5, 20])
 TAU_S_1 = 0.130
-THRESHOLD_HAT_1 = 0.04
+THRESHOLD_HAT_1 = 0.1
 DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 1
 
@@ -81,7 +81,7 @@ SPIKE_BUFFER_SIZE_2 = 3
 
 N_NEURONS_FC = 300
 TAU_S_FC = 0.130
-THRESHOLD_HAT_FC = 0.6
+THRESHOLD_HAT_FC = 0.1
 DELTA_THRESHOLD_FC = 1 * THRESHOLD_HAT_FC
 SPIKE_BUFFER_SIZE_FC = 10
 
@@ -93,7 +93,7 @@ elif USE_CIFAR100:
 else:
     N_OUTPUTS = 10
 TAU_S_OUTPUT = 0.130
-THRESHOLD_HAT_OUTPUT = 0.3
+THRESHOLD_HAT_OUTPUT = 0.1
 DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
 SPIKE_BUFFER_SIZE_OUTPUT = 30
 
@@ -370,7 +370,7 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "CNN",
         "dataset": "EMNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "1.0.0_cluster_" + str(CLUSTER),
+        "version": "1.0.2_cluster_" + str(CLUSTER),
         }
         )
 

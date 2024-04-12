@@ -228,7 +228,7 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "MLP",
         "dataset": "Fashion MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "1.0.1_cluster_" + str(CLUSTER),
+        "version": "1.0.2_cluster_" + str(CLUSTER),
         "Fuse_function": FUSE_FUNCTION,
         }
         )
