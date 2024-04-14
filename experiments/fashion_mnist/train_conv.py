@@ -366,7 +366,7 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "CNN",
         "dataset": "Fashion MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "1.0.0_cluster_" + str(CLUSTER),
+        "version": "1.0.3_cluster_" + str(CLUSTER),
         }
         )
     print("Training...")

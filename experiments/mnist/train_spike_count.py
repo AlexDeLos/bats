@@ -50,7 +50,7 @@ else:
 
 # Hidden layer
 if CLUSTER:
-    N_NEURONS_1 = 500 #!800 #? Should I lower it?
+    N_NEURONS_1 = 800 #!800 #? Should I lower it?
 else:
     N_NEURONS_1 = 400
 TAU_S_1 = 0.130
@@ -60,11 +60,11 @@ SPIKE_BUFFER_SIZE_1 = 30
 
 # Residual layer
 if CLUSTER:
-    N_NEURONS_RES = 500 #!800 #? Should I lower it?
+    N_NEURONS_RES = 800 #!800 #? Should I lower it?
 else:
     N_NEURONS_RES = 400
 TAU_S_RES = 0.130
-THRESHOLD_HAT_RES = 0.02
+THRESHOLD_HAT_RES = 0.2
 DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES
 SPIKE_BUFFER_SIZE_RES = 30
 
@@ -261,7 +261,7 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "MLP",
         "dataset": "MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "1.0.2_cluster_" + str(CLUSTER),
+        "version": "1.0.3_cluster_" + str(CLUSTER),
         "Fuse_function": FUSE_FUNCTION,
         }
         )
