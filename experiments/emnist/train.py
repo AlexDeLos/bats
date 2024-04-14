@@ -48,7 +48,7 @@ DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
 SPIKE_BUFFER_SIZE_1 = 5
 # Residual layer
 if CLUSTER:
-    N_NEURONS_RES = 800 #!800 #? Should I lower it?
+    N_NEURONS_RES = 1600 #!800 #? Should I lower it?
 else:
     N_NEURONS_RES = 400
 TAU_S_RES = 0.130
