@@ -156,6 +156,10 @@ for run in range(NUMBER_OF_RUNS):
     print("Creating network...")
     network = Network()
     build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, INPUT_SHAPE, STANDARD, N_HIDDEN_LAYERS, conv_var, conv_res_var, fc_var, output_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, USE_PADDING)
+    
+    loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
+    optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
+    
     for layer in network.layers:
         if layer._is_residual:
             print(layer.name, layer.jump_layer.name)
