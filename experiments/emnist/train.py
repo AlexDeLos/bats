@@ -178,6 +178,8 @@ for run in range(NUMBER_OF_RUNS):
         "neuron_out_var": str(neuron_out_var),
         "neuron_res_var": str(neuron_res_var),},
         False)
+    else:
+        w_b = None
 
     best_acc = 0.0
     tracker = [0.0]* len(network.layers)

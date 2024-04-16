@@ -37,7 +37,7 @@ N_HIDDEN_LAYERS = arguments.n_hidden_layers
 RESIDUAL_EVERY_N = arguments.residual_every_n
 RESIDUAL_JUMP_LENGTH = arguments.residual_jump_length
 FIX_SEED = False
-USE_PADDING = True     #! padding gives makes the layer not output in the cluster
+USE_PADDING = arguments.use_pad     #! padding gives makes the layer not output in the cluster
 #! residual and padd gives nans
 # what causes nans:
 #! residual layers with pre = jump and nans
@@ -61,15 +61,16 @@ N_TRAINING_EPOCHS = arguments.n_epochs
 INPUT_SHAPE = np.array([28, 28, 1])
 # INPUT_SHAPE = np.array([5,5,2])
 SIMULATION_TIME = 0.2
+CHANNELS = 15
 conv_var = {
-    'filter': np.array([5, 5, 15]),
+    'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
     'threshold_hat': 0.4,
     'delta_threshold': 1 * 0.4,
     'spike_buffer_size': 1
 }
 conv_res_var = {
-    'filter': np.array([5, 5, 30]),
+    'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
     'threshold_hat': 0.4,
     'delta_threshold': 1 * 0.4,
@@ -221,6 +222,7 @@ for run in range(NUMBER_OF_RUNS):
         "use_padding": USE_PADDING,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
+        "channels": CHANNELS,
         "conv": str(conv_var),
         "conv_res": str(conv_res_var),
         "learning_rate": LEARNING_RATE,
@@ -229,6 +231,8 @@ for run in range(NUMBER_OF_RUNS):
         "epochs": N_TRAINING_EPOCHS,
         },
         True)
+    else:
+        w_b = None
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()

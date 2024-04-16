@@ -53,6 +53,9 @@ class PoolingLayer(AbstractConvLayer):
             aggregate_spikes_conv(pre_n_spike_per_neuron, pre_spike_per_neuron, pre_shape,
                                   self.neurons_shape)
         tesete = ''
+        count = self.__n_spike_per_neuron
+        # print(self.name)
+        # print(cp.where(count!=0)[0].shape)
 
     def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Propagate errors

@@ -41,7 +41,7 @@ ALTERNATE = arguments.alternate
 USE_RESIDUAL = arguments.use_residual
 RESIDUAL_JUMP_LENGTH = arguments.residual_jump_length
 FIX_SEED = False
-USE_PADDING = arguments.use_padding #! residual and padd gives nans
+USE_PADDING = arguments.use_pad #! residual and padd gives nans
 USE_CIFAR100 = arguments.cifar100	
 USE_COURSE_LABELS = arguments.use_coarse_labels
 USE_3_CHANNELS = arguments.use_3_channels #! false could be broken
@@ -66,28 +66,28 @@ else:
     INPUT_SHAPE = np.array([32, 32, 1])
 # INPUT_SHAPE = np.array([5,5,2])
 SIMULATION_TIME = 0.2
+CHANNELS = 20
 conv_var = {
-    'filter': np.array([5, 5, 15]),
+    'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
-    'threshold_hat': 0.4,
-    'delta_threshold': 1 * 0.4,
+    'threshold_hat': 0.1,
+    'delta_threshold': 1 * 0.1,
     'spike_buffer_size': 1
 }
 conv_res_var = {
-    'filter': np.array([5, 5, 30]),
+    'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
-    'threshold_hat': 0.4,
-    'delta_threshold': 1 * 0.4,
+    'threshold_hat': 0.2,
+    'delta_threshold': 1 * 0.2,
     'spike_buffer_size': 1
 }
 fc_var = {
     'n_neurons': 300,
     'tau_s': 0.130,
-    'threshold_hat': 0.6,
-    'delta_threshold': 1 * 0.6,
+    'threshold_hat': 0.1,
+    'delta_threshold': 1 * 0.1,
     'spike_buffer_size': 10
 }
-
 # Output_layer
 if USE_COURSE_LABELS and USE_CIFAR100:
     N_OUTPUTS = 20
@@ -128,7 +128,7 @@ LEARNING_RATE = arguments.learning_rate
 LR_DECAY_EPOCH = 5  # Perform decay very n epochs
 LR_DECAY_FACTOR = 0.25
 MIN_LEARNING_RATE = 1e-6
-TARGET_FALSE = 5
+TARGET_FALSE = 10
 TARGET_TRUE = 30
 
 # Plot parameters
@@ -227,6 +227,7 @@ for run in range(NUMBER_OF_RUNS):
         "use_padding": USE_PADDING,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
+        "channels": CHANNELS,
         "conv": str(conv_var),
         "conv_res": str(conv_res_var),
         "learning_rate": LEARNING_RATE,
@@ -235,6 +236,8 @@ for run in range(NUMBER_OF_RUNS):
         "epochs": N_TRAINING_EPOCHS,
         },
         True)
+    else:
+        w_b = None
 
     best_acc = 0.0
     tracker = [0.0]* len(network.layers)

@@ -66,7 +66,7 @@ neuron_out_var = {
     "spike_buffer_size": 30
 }
 neuron_res_var = {
-    "n_neurons": 800,
+    "n_neurons": 1600,
     "tau_s": 0.130,
     "threshold_hat": 0.2,
     "delta_threshold": 1 * 0.2,
@@ -204,6 +204,8 @@ for run in range(NUMBER_OF_RUNS):
         "neuron_out_var": str(neuron_out_var),
         "neuron_res_var": str(neuron_res_var)},
         False)
+    else:
+        w_b = None
 
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):

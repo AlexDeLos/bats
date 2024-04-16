@@ -16,20 +16,21 @@ class wandb_handler:
         self.cache = {}
         if not cnn:
             self.config = {
-            "Cluster": config['Cluster'],
-            "Use_residual": config['Use_residual'],
-            "N_HIDDEN_LAYERS": config['N_HIDDEN_LAYERS'],
-            "residual_every_n": config['residual_every_n'],
-            "residual_jump_length": config['residual_jump_length'],
-            "n_of_train_samples": config['n_of_train_samples'],
-            "n_of_test_samples": config['n_of_test_samples'],
-            "learning_rate": config['learning_rate'],
-            "batch_size": config['batch_size'],
-            "architecture": "MLP",
-            "dataset": config['dataset'],
-            "epochs": config['epochs'],
-            "Fuse_function": config['Fuse_function'],
-            "version": "TESTING",
+                "Cluster": config['Cluster'],
+                "Use_residual": config['Use_residual'],
+                "N_HIDDEN_LAYERS": config['N_HIDDEN_LAYERS'],
+                "residual_every_n": config['residual_every_n'],
+                "residual_jump_length": config['residual_jump_length'],
+                "n_of_train_samples": config['n_of_train_samples'],
+                "n_of_test_samples": config['n_of_test_samples'],
+                "learning_rate": config['learning_rate'],
+                "batch_size": config['batch_size'],
+                "dataset": config['dataset'],
+                "epochs": config['epochs'],
+                "Fuse_function": config['Fuse_function'],
+                "neuron_var": config['neuron_var'],
+                "neuron_out_var": config['neuron_out_var'],
+                "neuron_res_var": config['neuron_res_var'],
             }
         else:
             self.config = {
@@ -50,12 +51,13 @@ class wandb_handler:
             "architecture": "CNN",
             "dataset": config['dataset'],
             "epochs": config['epochs'],
-            "version": "1.0.3",
+            "version": "1.1.0",
             }
     def save(self, log_dict):
         self.cache.update(log_dict)
     def log(self):
-        print(self.cache)
+        # print(self.cache)
+        pass
         # self.run.log(self.cache)
     def finish(self):
         self.run.finish()
