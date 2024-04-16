@@ -157,8 +157,12 @@ for run in range(NUMBER_OF_RUNS):
     loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
     for layer in network.layers:
-        print(layer.name)
-        print(layer.n_neurons)
+        if layer._is_residual:
+            print(layer.name, layer.jump_layer.name)
+            print(layer.n_neurons)
+        else:
+            print(layer.name)
+            print(layer.n_neurons)
     # Metrics
     training_steps = 0
     train_loss_monitor = LossMonitor(export_path=EXPORT_DIR / "loss_train")
@@ -252,16 +256,6 @@ for run in range(NUMBER_OF_RUNS):
             for g, layer in zip(gradient, network.layers):
                 if g is None:
                     avg_gradient.append(None)
-                # elif isinstance(layer, LIFLayerResidual) and FUSE_FUNCTION == "Append":
-                #     grad_entry = []
-                #     for i in range(len(g)):
-                #         try:
-                #             averaged_values = cp.mean(g[i], axis=0)
-                #         except:
-                #             #! I don't think this is used
-                #             averaged_values = cp.mean(g[0], axis=0)
-                #         grad_entry.append(averaged_values)
-                #     avg_gradient.append(grad_entry)
                 else:
                     averaged_values = cp.mean(g, axis=0)
                     avg_gradient.append(averaged_values)
