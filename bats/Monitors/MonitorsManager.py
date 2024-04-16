@@ -16,7 +16,7 @@ class MonitorsManager:
     def add(self, monitor: AbstractMonitor) -> None:
         self._monitors.append(monitor)
 
-    def print(self, epoch: float, decimal: int = 1, use_wandb = False) -> None:
+    def print(self, epoch: float, decimal: int = 1, use_wandb = False, w_b = None) -> None:
         returns = []
         to_print = self._print_prefix + f"Epoch {np.around(epoch, decimal)}"
         for i, monitor in enumerate(self._monitors):
@@ -25,7 +25,7 @@ class MonitorsManager:
                 value = monitor._values[-1]
                 if type(value) == cp.ndarray:
                     value = float(value)
-                wandb.log({self._print_prefix + monitor._name: value})
+                w_b.save({self._print_prefix + monitor._name: value})
             returns.append((monitor._name, monitor._values[-1]))
         print(to_print)
 

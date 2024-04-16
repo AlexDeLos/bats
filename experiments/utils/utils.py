@@ -2,7 +2,65 @@ from sympy import use
 import wandb
 from bats.Layers import InputLayer, LIFLayer, LIFLayerResidual
 from bats.Losses import *
-from bats.Network import Network
+from bats.Layers.ConvInputLayer import ConvInputLayer
+from bats.Layers.ConvLIFLayer import ConvLIFLayer
+from bats.Layers.ConvLIFLayer_new_Residual import ConvLIFLayer_new_Residual
+
+from bats.Layers.PoolingLayer import PoolingLayer
+class wandb_handler:
+    def __init__(self, project_name, experiment_name, config, cnn):
+        self.project_name = project_name
+        self.experiment_name = experiment_name
+        # self.run = wandb.init(project=project_name, name=experiment_name, config=config)
+        self.run = None
+        self.cache = {}
+        if not cnn:
+            self.config = {
+            "Cluster": config['Cluster'],
+            "Use_residual": config['Use_residual'],
+            "N_HIDDEN_LAYERS": config['N_HIDDEN_LAYERS'],
+            "residual_every_n": config['residual_every_n'],
+            "residual_jump_length": config['residual_jump_length'],
+            "n_of_train_samples": config['n_of_train_samples'],
+            "n_of_test_samples": config['n_of_test_samples'],
+            "learning_rate": config['learning_rate'],
+            "batch_size": config['batch_size'],
+            "architecture": "MLP",
+            "dataset": config['dataset'],
+            "epochs": config['epochs'],
+            "Fuse_function": config['Fuse_function'],
+            "version": "TESTING",
+            }
+        else:
+            self.config = {
+            "Cluster": config['Cluster'],
+            "Use_residual": config['Use_residual'],
+            "Standard": config['Standard'],
+            "N_HIDDEN_LAYERS": config['N_HIDDEN_LAYERS'],
+            "batch_size": config['batch_size'],
+            "residual_every_n": config['residual_every_n'],
+            "residual_jump_length": config['residual_jump_length'],
+            "use_residual": config['use_residual'],
+            "use_padding": config['use_padding'],
+            "n_of_train_samples": config['n_of_train_samples'],
+            "n_of_test_samples": config['n_of_test_samples'],
+            "Filter": config['Filter'],
+            "learning_rate": config['learning_rate'],
+            "architecture": "CNN",
+            "dataset": config['dataset'],
+            "epochs": config['epochs'],
+            "version": "1.0.3",
+            }
+    def save(self, log_dict):
+        self.cache.update(log_dict)
+    def log(self):
+        print(self.cache)
+        # self.run.log(self.cache)
+    def finish(self):
+        self.run.finish()
+
+
+
 def build_network_SNN(network, weight_initializer,n_input, n_hidden, neuron_var,neuron_out_var ,res_neuron_var, use_residual, res_every_n, res_jump_l, fuse_function):
     input_layer = InputLayer(n_neurons=n_input, name="Input layer")
     network.add_layer(input_layer, input=True)
@@ -55,3 +113,142 @@ def build_network_SNN(network, weight_initializer,n_input, n_hidden, neuron_var,
                     max_n_spike=neuron_out_var['spike_buffer_size'],
                     name="Output layer")
     network.add_layer(output_layer)
+
+def build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, input_shape, standard, n_hidden, conv_var, conv_res_var, fc_var, output_var, use_residual, res_every_n, res_jump_l, use_padding):
+    input_layer = ConvInputLayer(neurons_shape=input_shape, name="Input layer")
+    network.add_layer(input_layer, input=True)
+    if not standard:
+        hidden_layers = []
+        for i in range(n_hidden):
+            if i == 0:
+                conv = ConvLIFLayer(previous_layer=input_layer,
+                                filters_shape=conv_var['filter'], use_padding=use_padding,
+                                tau_s=conv_var['tau_s'],
+                                filter_from_next=conv_var['filter'],
+                                theta=conv_var['threshold_hat'],
+                                delta_theta=conv_var['delta_threshold'],
+                                weight_initializer=weight_initializer_conv,
+                                max_n_spike=conv_var['spike_buffer_size'],
+                                name="Convolution "+str(i))
+            elif i % res_every_n == 0:
+                if use_residual:
+                    if i - res_jump_l < 0:
+                        jump_layer = input_layer
+                    else:
+                        jump_layer = hidden_layers[i - res_jump_l]
+                    conv = ConvLIFLayer_new_Residual(previous_layer=network.layers[-1], jump_layer=jump_layer, filters_shape=conv_res_var['filter'], use_padding=use_padding,
+                                tau_s=conv_res_var['tau_s'],
+                                filter_from_next=conv_res_var['filter'],
+                                theta=conv_res_var['threshold_hat'],
+                                delta_theta=conv_res_var['delta_threshold'],
+                                weight_initializer=weight_initializer_conv,
+                                max_n_spike=conv_res_var['spike_buffer_size'],
+                                name="Convolution Residual "+str(i))
+                else:
+                    conv = ConvLIFLayer(previous_layer=network.layers[-1], filters_shape=conv_var['filter'], use_padding=use_padding,
+                                tau_s=conv_var['tau_s'],
+                                filter_from_next=conv_var['filter'],
+                                theta=conv_var['threshold_hat'],
+                                delta_theta=conv_var['delta_threshold'],
+                                weight_initializer=weight_initializer_conv,
+                                max_n_spike=conv_var['spike_buffer_size'],
+                                name="Convolution "+str(i))
+            else:
+                conv = ConvLIFLayer(previous_layer=conv, filters_shape=conv_var['filter'], use_padding=use_padding,
+                                tau_s=conv_var['tau_s'],
+                                filter_from_next=conv_var['filter'],
+                                theta=conv_var['threshold_hat'],
+                                delta_theta=conv_var['delta_threshold'],
+                                weight_initializer=weight_initializer_conv,
+                                max_n_spike=conv_var['spike_buffer_size'],
+                                name="Convolution "+str(i))
+            hidden_layers.append(conv)
+            network.add_layer(conv)
+        
+
+        pool_final = PoolingLayer(conv, name="Pooling final")
+        network.add_layer(pool_final)
+
+        feedforward = LIFLayer(previous_layer=pool_final, n_neurons=fc_var['n_neurons'], tau_s=fc_var['tau_s'],
+                            theta=fc_var['threshold_hat'],
+                            delta_theta=fc_var['delta_threshold'],
+                            weight_initializer=weight_initializer_ff,
+                            max_n_spike=fc_var['spike_buffer_size'],
+                            name="Feedforward")
+        network.add_layer(feedforward)
+
+        output_layer = LIFLayer(previous_layer=feedforward, n_neurons=output_var['n_neurons'], tau_s=output_var['tau_s'],
+                                theta=output_var['threshold_hat'],
+                                delta_theta=output_var['delta_threshold'],
+                                weight_initializer=weight_initializer_ff,
+                                max_n_spike=output_var['spike_buffer_size'],
+                                name="Output layer")
+        network.add_layer(output_layer)
+    #! end of standard network builder
+
+    # pool_2 = PoolingLayer(conv, name="Pooling 2")
+    # network.add_layer(pool_2)
+    else:
+
+        conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=conv_var['filter'], tau_s=conv_var['tau_s'],
+                            use_padding=use_padding,
+                            theta=conv_var['threshold_hat'],
+                            delta_theta=conv_var['delta_threshold'],
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=conv_var['spike_buffer_size'],
+                            name="Convolution 1")
+        network.add_layer(conv_1)
+
+        # pool_1 = PoolingLayer(conv_1, name="Pooling 1")
+        # network.add_layer(pool_1)
+
+        conv_1_1 = ConvLIFLayer(previous_layer=conv_1, filters_shape=conv_var['filter'], tau_s=conv_var['tau_s'],
+                            use_padding=use_padding,
+                            theta=conv_var['threshold_hat'],
+                            delta_theta=conv_var['delta_threshold'],
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=conv_var['spike_buffer_size'],
+                            name="Convolution 1.1")
+        network.add_layer(conv_1_1)
+
+        conv_1_5 = ConvLIFLayer_new_Residual(previous_layer=conv_1_1, jump_layer= conv_1,
+                                filters_shape=conv_res_var['filter'], tau_s=conv_res_var['tau_s'],
+                                use_padding=use_padding,
+                                theta=conv_res_var['threshold_hat'],
+                                delta_theta=conv_res_var['delta_threshold'],
+                                weight_initializer=weight_initializer_conv,
+                                max_n_spike=conv_res_var['spike_buffer_size'],
+                                name="Convolution-res 1.5")
+        
+        network.add_layer(conv_1_5)
+        
+        pool_1_5 = PoolingLayer(conv_1_5, name="Pooling 1.5")
+        network.add_layer(pool_1_5)
+
+        conv_2 = ConvLIFLayer(previous_layer=pool_1_5, filters_shape=conv_var['filter'], tau_s=conv_var['tau_s'],
+                            use_padding=use_padding,
+                            theta=conv_var['threshold_hat'],
+                            delta_theta=conv_var['delta_threshold'],
+                            weight_initializer=weight_initializer_conv,
+                            max_n_spike=conv_var['spike_buffer_size'],
+                            name="Convolution 2")
+        network.add_layer(conv_2)
+
+        pool_2 = PoolingLayer(conv_2, name="Pooling 2")
+        network.add_layer(pool_2)
+
+        feedforward = LIFLayer(previous_layer=pool_2, n_neurons=fc_var['n_neurons'], tau_s=fc_var['tau_s'],
+                            theta=fc_var['threshold_hat'],
+                            delta_theta=fc_var['delta_threshold'],
+                            weight_initializer=weight_initializer_ff,
+                            max_n_spike=fc_var['spike_buffer_size'],
+                            name="Feedforward")
+        network.add_layer(feedforward)
+
+        output_layer = LIFLayer(previous_layer=feedforward, n_neurons=output_var['n_neurons'], tau_s=output_var['tau_s'],
+                                theta=output_var['threshold_hat'],
+                                delta_theta=output_var['delta_threshold'],
+                                weight_initializer=weight_initializer_ff,
+                                max_n_spike=output_var['spike_buffer_size'],
+                                name="Output layer")
+        network.add_layer(output_layer)

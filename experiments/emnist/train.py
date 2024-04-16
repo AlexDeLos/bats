@@ -14,7 +14,7 @@ from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *
 from bats.Utils.utils import get_arguments
-from experiments.utils.utils import build_network_SNN
+from experiments.utils.utils import build_network_SNN, wandb_handler
 
 DATASET_PATH = Path("./datasets/emnist-balanced.mat")
 
@@ -71,8 +71,8 @@ if CLUSTER:
     TRAIN_BATCH_SIZE = arguments.batch_size
     TEST_BATCH_SIZE = arguments.batch_size
 else:
-    N_TRAIN_SAMPLES = 11280
-    N_TEST_SAMPLES = 1880
+    N_TRAIN_SAMPLES = 1128
+    N_TEST_SAMPLES = 188
     TRAIN_BATCH_SIZE = 50
     TEST_BATCH_SIZE = 100
 # Training parameters
@@ -161,14 +161,8 @@ for run in range(NUMBER_OF_RUNS):
                                             print_prefix="Test | ")
 
     if USE_WANDB:
-        wandb.init(
-        # set the wandb project where this run will be logged
-        project="Final_thesis_testing",
-        name="EMNIST_MLP_run_"+str(run),
-        
-        # track hyperparameters and run metadata4
-        config={
-        "Cluster": CLUSTER,
+        w_b = wandb_handler("Final_thesis_testing", "EMNIST_MLP_run_"+str(run),
+        {"Cluster": CLUSTER,
         "Use_residual": USE_RESIDUAL,
         "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
         "residual_every_n": RESIDUAL_EVERY_N,
@@ -177,13 +171,13 @@ for run in range(NUMBER_OF_RUNS):
         "n_of_test_samples": N_TEST_SAMPLES,
         "learning_rate": LEARNING_RATE,
         "batch_size": TRAIN_BATCH_SIZE,
-        "architecture": "MLP",
         "dataset": "EMNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "1.0.3_cluster_" + str(CLUSTER),
         "Fuse_function": FUSE_FUNCTION,
-        }
-        )
+        "neuron_var": str(neuron_var),
+        "neuron_out_var": str(neuron_out_var),
+        "neuron_res_var": str(neuron_res_var),},
+        False)
 
     best_acc = 0.0
     tracker = [0.0]* len(network.layers)
@@ -247,14 +241,14 @@ for run in range(NUMBER_OF_RUNS):
                                 tracker[i] = (tracker[i] + float(cp.mean(avg_gradient[i][j])))/2
                             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
                                 if USE_WANDB:
-                                    wandb.log({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
+                                    w_b.save({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
                                 print("Mean Gradient Magnitude at residual layer "+str(i)+": ", tracker[i])
                                 tracker = [0.0]* len(network.layers)
                         else:
                             tracker[i] = (tracker[i] + float(cp.mean(avg_gradient[i])))/2
                             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
                                 if USE_WANDB:
-                                    wandb.log({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
+                                    w_b.save({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
                                 print("Mean Gradient Magnitude at layer "+str(i)+": ", tracker[i])
                                 tracker = [0.0]* len(network.layers)
             # Apply step
@@ -272,7 +266,7 @@ for run in range(NUMBER_OF_RUNS):
                 # Compute metrics
 
                 train_monitors_manager.record(epoch_metrics)
-                train_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB)
+                train_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB, w_b=w_b)
                 train_monitors_manager.export()
                 out_copy = cp.copy(out_spikes)
                 mask = cp.isinf(out_copy)
@@ -287,7 +281,7 @@ for run in range(NUMBER_OF_RUNS):
                     print(f'Output layer mean times: {mean_res}')
                     print(f'Output layer first spike: {mean_first}')
                 if USE_WANDB:
-                    wandb.log({"Train_mean_spikes_for_times": float(mean_res), "Train_first_spike_for_times": float(mean_first)})
+                    w_b.save({"Train_mean_spikes_for_times": float(mean_res), "Train_first_spike_for_times": float(mean_first)})
 
             # Test evaluation
             if training_steps % TEST_PERIOD_STEP == 0:
@@ -318,7 +312,7 @@ for run in range(NUMBER_OF_RUNS):
                 test_learning_rate_monitor.add(optimizer.learning_rate)
 
                 records = test_monitors_manager.record(epoch_metrics)
-                test_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB)
+                test_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB, w_b=w_b)
                 test_monitors_manager.export()
                 
                 mean_res = cp.mean(cp.array(mean_spikes_for_times))
@@ -327,13 +321,15 @@ for run in range(NUMBER_OF_RUNS):
                     print(f'Output layer mean times: {mean_res}')
                     print(f'Output layer first spike: {mean_first}')
                 if USE_WANDB:
-                    wandb.log({"Test_mean_spikes_for_times": float(mean_res), "Test_first_spike_for_times": float(mean_first)})
+                    w_b.save({"Test_mean_spikes_for_times": float(mean_res), "Test_first_spike_for_times": float(mean_first)})
 
                 acc = records[test_accuracy_monitor]
                 if acc > best_acc:
                     best_acc = acc
                     # network.store(SAVE_DIR)
                     print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks NOT save to: {SAVE_DIR}")
+            if USE_WANDB and ((training_steps % TRAIN_PRINT_PERIOD_STEP == 0) or (training_steps % TEST_PERIOD_STEP == 0)):
+                w_b.log()
     if USE_WANDB:
-        wandb.finish()
+        w_b.finish()
     print("Done!: ", run)   

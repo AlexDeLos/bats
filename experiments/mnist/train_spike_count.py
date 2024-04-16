@@ -20,7 +20,7 @@ from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *
 from bats.Utils.utils import get_arguments
-from experiments.utils.utils import build_network_SNN
+from experiments.utils.utils import build_network_SNN, wandb_handler
 
 arguments = get_arguments()
 
@@ -80,8 +80,8 @@ if CLUSTER:
     TRAIN_BATCH_SIZE = arguments.batch_size
     TEST_BATCH_SIZE = arguments.batch_size
 else:
-    N_TRAIN_SAMPLES = 6000
-    N_TEST_SAMPLES = 1000
+    N_TRAIN_SAMPLES = 600
+    N_TEST_SAMPLES = 100
     TRAIN_BATCH_SIZE = 20
     TEST_BATCH_SIZE = 40
 
@@ -187,14 +187,8 @@ for run in range(NUMBER_OF_RUNS):
 
     
     if USE_WANDB:
-        wandb.init(
-        # set the wandb project where this run will be logged
-        project="Final_thesis_testing",
-        name="MNIST_MLP_run_"+str(run),
-        
-        # track hyperparameters and run metadata4
-        config={
-        "Cluster": CLUSTER,
+        w_b = wandb_handler("Final_thesis_testing", "MNIST_MLP_run_"+str(run),
+        {"Cluster": CLUSTER,
         "Use_residual": USE_RESIDUAL,
         "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
         "residual_every_n": RESIDUAL_EVERY_N,
@@ -203,13 +197,13 @@ for run in range(NUMBER_OF_RUNS):
         "n_of_test_samples": N_TEST_SAMPLES,
         "learning_rate": LEARNING_RATE,
         "batch_size": TRAIN_BATCH_SIZE,
-        "architecture": "MLP",
         "dataset": "MNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "1.0.3_cluster_" + str(CLUSTER),
         "Fuse_function": FUSE_FUNCTION,
-        }
-        )
+        "neuron_var": str(neuron_var),
+        "neuron_out_var": str(neuron_out_var),
+        "neuron_res_var": str(neuron_res_var)},
+        False)
 
     print("Training...")
     for epoch in range(N_TRAINING_EPOCHS):
@@ -253,15 +247,6 @@ for run in range(NUMBER_OF_RUNS):
             for g, layer in zip(gradient, network.layers):
                 if g is None:
                     avg_gradient.append(None)
-                # elif isinstance(layer, LIFLayerResidual) and FUSE_FUNCTION == "Append#TEST":
-                #     grad_entry = []
-                #     for i in range(len(g)):
-                #         try:
-                #             averaged_values = cp.mean(g[i], axis=0)
-                #         except:
-                #             averaged_values = cp.mean(g[0], axis=0)
-                #         grad_entry.append(averaged_values)
-                #     avg_gradient.append(grad_entry)
                 else:
                     averaged_values = cp.mean(g, axis=0)
                     avg_gradient.append(averaged_values)
@@ -279,14 +264,14 @@ for run in range(NUMBER_OF_RUNS):
                                 tracker[i] = (tracker[i] + float(cp.mean(avg_gradient[i][j])))/2
                             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
                                 if USE_WANDB:
-                                    wandb.log({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
+                                    w_b.save({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
                                 print("Mean Gradient Magnitude at residual layer "+str(i)+": ", tracker[i])
                                 tracker = [0.0]* len(network.layers)
                         else:
                             tracker[i] = (tracker[i] + float(cp.mean(avg_gradient[i])))/2
                             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
                                 if USE_WANDB:
-                                    wandb.log({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
+                                    w_b.save({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
                                 print("Mean Gradient Magnitude at layer "+str(i)+": ", tracker[i])
                                 tracker = [0.0]* len(network.layers)
             # Apply step
@@ -302,9 +287,8 @@ for run in range(NUMBER_OF_RUNS):
             # Training metrics
             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
                 # Compute metrics
-
                 train_monitors_manager.record(epoch_metrics)
-                train_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB)
+                train_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB, w_b = w_b)
                 train_monitors_manager.export()
                 out_spikes, n_out_spikes = network.output_spike_trains
                 out_copy = cp.copy(out_spikes)
@@ -320,7 +304,7 @@ for run in range(NUMBER_OF_RUNS):
                     print(f'Output layer mean times: {mean_res}')
                     print(f'Output layer first spike: {mean_first}')
                 if USE_WANDB:
-                    wandb.log({"Train_mean_spikes_for_times": float(mean_res), "Train_first_spike_for_times": float(mean_first)})
+                    w_b.save({"Train_mean_spikes_for_times": float(mean_res), "Train_first_spike_for_times": float(mean_first)})
                 
 
             # Test evaluation
@@ -370,7 +354,7 @@ for run in range(NUMBER_OF_RUNS):
                 test_learning_rate_monitor.add(optimizer.learning_rate) # type: ignore
 
                 records = test_monitors_manager.record(epoch_metrics)
-                test_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB)
+                test_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB, w_b = w_b)
                 test_monitors_manager.export()
 
                 acc = records[test_accuracy_monitor]
@@ -383,28 +367,16 @@ for run in range(NUMBER_OF_RUNS):
                     print(f'Output layer mean times: {mean_res}')
                     print(f'Output layer first spike: {mean_first}')
                 if USE_WANDB:
-                    wandb.log({"Test_mean_spikes_for_times": float(mean_res), "Test_first_spike_for_times": float(mean_first)})
+                    w_b.save({"Test_mean_spikes_for_times": float(mean_res), "Test_first_spike_for_times": float(mean_first)})
 
                 if acc > best_acc:
                     best_acc = acc
                     # network.store(SAVE_DIR)
                     print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks save NOT to: {SAVE_DIR}")
-    # best_acc_array.append(best_acc)    
-        
-    # with open('times.txt', 'a') as f:
-    #     string =f'End of run: {c}'+ "\n"
-    #     f.write(string)
+                    
+            if USE_WANDB and ((training_steps % TRAIN_PRINT_PERIOD_STEP == 0) or (training_steps % TEST_PERIOD_STEP == 0)):
+                w_b.log()
     if USE_WANDB:
-        wandb.finish()
+        w_b.finish()
     print("Done!: ", run)
-
-
-# wandb.finish()
-
-# Write average accuracy to file
-# avg_acc = np.mean(best_acc_array)
-# print("Average accuracy: ", avg_acc)
-# with open('avg_acc.txt', 'a') as f:
-#     string = "With # of hidden layers: "+str(N_HIDDEN_LAYERS)+"\n"+ "Residual: "+str(USE_RESIDUAL)+"\n"+ "Residual every: "+str(RESIDUAL_EVERY_N)+"\n"+"Average accuracy: " +  str(avg_acc) + "\n" + "Accuracies:" + str(best_acc_array)+"\n" +"-------------------------------------"+"\n"
-#     f.write(string)
 print("Done!")

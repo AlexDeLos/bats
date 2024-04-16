@@ -1,5 +1,4 @@
 from pathlib import Path
-import wandb
 # import tensorflow as tf
 import cupy as cp
 import numpy as np
@@ -24,6 +23,8 @@ from bats.Layers.ConvLIFLayer_new_Residual import ConvLIFLayer_new_Residual
 from bats.Utils.utils import get_arguments
 
 from bats.Layers.PoolingLayer import PoolingLayer
+from experiments.utils.utils import build_network_SCNN, wandb_handler
+
 
 arguments = get_arguments()
 # Residual arguments
@@ -65,25 +66,27 @@ else:
     INPUT_SHAPE = np.array([32, 32, 1])
 # INPUT_SHAPE = np.array([5,5,2])
 SIMULATION_TIME = 0.2
-
-
-FILTER_1 = np.array([5, 5, 20])
-TAU_S_1 = 0.130
-THRESHOLD_HAT_1 = 0.2
-DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
-SPIKE_BUFFER_SIZE_1 = 1
-
-FILTER_2 = np.array([5, 5, 40])
-TAU_S_2 = 0.130
-THRESHOLD_HAT_2 = 0.8
-DELTA_THRESHOLD_2 = 1 * THRESHOLD_HAT_2
-SPIKE_BUFFER_SIZE_2 = 3
-
-N_NEURONS_FC = 300
-TAU_S_FC = 0.130
-THRESHOLD_HAT_FC = 0.2
-DELTA_THRESHOLD_FC = 1 * THRESHOLD_HAT_FC
-SPIKE_BUFFER_SIZE_FC = 10
+conv_var = {
+    'filter': np.array([5, 5, 15]),
+    'tau_s': 0.130,
+    'threshold_hat': 0.4,
+    'delta_threshold': 1 * 0.4,
+    'spike_buffer_size': 1
+}
+conv_res_var = {
+    'filter': np.array([5, 5, 30]),
+    'tau_s': 0.130,
+    'threshold_hat': 0.4,
+    'delta_threshold': 1 * 0.4,
+    'spike_buffer_size': 1
+}
+fc_var = {
+    'n_neurons': 300,
+    'tau_s': 0.130,
+    'threshold_hat': 0.6,
+    'delta_threshold': 1 * 0.6,
+    'spike_buffer_size': 10
+}
 
 # Output_layer
 if USE_COURSE_LABELS and USE_CIFAR100:
@@ -92,15 +95,17 @@ elif USE_CIFAR100:
     N_OUTPUTS = 100
 else:
     N_OUTPUTS = 10
-TAU_S_OUTPUT = 0.130
-THRESHOLD_HAT_OUTPUT = 0.5
-DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
-SPIKE_BUFFER_SIZE_OUTPUT = 30
 
+
+output_var = {
+    'n_neurons': N_OUTPUTS,
+    'tau_s': 0.130,
+    'threshold_hat': 0.3,
+    'delta_threshold': 1 * 0.3,
+    'spike_buffer_size': 30
+}
 
 N_TRAINING_EPOCHS = arguments.n_epochs
-# Training parameters
-N_TRAINING_EPOCHS = arguments.n_epochs #! used to  be 100
 if CLUSTER:
     N_TRAIN_SAMPLES = 50000 # arguments.n_train_samples
     N_TEST_SAMPLES = 10000 # arguments.n_test_samples #! used to be 10000
@@ -170,146 +175,7 @@ for run in range(NUMBER_OF_RUNS):
 
     print("Creating network...")
     network = Network()
-    input_layer = ConvInputLayer(neurons_shape=INPUT_SHAPE, name="Input layer")
-    network.add_layer(input_layer, input=True)
-
-    #! Standard network builder
-    if not STANDARD:
-        print(USE_RESIDUAL, CLUSTER, N_HIDDEN_LAYERS, RESIDUAL_EVERY_N, run)
-        hidden_layers = []
-        for i in range(N_HIDDEN_LAYERS):
-            if i == 0:
-                conv = ConvLIFLayer(previous_layer=input_layer,
-                                filters_shape=FILTER_1, use_padding=USE_PADDING,
-                                tau_s=TAU_S_1,
-                                filter_from_next=FILTER_1,
-                                theta=THRESHOLD_HAT_1,
-                                delta_theta=DELTA_THRESHOLD_1,
-                                weight_initializer=weight_initializer_conv,
-                                max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                name="Convolution "+str(i))
-            elif i % RESIDUAL_EVERY_N == 0:
-                if USE_RESIDUAL:
-                    if i - RESIDUAL_JUMP_LENGTH < 0:
-                        jump_layer = input_layer
-                    else:
-                        jump_layer = hidden_layers[i - RESIDUAL_JUMP_LENGTH]
-                    conv = ConvLIFLayer_new_Residual(previous_layer=network.layers[-1], jump_layer=jump_layer, filters_shape=FILTER_1, use_padding=USE_PADDING,
-                                tau_s=TAU_S_1,
-                                filter_from_next=FILTER_1,
-                                theta=THRESHOLD_HAT_1,
-                                delta_theta=DELTA_THRESHOLD_1,
-                                weight_initializer=weight_initializer_conv,
-                                max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                name="Convolution Residual "+str(i))
-                else:
-                    conv = ConvLIFLayer(previous_layer=network.layers[-1], filters_shape=FILTER_1, use_padding=USE_PADDING,
-                                tau_s=TAU_S_1,
-                                filter_from_next=FILTER_1,
-                                theta=THRESHOLD_HAT_1,
-                                delta_theta=DELTA_THRESHOLD_1,
-                                weight_initializer=weight_initializer_conv,
-                                max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                name="Convolution "+str(i))
-            else:
-                conv = ConvLIFLayer(previous_layer=conv, filters_shape=FILTER_1, use_padding=USE_PADDING,
-                                tau_s=TAU_S_1,
-                                filter_from_next=FILTER_1,
-                                theta=THRESHOLD_HAT_1,
-                                delta_theta=DELTA_THRESHOLD_1,
-                                weight_initializer=weight_initializer_conv,
-                                max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                name="Convolution "+str(i))
-            hidden_layers.append(conv)
-            network.add_layer(conv)
-        
-
-        pool_final = PoolingLayer(conv, name="Pooling final")
-        network.add_layer(pool_final)
-
-        feedforward = LIFLayer(previous_layer=pool_final, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
-                            theta=THRESHOLD_HAT_FC,
-                            delta_theta=DELTA_THRESHOLD_FC,
-                            weight_initializer=weight_initializer_ff,
-                            max_n_spike=SPIKE_BUFFER_SIZE_FC,
-                            name="Feedforward")
-        network.add_layer(feedforward)
-
-        output_layer = LIFLayer(previous_layer=feedforward, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT,
-                                theta=THRESHOLD_HAT_OUTPUT,
-                                delta_theta=DELTA_THRESHOLD_OUTPUT,
-                                weight_initializer=weight_initializer_ff,
-                                max_n_spike=SPIKE_BUFFER_SIZE_OUTPUT,
-                                name="Output layer")
-        network.add_layer(output_layer)
-    #! end of standard network builder
-
-    # pool_2 = PoolingLayer(conv, name="Pooling 2")
-    # network.add_layer(pool_2)
-    else:
-
-        conv_1 = ConvLIFLayer(previous_layer=input_layer, filters_shape=FILTER_1, tau_s=TAU_S_1,
-                            use_padding=USE_PADDING,
-                            theta=THRESHOLD_HAT_1,
-                            delta_theta=DELTA_THRESHOLD_1,
-                            weight_initializer=weight_initializer_conv,
-                            max_n_spike=SPIKE_BUFFER_SIZE_1,
-                            name="Convolution 1")
-        network.add_layer(conv_1)
-
-        # pool_1 = PoolingLayer(conv_1, name="Pooling 1")
-        # network.add_layer(pool_1)
-
-        conv_1_1 = ConvLIFLayer(previous_layer=conv_1, filters_shape=FILTER_1, tau_s=TAU_S_1,
-                            use_padding=USE_PADDING,
-                            theta=THRESHOLD_HAT_1,
-                            delta_theta=DELTA_THRESHOLD_1,
-                            weight_initializer=weight_initializer_conv,
-                            max_n_spike=SPIKE_BUFFER_SIZE_1,
-                            name="Convolution 1.1")
-        network.add_layer(conv_1_1)
-
-        conv_1_5 = ConvLIFLayer_new_Residual(previous_layer=conv_1_1, jump_layer= conv_1,
-                                filters_shape=FILTER_1, tau_s=TAU_S_1,
-                                use_padding=USE_PADDING,
-                                theta=THRESHOLD_HAT_1,
-                                delta_theta=DELTA_THRESHOLD_1,
-                                weight_initializer=weight_initializer_conv,
-                                max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                name="Convolution-res 1.5")
-        
-        network.add_layer(conv_1_5)
-        
-        pool_1_5 = PoolingLayer(conv_1_5, name="Pooling 1.5")
-        network.add_layer(pool_1_5)
-
-        conv_2 = ConvLIFLayer(previous_layer=pool_1_5, filters_shape=FILTER_2, tau_s=TAU_S_2,
-                            use_padding=USE_PADDING,
-                            theta=THRESHOLD_HAT_2,
-                            delta_theta=DELTA_THRESHOLD_2,
-                            weight_initializer=weight_initializer_conv,
-                            max_n_spike=SPIKE_BUFFER_SIZE_2,
-                            name="Convolution 2")
-        network.add_layer(conv_2)
-
-        pool_2 = PoolingLayer(conv_2, name="Pooling 2")
-        network.add_layer(pool_2)
-
-        feedforward = LIFLayer(previous_layer=pool_2, n_neurons=N_NEURONS_FC, tau_s=TAU_S_FC,
-                            theta=THRESHOLD_HAT_FC,
-                            delta_theta=DELTA_THRESHOLD_FC,
-                            weight_initializer=weight_initializer_ff,
-                            max_n_spike=SPIKE_BUFFER_SIZE_FC,
-                            name="Feedforward 1")
-        network.add_layer(feedforward)
-
-        output_layer = LIFLayer(previous_layer=feedforward, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT,
-                                theta=THRESHOLD_HAT_OUTPUT,
-                                delta_theta=DELTA_THRESHOLD_OUTPUT,
-                                weight_initializer=weight_initializer_ff,
-                                max_n_spike=SPIKE_BUFFER_SIZE_OUTPUT,
-                                name="Output layer")
-        network.add_layer(output_layer)
+    build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, INPUT_SHAPE, STANDARD, N_HIDDEN_LAYERS, conv_var, conv_res_var, fc_var, output_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, USE_PADDING)
 
     loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
@@ -348,12 +214,8 @@ for run in range(NUMBER_OF_RUNS):
     test_monitors_manager = MonitorsManager(all_test_monitors,
                                             print_prefix="Test | ")
     if USE_WANDB:
-        wandb.init(
-        # set the wandb project where this run will be logged
-        project="Final_results",
-        name="CIFAR-10_conv_"+str(USE_PADDING)+"_run_"+str(run),
-        # track hyperparameters and run metadata4
-        config={
+        w_b = wandb_handler("Final_thesis_testing", "EMNIST_run_"+str(run),
+        {
         "Cluster": CLUSTER,
         "Use_residual": USE_RESIDUAL,
         "Standard": STANDARD,
@@ -365,14 +227,14 @@ for run in range(NUMBER_OF_RUNS):
         "use_padding": USE_PADDING,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
-        "Filter": str(FILTER_1)+'|'+str(FILTER_2),
+        "conv": str(conv_var),
+        "conv_res": str(conv_res_var),
         "learning_rate": LEARNING_RATE,
         "architecture": "CNN",
         "dataset": "EMNIST",
         "epochs": N_TRAINING_EPOCHS,
-        "version": "1.0.3_cluster_" + str(CLUSTER),
-        }
-        )
+        },
+        True)
 
     best_acc = 0.0
     tracker = [0.0]* len(network.layers)
@@ -445,14 +307,14 @@ for run in range(NUMBER_OF_RUNS):
                                 tracker[i] = (tracker[i] + float(cp.mean(avg_gradient[i][j])))/2
                             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
                                 if USE_WANDB:
-                                    wandb.log({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
+                                    w_b.save({"Mean Gradient Magnitude at residual layer "+str(i): tracker[i]})
                                 print("Mean Gradient Magnitude at residual layer "+str(i)+": ", tracker[i])
                                 tracker = [0.0]* len(network.layers)
                         else:
                             tracker[i] = (tracker[i] + float(cp.mean(avg_gradient[i])))/2
                             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
                                 if USE_WANDB:
-                                    wandb.log({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
+                                    w_b.save({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
                                 print("Mean Gradient Magnitude at layer "+str(i)+": ", tracker[i])
                                 tracker = [0.0]* len(network.layers)
             # Apply step
@@ -473,7 +335,7 @@ for run in range(NUMBER_OF_RUNS):
                 # Compute metrics
 
                 train_monitors_manager.record(epoch_metrics)
-                train_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB)
+                train_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB, w_b = w_b)
                 train_monitors_manager.export()
                 out_copy = cp.copy(out_spikes)
                 mask = cp.isinf(out_copy)
@@ -488,7 +350,7 @@ for run in range(NUMBER_OF_RUNS):
                     print(f'Output layer mean times: {mean_res}')
                     print(f'Output layer first spike: {mean_first}')
                 if USE_WANDB:
-                    wandb.log({"Train_mean_spikes_for_times": float(mean_res), "Train_first_spike_for_times": float(mean_first)})
+                    w_b.save({"Train_mean_spikes_for_times": float(mean_res), "Train_first_spike_for_times": float(mean_first)})
                 
 
             # Test evaluation
@@ -526,7 +388,7 @@ for run in range(NUMBER_OF_RUNS):
                 test_learning_rate_monitor.add(optimizer.learning_rate)
 
                 records = test_monitors_manager.record(epoch_metrics)
-                test_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB)
+                test_monitors_manager.print(epoch_metrics, use_wandb=USE_WANDB, w_b = w_b)
                 test_monitors_manager.export()
                 
                 mean_res = cp.mean(cp.array(mean_spikes_for_times))
@@ -535,7 +397,7 @@ for run in range(NUMBER_OF_RUNS):
                     print(f'Output layer mean times: {mean_res}')
                     print(f'Output layer first spike: {mean_first}')
                 if USE_WANDB:
-                    wandb.log({"Test_mean_spikes_for_times": float(mean_res), "Test_first_spike_for_times": float(mean_first)})
+                    w_b.save({"Test_mean_spikes_for_times": float(mean_res), "Test_first_spike_for_times": float(mean_first)})
 
 
                 acc = records[test_accuracy_monitor]
@@ -543,6 +405,8 @@ for run in range(NUMBER_OF_RUNS):
                     best_acc = acc
                     # network.store(SAVE_DIR)
                     print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks NOT save to: {SAVE_DIR}")
+            if USE_WANDB and ((training_steps % TRAIN_PRINT_PERIOD_STEP == 0) or (training_steps % TEST_PERIOD_STEP == 0)):
+                w_b.log()
     if USE_WANDB:
-        wandb.finish()
+        w_b.finish()
     print("Done!: ", run)   
