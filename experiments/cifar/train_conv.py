@@ -72,21 +72,21 @@ conv_var = {
     'tau_s': 0.130,
     'threshold_hat': 0.1,
     'delta_threshold': 1 * 0.1,
-    'spike_buffer_size': 1
+    'spike_buffer_size': 15
 }
 conv_res_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
     'threshold_hat': 0.2,
     'delta_threshold': 1 * 0.2,
-    'spike_buffer_size': 1
+    'spike_buffer_size': 15
 }
 fc_var = {
     'n_neurons': 300,
     'tau_s': 0.130,
     'threshold_hat': 0.3,
     'delta_threshold': 1 * 0.3,
-    'spike_buffer_size': 10
+    'spike_buffer_size': 20
 }
 # Output_layer
 if USE_COURSE_LABELS and USE_CIFAR100:
@@ -127,7 +127,7 @@ LEARNING_RATE = arguments.learning_rate
 LR_DECAY_EPOCH = 5  # Perform decay very n epochs
 LR_DECAY_FACTOR = 0.25
 MIN_LEARNING_RATE = 1e-6
-TARGET_FALSE = 10
+TARGET_FALSE = 3
 TARGET_TRUE = 30
 
 # Plot parameters
