@@ -65,28 +65,28 @@ conv_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
     'threshold_hat': 0.1,
-    'delta_threshold': 1 * 0.4,
+    'delta_threshold': 1 * 0.1,
     'spike_buffer_size': 1
 }
 conv_res_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
     'threshold_hat': 0.2,
-    'delta_threshold': 1 * 0.4,
+    'delta_threshold': 1 * 0.2,
     'spike_buffer_size': 1
 }
 fc_var = {
     'n_neurons': 300,
     'tau_s': 0.130,
-    'threshold_hat': 0.1,
-    'delta_threshold': 1 * 0.2,
+    'threshold_hat': 0.3,
+    'delta_threshold': 1 * 0.3,
     'spike_buffer_size': 10
 }
 output_var = {
     'n_neurons': 47,
     'tau_s': 0.130,
     'threshold_hat': 0.3,
-    'delta_threshold': 1 * 1.3,
+    'delta_threshold': 1 * 0.3,
     'spike_buffer_size': 30
 }
 N_TRAINING_EPOCHS = arguments.n_epochs

@@ -65,22 +65,22 @@ CHANNELS = 15
 conv_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
-    'threshold_hat': 0.4,
-    'delta_threshold': 1 * 0.4,
+    'threshold_hat': 0.1,
+    'delta_threshold': 1 * 0.1,
     'spike_buffer_size': 1
 }
 conv_res_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
-    'threshold_hat': 0.4,
-    'delta_threshold': 1 * 0.4,
+    'threshold_hat': 0.2,
+    'delta_threshold': 1 * 0.2,
     'spike_buffer_size': 1
 }
 fc_var = {
     'n_neurons': 300,
     'tau_s': 0.130,
-    'threshold_hat': 0.6,
-    'delta_threshold': 1 * 0.6,
+    'threshold_hat': 0.3,
+    'delta_threshold': 1 * 0.3,
     'spike_buffer_size': 10
 }
 output_var = {
@@ -90,7 +90,6 @@ output_var = {
     'delta_threshold': 1 * 0.3,
     'spike_buffer_size': 30
 }
-
 # Training parameters
 if CLUSTER:
     N_TRAIN_SAMPLES = 60000
@@ -307,8 +306,8 @@ for run in range(NUMBER_OF_RUNS):
                             tracker[i] = (tracker[i] + float(cp.mean(cp.abs(avg_gradient[i]))))/2
                             if training_steps % TRAIN_PRINT_PERIOD_STEP == 0:
                                 w_b.save({"Mean Gradient Magnitude at layer "+str(i): tracker[i]})
-                                if not CLUSTER:
-                                    print("Mean Gradient Magnitude at layer "+str(i)+": ", tracker[i])
+                                # if not CLUSTER:
+                                #     print("Mean Gradient Magnitude at layer "+str(i)+": ", tracker[i])
                                 tracker = [0.0]* len(network.layers)
             # Apply step
             deltas = optimizer.step(avg_gradient)

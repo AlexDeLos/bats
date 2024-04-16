@@ -60,25 +60,31 @@ SIMULATION_TIME = 0.2
 
 #Residual parameters
 neuron_var = {
-    "n_neurons": 1000,
-    "tau_s": 0.130,
-    "threshold_hat": 0.5,
-    "delta_threshold": 1 * 0.5,
-    "spike_buffer_size": 30
+    'n_neurons': 800,
+    'tau_s': 0.130,
+    'threshold_hat': 0.2,
+    'delta_threshold': 1 * 0.2,
+    'spike_buffer_size': 5
 }
+if USE_COURSE_LABELS and USE_CIFAR100:
+    N_OUTPUTS = 20
+elif USE_CIFAR100:
+    N_OUTPUTS = 100
+else:
+    N_OUTPUTS = 10
 neuron_out_var = {
-    "n_neurons": 1000,
-    "tau_s": 0.130,
-    "threshold_hat": 0.7,
-    "delta_threshold": 1 * 0.5,
-    "spike_buffer_size": 30
+    'n_neurons': N_OUTPUTS,
+    'tau_s': 0.130,
+    'threshold_hat': 0.7,
+    'delta_threshold': 1 * 0.7,
+    'spike_buffer_size': 20
 }
 neuron_res_var = {
-    "n_neurons": 1000,
-    "tau_s": 0.130,
-    "threshold_hat": 0.5,
-    "delta_threshold": 1 * 0.5,
-    "spike_buffer_size": 30
+    'n_neurons': 800,
+    'tau_s': 0.130,
+    'threshold_hat': 0.25,
+    'delta_threshold': 1 * 0.25,
+    'spike_buffer_size': 5
 }
 NUMBER_OF_RUNS = arguments.runs
 

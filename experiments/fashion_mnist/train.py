@@ -2,8 +2,6 @@ from operator import ne
 from pathlib import Path
 import cupy as cp
 import numpy as np
-import wandb
-
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))

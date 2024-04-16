@@ -84,8 +84,8 @@ conv_res_var = {
 fc_var = {
     'n_neurons': 300,
     'tau_s': 0.130,
-    'threshold_hat': 0.1,
-    'delta_threshold': 1 * 0.1,
+    'threshold_hat': 0.3,
+    'delta_threshold': 1 * 0.3,
     'spike_buffer_size': 10
 }
 # Output_layer
@@ -95,7 +95,6 @@ elif USE_CIFAR100:
     N_OUTPUTS = 100
 else:
     N_OUTPUTS = 10
-
 
 output_var = {
     'n_neurons': N_OUTPUTS,
@@ -232,7 +231,7 @@ for run in range(NUMBER_OF_RUNS):
         "conv_res": str(conv_res_var),
         "learning_rate": LEARNING_RATE,
         "architecture": "CNN",
-        "dataset": "EMNIST",
+        "dataset": "CIFAR100" if USE_CIFAR100 else "CIFAR10",
         "epochs": N_TRAINING_EPOCHS,
         },
         True)
