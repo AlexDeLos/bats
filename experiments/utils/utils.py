@@ -11,8 +11,7 @@ class wandb_handler:
     def __init__(self, project_name, experiment_name, config, cnn):
         self.project_name = project_name
         self.experiment_name = experiment_name
-        # self.run = wandb.init(project=project_name, name=experiment_name, config=config)
-        self.run = None
+        self.run = wandb.init(project=project_name, name=experiment_name, config=config)
         self.cache = {}
         if not cnn:
             self.config = {
@@ -31,6 +30,7 @@ class wandb_handler:
                 "neuron_var": config['neuron_var'],
                 "neuron_out_var": config['neuron_out_var'],
                 "neuron_res_var": config['neuron_res_var'],
+                "version": "1.1.0",
             }
         else:
             self.config = {
@@ -56,9 +56,7 @@ class wandb_handler:
     def save(self, log_dict):
         self.cache.update(log_dict)
     def log(self):
-        # print(self.cache)
-        pass
-        # self.run.log(self.cache)
+        self.run.log(self.cache)
     def finish(self):
         self.run.finish()
 
