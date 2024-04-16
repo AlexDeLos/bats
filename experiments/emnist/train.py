@@ -14,6 +14,7 @@ from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *
 from bats.Utils.utils import get_arguments
+from experiments.utils.utils import build_network_SNN
 
 DATASET_PATH = Path("./datasets/emnist-balanced.mat")
 
@@ -41,27 +42,27 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 
 # Hidden layer
-N_NEURONS_1 = 800
-TAU_S_1 = 0.130
-THRESHOLD_HAT_1 = 0.2 # activation threshold
-DELTA_THRESHOLD_1 = 1 * THRESHOLD_HAT_1
-SPIKE_BUFFER_SIZE_1 = 5
-# Residual layer
-if CLUSTER:
-    N_NEURONS_RES = 800 #!800 #? Should I lower it?
-else:
-    N_NEURONS_RES = 400
-TAU_S_RES = 0.130 # post synaptic time constant
-THRESHOLD_HAT_RES = 0.2
-DELTA_THRESHOLD_RES = 1 * THRESHOLD_HAT_RES
-SPIKE_BUFFER_SIZE_RES = 5
-
-# Output_layer
-N_OUTPUTS = 47
-TAU_S_OUTPUT = 0.130
-THRESHOLD_HAT_OUTPUT = 0.5
-DELTA_THRESHOLD_OUTPUT = 1 * THRESHOLD_HAT_OUTPUT
-SPIKE_BUFFER_SIZE_OUTPUT = 20
+neuron_var = {
+    "n_neurons": 800,
+    "tau_s": 0.130,
+    "threshold_hat": 0.2,
+    "delta_threshold": 1 * 0.2,
+    "spike_buffer_size": 5
+}
+neuron_res_var = {
+    "n_neurons": 800,
+    "tau_s": 0.130,
+    "threshold_hat": 0.2,
+    "delta_threshold": 1 * 0.2,
+    "spike_buffer_size": 5
+}
+neuron_out_var = {
+    "n_neurons": 47,
+    "tau_s": 0.130,
+    "threshold_hat": 0.5,
+    "delta_threshold": 1 * 0.5,
+    "spike_buffer_size": 20
+}
 # Training parameters
 N_TRAINING_EPOCHS = arguments.n_epochs #! used to  be 100
 if CLUSTER:
@@ -117,58 +118,9 @@ for run in range(NUMBER_OF_RUNS):
 
     print("Creating network...")
     network = Network()
-    input_layer = InputLayer(n_neurons=N_INPUTS, name="Input layer")
-    network.add_layer(input_layer, input=True)
 
-    hidden_layers = []
-    for i in range(N_HIDDEN_LAYERS):
-        if i == 0:
-            hidden_layer = LIFLayer(previous_layer=input_layer, n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-                                    theta=THRESHOLD_HAT_1,
-                                    delta_theta=DELTA_THRESHOLD_1,
-                                    weight_initializer=weight_initializer,
-                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                    name="Hidden layer 0")
-        elif i % RESIDUAL_EVERY_N ==0 and USE_RESIDUAL:
-            if i - RESIDUAL_JUMP_LENGTH < 0:
-                jump_layer = input_layer
-            else:
-                jump_layer = hidden_layers[i - RESIDUAL_JUMP_LENGTH]
-            hidden_layer = LIFLayerResidual(previous_layer=hidden_layers[i-1],
-                                            # jump_layer= hidden_layers[i-1],
-                                            jump_layer = jump_layer,
-                                            n_neurons=N_NEURONS_RES, tau_s=TAU_S_RES,
-                                            theta=THRESHOLD_HAT_RES,
-                                            fuse_function=FUSE_FUNCTION,
-                                            delta_theta=DELTA_THRESHOLD_RES,
-                                            weight_initializer=weight_initializer,
-                                            max_n_spike=SPIKE_BUFFER_SIZE_RES,
-                                            name="Residual layer " + str(i))
-        elif i % RESIDUAL_EVERY_N ==0 and not USE_RESIDUAL:
-            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-                                    theta=THRESHOLD_HAT_1,
-                                    delta_theta=DELTA_THRESHOLD_1,
-                                    weight_initializer=weight_initializer,
-                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                    name="Hidden layer " + str(i))
-
-        else:
-            hidden_layer = LIFLayer(previous_layer=hidden_layers[i-1], n_neurons=N_NEURONS_1, tau_s=TAU_S_1,
-                                    theta=THRESHOLD_HAT_1,
-                                    delta_theta=DELTA_THRESHOLD_1,
-                                    weight_initializer=weight_initializer,
-                                    max_n_spike=SPIKE_BUFFER_SIZE_1,
-                                    name="Hidden layer " + str(i))
-        hidden_layers.append(hidden_layer)
-        network.add_layer(hidden_layer)
-        
-    output_layer = LIFLayer(previous_layer=hidden_layer, n_neurons=N_OUTPUTS, tau_s=TAU_S_OUTPUT, # type: ignore
-                    theta=THRESHOLD_HAT_OUTPUT,
-                    delta_theta=DELTA_THRESHOLD_OUTPUT,
-                    weight_initializer=weight_initializer,
-                    max_n_spike=SPIKE_BUFFER_SIZE_OUTPUT,
-                    name="Output layer")
-    network.add_layer(output_layer)
+    build_network_SNN(network,weight_initializer,N_INPUTS, N_HIDDEN_LAYERS, neuron_var, neuron_out_var, neuron_res_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, FUSE_FUNCTION)
+    
     
     for layer in network.layers:
         if isinstance(layer, LIFLayerResidual):
