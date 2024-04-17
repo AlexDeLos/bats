@@ -187,12 +187,12 @@ class LIFLayerResidual(AbstractLayer):
     
     def store(self, dir_path: Path) -> None:
         weights = self.weights
-        if weights is not None:
-            pre,_ = WEIGHTS_FILE_SUFFIX.split('.npy')
-            filename_res = dir_path / (self._name + pre + "_res" + '.npy')
-            filename_jump = dir_path / (self._name + pre + "_jump" + '.npy')
-            np.save(filename_res, self.__weights_res.get())
-            np.save(filename_jump, self.__weights_jump.get())
+        # if weights is not None:
+        #     pre,_ = WEIGHTS_FILE_SUFFIX.split('.npy')
+        #     filename_res = dir_path / (self._name + pre + "_res" + '.npy')
+        #     filename_jump = dir_path / (self._name + pre + "_jump" + '.npy')
+        #     np.save(filename_res, self.__weights_res.get())
+        #     np.save(filename_jump, self.__weights_jump.get())
 
     def restore(self, dir_path: Path) -> None:
         pre,_ = WEIGHTS_FILE_SUFFIX.split('.npy')
