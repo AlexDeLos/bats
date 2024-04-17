@@ -11,8 +11,6 @@ class wandb_handler:
     def __init__(self, project_name, experiment_name, config, cnn):
         self.project_name = project_name
         self.experiment_name = experiment_name
-        self.run = wandb.init(project=project_name, name=experiment_name, config=config)
-        self.cache = {}
         if not cnn:
             self.config = {
                 "Cluster": config['Cluster'],
@@ -30,29 +28,36 @@ class wandb_handler:
                 "neuron_var": config['neuron_var'],
                 "neuron_out_var": config['neuron_out_var'],
                 "neuron_res_var": config['neuron_res_var'],
+                "true target": config['True_target'],
+                "false target": config['False_target'],
+                "architecture": "SNN",
                 "version": "1.1.0",
             }
         else:
             self.config = {
-            "Cluster": config['Cluster'],
-            "Use_residual": config['Use_residual'],
-            "Standard": config['Standard'],
-            "N_HIDDEN_LAYERS": config['N_HIDDEN_LAYERS'],
-            "batch_size": config['batch_size'],
-            "residual_every_n": config['residual_every_n'],
-            "residual_jump_length": config['residual_jump_length'],
-            "use_residual": config['use_residual'],
-            "use_padding": config['use_padding'],
-            "n_of_train_samples": config['n_of_train_samples'],
-            "n_of_test_samples": config['n_of_test_samples'],
-            "conv_var": config['conv'],
-            "conv_res_var": config['conv_res'],
-            "learning_rate": config['learning_rate'],
-            "architecture": "CNN",
-            "dataset": config['dataset'],
-            "epochs": config['epochs'],
-            "version": "1.1.0",
+                "Cluster": config['Cluster'],
+                "Use_residual": config['Use_residual'],
+                "Standard": config['Standard'],
+                "N_HIDDEN_LAYERS": config['N_HIDDEN_LAYERS'],
+                "batch_size": config['batch_size'],
+                "residual_every_n": config['residual_every_n'],
+                "residual_jump_length": config['residual_jump_length'],
+                "use_residual": config['use_residual'],
+                "use_padding": config['use_padding'],
+                "n_of_train_samples": config['n_of_train_samples'],
+                "n_of_test_samples": config['n_of_test_samples'],
+                "conv_var": config['conv'],
+                "conv_res_var": config['conv_res'],
+                "learning_rate": config['learning_rate'],
+                "architecture": "CNN",
+                "dataset": config['dataset'],
+                "epochs": config['epochs'],
+                "true target": config['True_target'],
+                "false target": config['False_target'],
+                "version": "1.1.0",
             }
+        self.run = wandb.init(project=project_name, name=experiment_name, config=self.config)
+        self.cache = {}
     def save(self, log_dict):
         self.cache.update(log_dict)
     def log(self):

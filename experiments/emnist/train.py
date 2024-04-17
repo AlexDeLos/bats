@@ -173,6 +173,8 @@ for run in range(NUMBER_OF_RUNS):
         "batch_size": TRAIN_BATCH_SIZE,
         "dataset": "EMNIST",
         "epochs": N_TRAINING_EPOCHS,
+        "True_target": TARGET_TRUE,
+        "False_target": TARGET_FALSE,
         "Fuse_function": FUSE_FUNCTION,
         "neuron_var": str(neuron_var),
         "neuron_out_var": str(neuron_out_var),
@@ -330,8 +332,8 @@ for run in range(NUMBER_OF_RUNS):
                     best_acc = acc
                     # network.store(SAVE_DIR)
                     print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks NOT save to: {SAVE_DIR}")
-            if USE_WANDB and ((training_steps % TRAIN_PRINT_PERIOD_STEP == 0) or (training_steps % TEST_PERIOD_STEP == 0)):
-                w_b.log()
+        if USE_WANDB:
+            w_b.log()
     if USE_WANDB:
         w_b.finish()
     print("Done!: ", run)   

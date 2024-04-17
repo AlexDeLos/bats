@@ -94,8 +94,6 @@ if CLUSTER:
 else:
     N_TRAIN_SAMPLES = 6000
     N_TEST_SAMPLES = 1000
-    TRAIN_BATCH_SIZE = 15
-    TEST_BATCH_SIZE = 10
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
 TRAIN_PRINT_PERIOD = 0.1
@@ -221,6 +219,8 @@ for run in range(NUMBER_OF_RUNS):
         "architecture": "CNN",
         "dataset": "MNIST",
         "epochs": N_TRAINING_EPOCHS,
+        "True_target": TARGET_TRUE,
+        "False_target": TARGET_FALSE,
         },
         True)
     else:
@@ -389,8 +389,8 @@ for run in range(NUMBER_OF_RUNS):
                     best_acc = acc
                     # network.store(SAVE_DIR)
                     print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks NOT save to: {SAVE_DIR}")
-            if USE_WANDB and ((training_steps % TRAIN_PRINT_PERIOD_STEP == 0) or (training_steps % TEST_PERIOD_STEP == 0)):
-                w_b.log()
+        if USE_WANDB:
+            w_b.log()
     if USE_WANDB:
         w_b.finish()
     print("Done!: ", run)   
