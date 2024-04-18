@@ -226,7 +226,7 @@ for run in range(NUMBER_OF_RUNS):
         "conv_res": str(conv_res_var),
         "learning_rate": LEARNING_RATE,
         "architecture": "CNN",
-        "dataset": "fashion mnist",
+        "dataset": "fashion MNIST",
         "epochs": N_TRAINING_EPOCHS,
         "True_target": TARGET_TRUE,
         "False_target": TARGET_FALSE,
