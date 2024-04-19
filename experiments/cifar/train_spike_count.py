@@ -44,7 +44,7 @@ USE_CIFAR100 = arguments.cifar100
 # Change from small test on computer to big test on cluster
 USE_COURSE_LABELS = arguments.use_coarse_labels
 USE_3_CHANNELS = arguments.use_3_channels
-FUSE_FUNCTION = "Append"
+FUSE_FUNCTION = arguments.fuse_func
 #TODO: try to get the non append function to run out of memory
 if USE_CIFAR100:
     DATASET_PATH = "./datasets/cifar-100-python/"

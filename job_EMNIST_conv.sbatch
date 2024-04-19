@@ -14,7 +14,7 @@
 
 #SBATCH --mail-type=END
 
-#SBATCH --gres=gpu
+#SBATCH --gres=gpu:2
 
 # source ~/.bashrc
 

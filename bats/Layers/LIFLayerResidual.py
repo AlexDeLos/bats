@@ -96,6 +96,8 @@ class LIFLayerResidual(AbstractLayer):
         new_max_n_spike = max(pre_spike_per_neuron1.shape[2], pre_spike_per_neuron2.shape[2])
         if self.__fuse_function == "Append":
             pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs_append(pre_spike_per_neuron1, pre_spike_per_neuron2, pre_n_spike_per_neuron1, pre_n_spike_per_neuron2, new_max_n_spike)
+        elif self.__fuse_function == "Stack":
+            pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs_stack(pre_spike_per_neuron1, pre_spike_per_neuron2, pre_n_spike_per_neuron1, pre_n_spike_per_neuron2, new_max_n_spike)
         else:
             pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs(pre_spike_per_neuron1, pre_spike_per_neuron2, pre_n_spike_per_neuron1, pre_n_spike_per_neuron2, new_max_n_spike)
 
@@ -222,6 +224,13 @@ def fuse_inputs_append(residual_input, jump_input, count_residual, count_jump, m
     # result_spikes = residual_input
     return result_spikes, result_count
 
+def fuse_inputs_stack(residual_input, jump_input, count_residual, count_jump, max_n_spike, delay = None) -> Tuple[cp.ndarray, cp.ndarray]:
+    # in this function we add the 2 inputs together
+    count = count_residual + count_jump
+    result = cp.concatenate([residual_input, jump_input], axis=2)
+    # sort the spikes on the last axis of the result
+    result = cp.sort(result, axis=2)
+    return result, count
 
 def fuse_inputs(residual_input, jump_input, count_residual, count_jump, max_n_spike, delay = None) -> Tuple[cp.ndarray, cp.ndarray]:
     #! Illegal memory error still occurs even without this code
