@@ -6,9 +6,9 @@
 
 #SBATCH --time=32:00:00
 
-#SBATCH --ntasks=2
+#SBATCH --ntasks=1
 
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=1
 
 #SBATCH --mem=16384
 
