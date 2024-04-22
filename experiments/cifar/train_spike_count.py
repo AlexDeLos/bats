@@ -208,7 +208,7 @@ for run in range(NUMBER_OF_RUNS):
         "epochs": N_TRAINING_EPOCHS,
         "True_target": TARGET_TRUE,
         "False_target": TARGET_FALSE,
-        "Fuse_function": FUSE_FUNCTION,
+        "Fuse_function": FUSE_FUNCTION if USE_RESIDUAL else "NA",
         "neuron_var": str(neuron_var),
         "neuron_out_var": str(neuron_out_var),
         "neuron_res_var": str(neuron_res_var),},

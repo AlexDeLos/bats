@@ -213,7 +213,7 @@ for run in range(NUMBER_OF_RUNS):
     test_monitors_manager = MonitorsManager(all_test_monitors,
                                             print_prefix="Test | ")
     if USE_WANDB:
-        w_b = wandb_handler("Final_thesis_testing", "EMNIST_run_"+str(run),
+        w_b = wandb_handler("Final_thesis_testing", "CIFAR_conv_run_"+str(run),
         {
         "Cluster": CLUSTER,
         "Use_residual": USE_RESIDUAL,
