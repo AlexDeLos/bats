@@ -31,7 +31,7 @@ class wandb_handler:
                 "true target": config['True_target'],
                 "false target": config['False_target'],
                 "architecture": "SNN",
-                "version": "1.1.0",
+                "version": "1.1.1",
             }
         else:
             self.config = {
@@ -54,7 +54,7 @@ class wandb_handler:
                 "epochs": config['epochs'],
                 "true target": config['True_target'],
                 "false target": config['False_target'],
-                "version": "1.1.0",
+                "version": "1.1.1",
             }
         self.run = wandb.init(project=project_name, name=experiment_name, config=self.config)
         self.cache = {}
