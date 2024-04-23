@@ -70,22 +70,22 @@ CHANNELS = 10
 conv_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
-    'threshold_hat': 0.1,
-    'delta_threshold': 1 * 0.1,
+    'threshold_hat': 0.04,
+    'delta_threshold': 1 * 0.04,
     'spike_buffer_size': 10
 }
 conv_res_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
-    'threshold_hat': 0.1,
-    'delta_threshold': 1 * 0.1,
+    'threshold_hat': 0.04,
+    'delta_threshold': 1 * 0.04,
     'spike_buffer_size': 10
 }
 fc_var = {
     'n_neurons': 300,
     'tau_s': 0.130,
-    'threshold_hat': 0.1,
-    'delta_threshold': 1 * 0.1,
+    'threshold_hat': 0.6,
+    'delta_threshold': 1 * 0.6,
     'spike_buffer_size': 20
 }
 # Output_layer
@@ -99,8 +99,8 @@ else:
 output_var = {
     'n_neurons': N_OUTPUTS,
     'tau_s': 0.130,
-    'threshold_hat': 0.1,
-    'delta_threshold': 1 * 0.1,
+    'threshold_hat': 0.5,
+    'delta_threshold': 1 * 0.5,
     'spike_buffer_size': 30
 }
 
@@ -127,7 +127,7 @@ LEARNING_RATE = arguments.learning_rate
 LR_DECAY_EPOCH = 5  # Perform decay very n epochs
 LR_DECAY_FACTOR = 0.25
 MIN_LEARNING_RATE = 1e-6
-TARGET_FALSE = 5
+TARGET_FALSE = 10
 TARGET_TRUE = 30
 
 # Plot parameters

@@ -108,11 +108,7 @@ class LIFLayer(AbstractLayer):
             spikes = self.__spike_times_per_neuron
             count = self.__n_spike_per_neuron
             test3 = self.__post_exp_tau
-            # print(self.name, 'out')
-            # print(count)
-            # print(cp.where(count!=0))
-            # if not (count != 0).any():
-            #     print(f"Layer {self.name} has no spikes")
+            # count = self.__n_spike_per_neuron
             # print(self.name)
             # print(cp.where(count!=0)[0].shape)
             test4 = self.__a

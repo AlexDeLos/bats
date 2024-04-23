@@ -167,8 +167,9 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
             count = self.__n_spike_per_neuron #! they no longer have the 28*28 size
             # new_x = self.__x #-> the X here is always the same size as the spikes
             # #? what does the X represent?
-            # ewrwe = 0
-            # print(cp.where(count !=0))
+            # count = self.__n_spike_per_neuron
+            # print(self.name)
+            # print(cp.where(count!=0)[0].shape)
             sad = ""
 
     def backward(self, errors_in: cp.array, from_res = False) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:

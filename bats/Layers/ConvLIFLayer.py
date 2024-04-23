@@ -148,7 +148,7 @@ class ConvLIFLayer(AbstractConvLayer):
                                                            self.__tau, cp.float32(max_simulation), self.__max_n_spike,
                                                            new_shape_previous, self.neurons_shape,
                                                            self.__filters_shape)
-            # # #? what does the X represent?
+            #? what does the X represent?
             # count = self.__n_spike_per_neuron
             # print(self.name)
             # print(cp.where(count!=0)[0].shape)
