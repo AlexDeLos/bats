@@ -58,8 +58,8 @@ neuron_out_var = {
 neuron_res_var = {
     'n_neurons': 800,
     'tau_s': 0.130,
-    'threshold_hat': 0.25,
-    'delta_threshold': 1 * 0.25,
+    'threshold_hat': 0.3,
+    'delta_threshold': 1 * 0.3,
     'spike_buffer_size': 5
 }
 

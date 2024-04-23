@@ -50,17 +50,17 @@ neuron_var = {
     'spike_buffer_size': 5
 }
 neuron_out_var = {
-    'n_neurons': 47,
+    'n_neurons': 10,
     'tau_s': 0.130,
-    'threshold_hat': 0.7,
-    'delta_threshold': 1 * 0.7,
+    'threshold_hat': 1.3,
+    'delta_threshold': 1 * 1.3,
     'spike_buffer_size': 20
 }
 neuron_res_var = {
     'n_neurons': 800,
     'tau_s': 0.130,
-    'threshold_hat': 0.25,
-    'delta_threshold': 1 * 0.25,
+    'threshold_hat': 0.2,
+    'delta_threshold': 1 * 0.2,
     'spike_buffer_size': 5
 }
 # Training parameters
