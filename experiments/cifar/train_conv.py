@@ -7,6 +7,7 @@ import os
 import sys
 
 
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 # from Dataset import Dataset
 from Dataset_cifar import Dataset
@@ -42,6 +43,7 @@ USE_RESIDUAL = arguments.use_residual
 RESIDUAL_JUMP_LENGTH = arguments.residual_jump_length
 FIX_SEED = False
 USE_PADDING = arguments.use_pad #! residual and padd gives nans
+USE_DELAY = arguments.use_delay
 USE_CIFAR100 = arguments.cifar100	
 USE_COURSE_LABELS = arguments.use_coarse_labels
 USE_3_CHANNELS = arguments.use_3_channels #! false could be broken
@@ -174,7 +176,7 @@ for run in range(NUMBER_OF_RUNS):
 
     print("Creating network...")
     network = Network()
-    build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, INPUT_SHAPE, STANDARD, N_HIDDEN_LAYERS, conv_var, conv_res_var, fc_var, output_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, USE_PADDING)
+    build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, INPUT_SHAPE, STANDARD, N_HIDDEN_LAYERS, conv_var, conv_res_var, fc_var, output_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, USE_PADDING, USE_DELAY)
 
     loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
@@ -224,6 +226,7 @@ for run in range(NUMBER_OF_RUNS):
         "residual_jump_length": RESIDUAL_JUMP_LENGTH,
         "use_residual": USE_RESIDUAL,
         "use_padding": USE_PADDING,
+        "use_delay": USE_DELAY,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
         "channels": CHANNELS,

@@ -101,20 +101,21 @@ class Dataset:
         # spike_times = samples.reshape((samples.shape[0], N_NEURONS, 3))# now this assumes 3 channels
         spike_times = TIME_WINDOW * (1 - (samples / MAX_VALUE))
         spike_times[spike_times == TIME_WINDOW] = np.inf
+        stack = samples.reshape((samples.shape[0], 3,N_NEURONS))
         if self.__use_multi_channel:
-            spike_times = spike_times.reshape((samples.shape[0], 3, 32, 32))
-            spike_times = spike_times.transpose(0,2,3,1)
-            n_spike_per_neuron_3_channels = np.isfinite(spike_times).astype('int').reshape((samples.shape[0], N_NEURONS,3))
-            return spike_times, n_spike_per_neuron_3_channels
-
+            averaged_spike_times = stack
         else:
-            stack = samples.reshape((samples.shape[0], 3,N_NEURONS))
-            averaged_spike_times = np.mean(stack, axis=1, keepdims=True) # Here I take the mean of the 3 channels, it is also worth to try just running the 3 channels separately
-            spike_times_av = TIME_WINDOW * (1 - (averaged_spike_times / MAX_VALUE))
-            spike_times_av[spike_times_av == TIME_WINDOW] = np.inf
+            # Here I take the mean of the 3 channels, it is also worth to try just running the 3 channels separately
+            averaged_spike_times = np.mean(stack, axis=1, keepdims=True)
+        spike_times_av = TIME_WINDOW * (1 - (averaged_spike_times / MAX_VALUE))
+        spike_times_av[spike_times_av == TIME_WINDOW] = np.inf
+        if self.__use_multi_channel:
+            n_spike_per_neuron = np.isfinite(spike_times_av).astype('int').reshape((samples.shape[0], N_NEURONS*3))
+            spike_times_av_ret = spike_times_av.reshape((samples.shape[0], N_NEURONS*3, 1))
+        else:
             n_spike_per_neuron = np.isfinite(spike_times_av).astype('int').reshape((samples.shape[0], N_NEURONS))
             spike_times_av_ret = spike_times_av.reshape((samples.shape[0], N_NEURONS, 1))
-            return spike_times_av_ret, n_spike_per_neuron
+        return spike_times_av_ret, n_spike_per_neuron
 
     def shuffle(self) -> None:
         shuffled_indices = np.arange(len(self.__train_labels))

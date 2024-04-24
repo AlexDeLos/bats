@@ -12,9 +12,10 @@ WEIGHTS_FILE_SUFFIX = "_weights.npy"
 
 class LIFLayerResidual(AbstractLayer):
     def __init__(self, previous_layer: AbstractLayer, jump_layer: AbstractLayer, tau_s: float, theta: float, delta_theta: float,
-                 weight_initializer: Callable[[int, int], cp.ndarray] = None, fuse_function = "Append", max_n_spike: int = 32, **kwargs): # type: ignore
+                 weight_initializer: Callable[[int, int], cp.ndarray] = None, fuse_function = "Append", use_delay = False, max_n_spike: int = 32, **kwargs): # type: ignore
         super().__init__(**kwargs, is_residual=True)
         self._is_residual = True
+        self.use_delay = use_delay
         self.__previous_layer: AbstractLayer = previous_layer
         self.__jump_layer: AbstractLayer = jump_layer
         self.__tau_s_res: cp.float32 = cp.float32(tau_s)
@@ -207,32 +208,52 @@ class LIFLayerResidual(AbstractLayer):
 
 
 
-def fuse_inputs_append(residual_input, jump_input, count_residual, count_jump, max_n_spike, delay = None) -> Tuple[cp.ndarray, cp.ndarray]:
+def fuse_inputs_append(pre_input, jump_input, count_residual, count_jump, max_n_spike, delay = False) -> Tuple[cp.ndarray, cp.ndarray]:
     # batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
     # batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
 
+    if delay:
+        copy_pre_spike_per_neuron = cp.copy(pre_input)
+        non_inf_values_pre = copy_pre_spike_per_neuron[cp.isfinite(copy_pre_spike_per_neuron)]  # Select non-inf values
+        average_non_inf_pre = cp.mean(non_inf_values_pre)
+        copy_jump_spike_per_neuron = cp.copy(jump_input)
+        non_inf_values_jump = copy_jump_spike_per_neuron[cp.isfinite(copy_jump_spike_per_neuron)]
+        average_non_inf_jump = cp.mean(non_inf_values_jump)
+        time_delay = average_non_inf_pre - average_non_inf_jump
+        pre_input = pre_input+ time_delay
+        jump_input = jump_input+ time_delay
     result_count =cp.append(count_residual, count_jump, axis=1)
     # this changes the effect
     # result_count = count_residual
     # result_count = cp.zeros((residual_input.shape))
-    if jump_input.shape[2] != residual_input.shape[2]:
-        jump_input = cp.pad(jump_input, ((0, 0), (0, 0), (0, residual_input.shape[2] - jump_input.shape[2])), mode='constant', constant_values=cp.inf)
-    result_spikes = np.append(residual_input, jump_input, axis=1)
+    if jump_input.shape[2] != pre_input.shape[2]:
+        jump_input = cp.pad(jump_input, ((0, 0), (0, 0), (0, pre_input.shape[2] - jump_input.shape[2])), mode='constant', constant_values=cp.inf)
+    result_spikes = np.append(pre_input, jump_input, axis=1)
     if cp.any(result_count > max_n_spike):
         raise ValueError("The count of spikes is greater than the max number of spikes")
     # result_count = count_residual
     # result_spikes = residual_input
     return result_spikes, result_count
 
-def fuse_inputs_stack(residual_input, jump_input, count_residual, count_jump, max_n_spike, delay = None) -> Tuple[cp.ndarray, cp.ndarray]:
+def fuse_inputs_stack(pre_input, jump_input, count_residual, count_jump, max_n_spike, delay = False) -> Tuple[cp.ndarray, cp.ndarray]:
     # in this function we add the 2 inputs together
+    if delay:
+        copy_pre_spike_per_neuron = cp.copy(pre_input)
+        non_inf_values_pre = copy_pre_spike_per_neuron[cp.isfinite(copy_pre_spike_per_neuron)]  # Select non-inf values
+        average_non_inf_pre = cp.mean(non_inf_values_pre)
+        copy_jump_spike_per_neuron = cp.copy(jump_input)
+        non_inf_values_jump = copy_jump_spike_per_neuron[cp.isfinite(copy_jump_spike_per_neuron)]
+        average_non_inf_jump = cp.mean(non_inf_values_jump)
+        time_delay = average_non_inf_pre - average_non_inf_jump
+        pre_input = pre_input+ time_delay
+        jump_input = jump_input+ time_delay
     count = count_residual + count_jump
-    result = cp.concatenate([residual_input, jump_input], axis=2)
+    result = cp.concatenate([pre_input, jump_input], axis=2)
     # sort the spikes on the last axis of the result
     result = cp.sort(result, axis=2)
     return result, count
 
-def fuse_inputs(residual_input, jump_input, count_residual, count_jump, max_n_spike, delay = None) -> Tuple[cp.ndarray, cp.ndarray]:
+def fuse_inputs(pre_input, jump_input, count_residual, count_jump, max_n_spike, delay = False) -> Tuple[cp.ndarray, cp.ndarray]:
     #! Illegal memory error still occurs even without this code
 
     #! how does it handle the spikes when there are too many?
@@ -240,22 +261,26 @@ def fuse_inputs(residual_input, jump_input, count_residual, count_jump, max_n_sp
     # HOW DOES THE spike buffer break?
     # make it break and see what happens
     
-    # if delay is None:
-    #     #by default the delay is the mean of the residual input,
-    #     delay = cp.mean(residual_input[np.isfinite(residual_input)])
-    #     # delay = 0
-    # out = cp.empty(jump_input.shape, dtype=int)
-    # out[out == 0] = delay
-    # cp.add(jump_input, out, out = jump_input)
+    if delay:
+        copy_pre_spike_per_neuron = cp.copy(pre_input)
+        non_inf_values_pre = copy_pre_spike_per_neuron[cp.isfinite(copy_pre_spike_per_neuron)]  # Select non-inf values
+        average_non_inf_pre = cp.mean(non_inf_values_pre)
+        copy_jump_spike_per_neuron = cp.copy(jump_input)
+        non_inf_values_jump = copy_jump_spike_per_neuron[cp.isfinite(copy_jump_spike_per_neuron)]
+        average_non_inf_jump = cp.mean(non_inf_values_jump)
+        time_delay = average_non_inf_pre - average_non_inf_jump
+        pre_input = pre_input+ time_delay
+        jump_input = jump_input+ time_delay
+
     result_count = cp.maximum(count_residual, count_jump)
 
-    batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
+    batch_size_res, n_of_neurons_res, max_n_spike_res = pre_input.shape
     batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
 
-    not_inf_mask_res = cp.logical_not(cp.isinf(residual_input))
+    not_inf_mask_res = cp.logical_not(cp.isinf(pre_input))
     not_inf_mask_jump = cp.logical_not(cp.isinf(jump_input))
 
-    inf_mask_res = cp.isinf(residual_input)
+    inf_mask_res = cp.isinf(pre_input)
     inf_mask_jump = cp.isinf(jump_input)
 
     xor_combined_mask = cp.logical_xor(not_inf_mask_res, not_inf_mask_jump)
@@ -263,9 +288,9 @@ def fuse_inputs(residual_input, jump_input, count_residual, count_jump, max_n_sp
     and_combined_mask = cp.logical_and(not_inf_mask_res, not_inf_mask_jump)
 
     #! for now if both are inf we take residual, we should take whichever is not inf
-    get_non_infinite = cp.where(inf_mask_res, jump_input, residual_input)
-    get_non_infinite = cp.where(inf_mask_jump, residual_input, get_non_infinite)
-    result_times = cp.where(or_combined_mask, jump_input, residual_input)
+    get_non_infinite = cp.where(inf_mask_res, jump_input, pre_input)
+    get_non_infinite = cp.where(inf_mask_jump, pre_input, get_non_infinite)
+    result_times = cp.where(or_combined_mask, jump_input, pre_input)
 
     #if true in mask then take the value, else take average
     # result = cp.where(or_combined_mask, residual_input, jump_input)
@@ -280,8 +305,6 @@ def fuse_inputs(residual_input, jump_input, count_residual, count_jump, max_n_sp
     # return residual_input
     result_times = cp.where(xor_combined_mask,
                         get_non_infinite,
-                      cp.mean(cp.array([ residual_input, residual_input ]), axis=0)
-                      )
-
+                      cp.mean(cp.array([ pre_input, pre_input ]), axis=0))
 
     return result_times, result_count

@@ -1,4 +1,3 @@
-from calendar import c
 import cupy as cp
 from math import sqrt
 import argparse
@@ -21,7 +20,7 @@ def get_arguments():
     parser.add_argument("--n_hidden_layers", default=6, type=int)
     parser.add_argument("--use_residual",default=False, type=bool)
     parser.add_argument("--use_wanb", default=False, type=bool)
-    parser.add_argument("--use_3_channels", default=False, type=bool)
+    parser.add_argument("--use_3_channels", default=True, type=bool)
     parser.add_argument("-s", "--save_model", action="store_true", default=False)
     parser.add_argument("-b", "--batch_size", default=20, type=int)
     parser.add_argument("-n", "--n_epochs", default=10, type=int)
@@ -32,6 +31,7 @@ def get_arguments():
     parser.add_argument("--batch_size_test", default=90, type=int)
     parser.add_argument("--use_coarse_labels", default=False, type=bool)
     parser.add_argument("--use_pad", default=True, type=bool)
+    parser.add_argument("--use_delay", default=False, type=bool)
 
 
     args = parser.parse_args()
@@ -64,9 +64,20 @@ def average_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_sp
 
     return None, None
 
-def aped_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike_per_neuron, jump_n_spike_per_neuron, shape_of_neurons):
+def aped_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike_per_neuron, jump_n_spike_per_neuron, shape_of_neurons, delay = False):
     batch_size, spikes, max_n_spikes = pre_spike_per_neuron.shape
     jump_batch_size, jump_spikes, jump_max_n_spikes = jump_spike_per_neuron.shape
+
+    if delay:
+        copy_pre_spike_per_neuron = cp.copy(pre_spike_per_neuron)
+        non_inf_values_pre = copy_pre_spike_per_neuron[cp.isfinite(copy_pre_spike_per_neuron)]  # Select non-inf values
+        average_non_inf_pre = cp.mean(non_inf_values_pre)
+        copy_jump_spike_per_neuron = cp.copy(jump_spike_per_neuron)
+        non_inf_values_jump = copy_jump_spike_per_neuron[cp.isfinite(copy_jump_spike_per_neuron)]
+        average_non_inf_jump = cp.mean(non_inf_values_jump)
+        time_delay = average_non_inf_pre - average_non_inf_jump
+        pre_spike_per_neuron = pre_spike_per_neuron+ time_delay
+        jump_spike_per_neuron = jump_spike_per_neuron+ time_delay
 
     if batch_size != jump_batch_size:
         raise RuntimeError("The batch sizes of the two inputs are not the same")

@@ -36,7 +36,9 @@ N_HIDDEN_LAYERS = arguments.n_hidden_layers
 RESIDUAL_EVERY_N = arguments.residual_every_n
 RESIDUAL_JUMP_LENGTH = arguments.residual_jump_length
 FIX_SEED = False
-USE_PADDING = arguments.use_pad     #! padding gives makes the layer not output in the cluster
+USE_PADDING = arguments.use_pad
+USE_DELAY = arguments.use_delay
+
 #! residual and padd gives nans
 # what causes nans:
 #! residual layers with pre = jump and nans
@@ -94,6 +96,8 @@ if CLUSTER:
 else:
     N_TRAIN_SAMPLES = 6000
     N_TEST_SAMPLES = 1000
+    TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
+    TEST_BATCH_SIZE = arguments.batch_size
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
 TRAIN_PRINT_PERIOD = 0.1
@@ -154,7 +158,7 @@ for run in range(NUMBER_OF_RUNS):
     # building the network
     print("Creating network...")
     network = Network()
-    build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, INPUT_SHAPE, STANDARD, N_HIDDEN_LAYERS, conv_var, conv_res_var, fc_var, output_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, USE_PADDING)
+    build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, INPUT_SHAPE, STANDARD, N_HIDDEN_LAYERS, conv_var, conv_res_var, fc_var, output_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, USE_PADDING, USE_DELAY)
     
     loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
@@ -210,6 +214,7 @@ for run in range(NUMBER_OF_RUNS):
         "residual_jump_length": RESIDUAL_JUMP_LENGTH,
         "use_residual": USE_RESIDUAL,
         "use_padding": USE_PADDING,
+        "use_delay": USE_DELAY,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
         "channels": CHANNELS,

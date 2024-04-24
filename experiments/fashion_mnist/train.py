@@ -24,6 +24,7 @@ USE_RESIDUAL = arguments.use_residual
 print("Using residual: ", USE_RESIDUAL)
 RESIDUAL_EVERY_N = arguments.residual_every_n
 FUSE_FUNCTION = arguments.fuse_func
+USE_DELAY = arguments.use_delay
 LEARNING_RATE = arguments.learning_rate
 FULL_METRIC = False
 
@@ -118,7 +119,7 @@ for run in range(NUMBER_OF_RUNS):
 
     print("Creating network...")
     network = Network()
-    build_network_SNN(network, weight_initializer, N_INPUTS, N_HIDDEN_LAYERS, neuron_var, neuron_out_var, neuron_res_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, FUSE_FUNCTION)
+    build_network_SNN(network, weight_initializer, N_INPUTS, N_HIDDEN_LAYERS, neuron_var, neuron_out_var, neuron_res_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, FUSE_FUNCTION,USE_DELAY)
     
     for layer in network.layers:
         if isinstance(layer, LIFLayerResidual):

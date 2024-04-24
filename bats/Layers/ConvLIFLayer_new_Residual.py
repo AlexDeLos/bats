@@ -18,7 +18,7 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
     def __init__(self, previous_layer: AbstractConvLayer, jump_layer: AbstractConvLayer, filters_shape: np.ndarray, use_padding: bool,
                  tau_s: float, theta: float,
                  delta_theta: float,
-                 filter_from_next: cp.ndarray = None,
+                 use_delay: bool,
                  weight_initializer: Callable[[int, int, int, int], cp.ndarray] = None, max_n_spike: int = 32,
                  **kwargs):
         prev_x, prev_y, prev_c = previous_layer._neurons_shape.get()
@@ -28,7 +28,7 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
             raise ValueError("The previous layer and the jump layer must have the same shape")
         filter_x, filter_y, filter_c = filters_shape
         padding= [filter_x-1, filter_y -1]
-        self.__filter_from_next = filter_from_next
+        # self.__filter_from_next = filter_from_next
         if use_padding:
             prev_x += padding[0]
             prev_y += padding[1]
@@ -40,6 +40,7 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
         super().__init__(neurons_shape=neurons_shape, use_padding = use_padding,padding= [filter_x-1, filter_y -1], **kwargs)
         self.__pre_channels = prev_c
         self.__jump_channels = jump_layer_c
+        self.use_delay = use_delay
         self.jump_layer: AbstractConvLayer = jump_layer
         self.__filters_shape = cp.array([filter_c, filter_x, filter_y, prev_c], dtype=cp.int32)
         self.__previous_layer: AbstractConvLayer = previous_layer
@@ -97,21 +98,12 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
     def forward(self, max_simulation: float, training: bool = False) -> None:
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
         jump_spike_per_neuron, jump_n_spike_per_neuron = self.jump_layer.spike_trains
-        # print("pre ins: ")
-        # print(cp.where(pre_n_spike_per_neuron != 0))
-        # print("Jump ins: ")
-        # print(cp.where(jump_n_spike_per_neuron != 0))
+        pre_spike_per_neuron_pre_pad, pre_n_spike_per_neuron_pre_pad = aped_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike_per_neuron, jump_n_spike_per_neuron, self.__previous_layer.neurons_shape, delay=self.use_delay)
 
-        pre_spike_per_neuron_pre_pad, pre_n_spike_per_neuron_pre_pad = aped_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike_per_neuron, jump_n_spike_per_neuron, self.__previous_layer.neurons_shape)
-        # print("combined ins: ")
-        # print(cp.where(pre_n_spike_per_neuron_pre_pad != 0))
-
-        #TODO: change the size to reflect the new channel size->DONE, not tested
         new_shape_previous = self.__pre_shape# (self.__previous_layer.neurons_shape[0], self.__previous_layer.neurons_shape[1], self.__previous_layer.neurons_shape[2]+self.jump_layer.neurons_shape[2])
         if self._use_padding: #! using this causes random nans for some reason
         # Now we pad both the pre_spike_per_neuron and the pre_n_spike_per_neuron
             #* this does nothing because the input already seemed padded?
-            # add_padding(pre_spike_per_neuron_pre_pad, pre_n_spike_per_neuron_pre_pad, self.__pre_shape, self._padding)
             pre_spike_per_neuron, pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron_pre_pad, pre_n_spike_per_neuron_pre_pad,
                                                                        new_shape_previous, self._padding)
             # print("after padding: ")
@@ -201,7 +193,7 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
         new_x = self.__x
         new_post_exp_tau = self.__post_exp_tau
         if new_x.shape != errors_in.shape:
-            errors = trimed_errors(errors_in, self.__filter_from_next, self.neurons_shape[2])
+            # errors = trimed_errors(errors_in, self.__filter_from_next, self.neurons_shape[2])
             # print("errors shape is not the same as the x shape")
             if new_x.shape != errors.shape:
                 raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors.shape}")

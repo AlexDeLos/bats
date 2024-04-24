@@ -38,6 +38,7 @@ RESIDUAL_EVERY_N = arguments.residual_every_n
 RESIDUAL_JUMP_LENGTH = arguments.residual_jump_length
 FIX_SEED = False
 USE_PADDING = arguments.use_pad     #! padding gives makes the layer not output in the cluster
+USE_DELAY = arguments.use_delay
 #! residual and padd gives nans
 # what causes nans:
 #! residual layers with pre = jump and nans
@@ -161,7 +162,7 @@ for run in range(NUMBER_OF_RUNS):
 
     print("Creating network...")
     network = Network()
-    build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, INPUT_SHAPE, STANDARD, N_HIDDEN_LAYERS, conv_var, conv_res_var, fc_var, output_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, USE_PADDING)
+    build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, INPUT_SHAPE, STANDARD, N_HIDDEN_LAYERS, conv_var, conv_res_var, fc_var, output_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, USE_PADDING, USE_DELAY)
 
 
     loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
@@ -219,6 +220,7 @@ for run in range(NUMBER_OF_RUNS):
         "residual_jump_length": RESIDUAL_JUMP_LENGTH,
         "use_residual": USE_RESIDUAL,
         "use_padding": USE_PADDING,
+        "use_delay": USE_DELAY,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
         "channels": CHANNELS,

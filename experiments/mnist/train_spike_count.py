@@ -37,6 +37,7 @@ CLUSTER = arguments.cluster
 USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
 FUSE_FUNCTION = arguments.fuse_func
+USE_DELAY = arguments.use_delay
 #TODO: try to get the non append function to run out of memory
 
 #Residual parameters
@@ -138,7 +139,7 @@ for run in range(NUMBER_OF_RUNS):
     # building the network
     print("Creating network...")
     network = Network()
-    build_network_SNN(network,weight_initializer,N_INPUTS, N_HIDDEN_LAYERS, neuron_var, neuron_out_var, neuron_res_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, FUSE_FUNCTION)
+    build_network_SNN(network,weight_initializer,N_INPUTS, N_HIDDEN_LAYERS, neuron_var, neuron_out_var, neuron_res_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, FUSE_FUNCTION, USE_DELAY)
 
     #End of network building
 
