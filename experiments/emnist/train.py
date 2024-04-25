@@ -51,7 +51,7 @@ neuron_var = {
     'spike_buffer_size': 5
 }
 neuron_out_var = {
-    'n_neurons': 10,
+    'n_neurons': 47,
     'tau_s': 0.130,
     'threshold_hat': 1.3,
     'delta_threshold': 1 * 1.3,

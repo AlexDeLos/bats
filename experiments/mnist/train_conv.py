@@ -58,14 +58,14 @@ N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
 CHANNELS = 15
 conv_var = {
-    'filter': np.array([5, 5, CHANNELS]),
+    'filter': np.array([3, 3, CHANNELS]),
     'tau_s': 0.130,
     'threshold_hat': 0.1,
     'delta_threshold': 1 * 0.1,
     'spike_buffer_size': 15
 }
 conv_res_var = {
-    'filter': np.array([5, 5, CHANNELS]),
+    'filter': np.array([3, 3, CHANNELS]),
     'tau_s': 0.130,
     'threshold_hat': 0.2,
     'delta_threshold': 1 * 0.2,
