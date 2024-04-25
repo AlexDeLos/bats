@@ -1,4 +1,3 @@
-from math import e
 from pathlib import Path
 from typing import List, Tuple, Optional
 import numpy as np
