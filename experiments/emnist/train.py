@@ -46,9 +46,9 @@ SIMULATION_TIME = 0.2
 neuron_var = {
     'n_neurons': 800,
     'tau_s': 0.130,
-    'threshold_hat': 0.2,
-    'delta_threshold': 1 * 0.2,
-    'spike_buffer_size': 5
+    'threshold_hat': 0.4,
+    'delta_threshold': 1 * 0.4,
+    'spike_buffer_size': 10
 }
 neuron_out_var = {
     'n_neurons': 47,
@@ -60,9 +60,9 @@ neuron_out_var = {
 neuron_res_var = {
     'n_neurons': 800,
     'tau_s': 0.130,
-    'threshold_hat': 0.2,
-    'delta_threshold': 1 * 0.2,
-    'spike_buffer_size': 5
+    'threshold_hat': 0.4,
+    'delta_threshold': 1 * 0.4,
+    'spike_buffer_size': 10
 }
 # Training parameters
 N_TRAINING_EPOCHS = arguments.n_epochs #! used to  be 100
@@ -72,8 +72,8 @@ if CLUSTER:
     TRAIN_BATCH_SIZE = arguments.batch_size
     TEST_BATCH_SIZE = arguments.batch_size
 else:
-    N_TRAIN_SAMPLES = 1128
-    N_TEST_SAMPLES = 188
+    N_TRAIN_SAMPLES = 11280
+    N_TEST_SAMPLES = 1880
     TRAIN_BATCH_SIZE = 50
     TEST_BATCH_SIZE = 100
 # Training parameters
