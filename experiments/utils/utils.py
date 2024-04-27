@@ -32,7 +32,7 @@ class wandb_handler:
                 "false target": config['False_target'],
                 "use_delay": config['Use_delay'],
                 "architecture": "SNN",
-                "version": "1.1.2",
+                "version": "Too_many_spikes_EMNIST"#"1.1.2",
             }
         else:
             self.config = {
