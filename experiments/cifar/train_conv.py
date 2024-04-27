@@ -227,7 +227,6 @@ for run in range(NUMBER_OF_RUNS):
         "residual_jump_length": RESIDUAL_JUMP_LENGTH,
         "use_residual": USE_RESIDUAL,
         "use_padding": USE_PADDING,
-        "use_delay": USE_DELAY,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
         "channels": CHANNELS,

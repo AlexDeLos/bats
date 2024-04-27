@@ -96,11 +96,11 @@ class LIFLayerResidual(AbstractLayer):
         # pre_n_spike_per_neuron2 = cp.zeros(pre_n_spike_per_neuron2.shape, dtype=cp.int32)
         new_max_n_spike = max(pre_spike_per_neuron1.shape[2], pre_spike_per_neuron2.shape[2])
         if self.__fuse_function == "Append":
-            pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs_append(pre_spike_per_neuron1, pre_spike_per_neuron2, pre_n_spike_per_neuron1, pre_n_spike_per_neuron2, new_max_n_spike)
+            pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs_append(pre_spike_per_neuron1, pre_spike_per_neuron2, pre_n_spike_per_neuron1, pre_n_spike_per_neuron2, new_max_n_spike, self.use_delay)
         elif self.__fuse_function == "Stack":
-            pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs_stack(pre_spike_per_neuron1, pre_spike_per_neuron2, pre_n_spike_per_neuron1, pre_n_spike_per_neuron2, new_max_n_spike)
+            pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs_stack(pre_spike_per_neuron1, pre_spike_per_neuron2, pre_n_spike_per_neuron1, pre_n_spike_per_neuron2, new_max_n_spike, self.use_delay)
         else:
-            pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs(pre_spike_per_neuron1, pre_spike_per_neuron2, pre_n_spike_per_neuron1, pre_n_spike_per_neuron2, new_max_n_spike)
+            pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs(pre_spike_per_neuron1, pre_spike_per_neuron2, pre_n_spike_per_neuron1, pre_n_spike_per_neuron2, new_max_n_spike, self.use_delay)
 
         self.__pre_spike_trains = (pre_spike_per_neuron, pre_n_spike_per_neuron)
 
