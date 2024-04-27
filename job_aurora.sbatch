@@ -10,7 +10,7 @@
 
 #SBATCH --cpus-per-task=1
 
-#SBATCH --mem=8384
+#SBATCH --mem=16384
 
 #SBATCH --mail-type=END
 
