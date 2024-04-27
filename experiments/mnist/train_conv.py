@@ -207,6 +207,7 @@ for run in range(NUMBER_OF_RUNS):
         {
         "Cluster": CLUSTER,
         "Use_residual": USE_RESIDUAL,
+        "Use_delay": USE_DELAY,
         "Standard": STANDARD,
         "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
         "batch_size": TRAIN_BATCH_SIZE,
@@ -214,7 +215,6 @@ for run in range(NUMBER_OF_RUNS):
         "residual_jump_length": RESIDUAL_JUMP_LENGTH,
         "use_residual": USE_RESIDUAL,
         "use_padding": USE_PADDING,
-        "use_delay": USE_DELAY,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
         "channels": CHANNELS,

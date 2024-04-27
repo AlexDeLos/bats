@@ -63,7 +63,7 @@ SIMULATION_TIME = 0.2
 neuron_var = {
     'n_neurons': 800,
     'tau_s': 0.130,
-    'threshold_hat': 0.2,
+    'threshold_hat': 0.4,
     'delta_threshold': 1 * 0.2,
     'spike_buffer_size': 5
 }
@@ -76,8 +76,8 @@ else:
 neuron_out_var = {
     'n_neurons': N_OUTPUTS,
     'tau_s': 0.130,
-    'threshold_hat': 0.7,
-    'delta_threshold': 1 * 0.7,
+    'threshold_hat': 1.3,
+    'delta_threshold': 1 * 1.3,
     'spike_buffer_size': 20
 }
 neuron_res_var = {
@@ -198,6 +198,7 @@ for run in range(NUMBER_OF_RUNS):
         w_b = wandb_handler("Final_thesis_testing", "CIFAR_MLP_run_"+str(run),
         {"Cluster": CLUSTER,
         "Use_residual": USE_RESIDUAL,
+        "Use_delay": USE_DELAY,
         "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
         "residual_every_n": RESIDUAL_EVERY_N,
         "residual_jump_length": RESIDUAL_JUMP_LENGTH,

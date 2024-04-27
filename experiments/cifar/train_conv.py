@@ -219,6 +219,7 @@ for run in range(NUMBER_OF_RUNS):
         {
         "Cluster": CLUSTER,
         "Use_residual": USE_RESIDUAL,
+        "Use_delay": USE_DELAY,
         "Standard": STANDARD,
         "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
         "batch_size": TRAIN_BATCH_SIZE,

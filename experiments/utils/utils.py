@@ -30,8 +30,9 @@ class wandb_handler:
                 "neuron_res_var": config['neuron_res_var'],
                 "true target": config['True_target'],
                 "false target": config['False_target'],
+                "use_delay": config['Use_delay'],
                 "architecture": "SNN",
-                "version": "1.1.1",
+                "version": "1.1.2",
             }
         else:
             self.config = {
@@ -54,7 +55,8 @@ class wandb_handler:
                 "epochs": config['epochs'],
                 "true target": config['True_target'],
                 "false target": config['False_target'],
-                "version": "1.1.1",
+                "use_delay": config['Use_delay'],
+                "version": "1.1.2",
             }
         self.run = wandb.init(project=project_name, name=experiment_name, config=self.config)
         self.cache = {}
