@@ -77,7 +77,6 @@ def aped_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike
         non_inf_values_jump = copy_jump_spike_per_neuron[cp.isfinite(copy_jump_spike_per_neuron)]
         average_non_inf_jump = cp.mean(non_inf_values_jump)
         time_delay = average_non_inf_pre - average_non_inf_jump
-        pre_spike_per_neuron = pre_spike_per_neuron+ time_delay
         jump_spike_per_neuron = jump_spike_per_neuron+ time_delay
 
     if batch_size != jump_batch_size:

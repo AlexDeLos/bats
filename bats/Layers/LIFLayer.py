@@ -71,6 +71,8 @@ class LIFLayer(AbstractLayer):
         # print(self.name)
         # print(pre_n_spike_per_neuron)
         # print(cp.where(pre_n_spike_per_neuron!=0))
+        if cp.any(cp.isnan(pre_spike_per_neuron)):
+            raise ValueError("NaNs in pre_spike_per_neuron")
 
 
         self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
@@ -116,6 +118,8 @@ class LIFLayer(AbstractLayer):
 
     def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
+        if cp.any(cp.isnan(errors)):
+            raise ValueError("NaNs in errors")
         pre_spike_per_neuron, _ = self.__previous_layer.spike_trains
         propagate_recurrent_errors(self.__x, self.__post_exp_tau, errors, self.__delta_theta_tau)# all the shape of this layer
         f1, f2 = compute_factors(self.__spike_times_per_neuron, self.__a, self.__c, self.__x,
@@ -132,10 +136,13 @@ class LIFLayer(AbstractLayer):
                                                         self.__pre_exp_tau_s, self.__pre_exp_tau, self.__weights,
                                                         errors, self.__tau_s, self.__tau)
             asdasd = 0
+            if cp.any(cp.isnan(pre_errors)):
+                raise ValueError("NaNs in pre_errors")
         else:
             pre_errors = None
 
-        asddas= ''
+        if cp.any(cp.isnan(weights_grad)):
+            raise ValueError("NaNs in weights_grad")
         return weights_grad, pre_errors
 
     def add_deltas(self, delta_weights: cp.ndarray) -> None:

@@ -33,7 +33,7 @@ class wandb_handler:
                 "use_delay": config['Use_delay'],
                 "loss function": config['loss'],
                 "architecture": "SNN",
-                "version": "Shorter_jumps_EMNIST"#"1.1.2",
+                "version": "1.1.2",
             }
         else:
             self.config = {

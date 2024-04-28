@@ -92,6 +92,10 @@ class LIFLayerResidual(AbstractLayer):
     def forward(self, max_simulation: float, training: bool = False) -> None:
         pre_spike_per_neuron1, pre_n_spike_per_neuron1 = self.__previous_layer.spike_trains
         pre_spike_per_neuron2, pre_n_spike_per_neuron2 = self.__jump_layer.spike_trains
+        if cp.any(cp.isnan(pre_spike_per_neuron1)):
+            raise ValueError("Nans in the previous layer input")
+        if cp.any(cp.isnan(pre_spike_per_neuron2)):
+            raise ValueError("Nans in the jump layer input")
         # pre_spike_per_neuron2 = cp.full(pre_spike_per_neuron2.shape, cp.inf)
         # pre_n_spike_per_neuron2 = cp.zeros(pre_n_spike_per_neuron2.shape, dtype=cp.int32)
         new_max_n_spike = max(pre_spike_per_neuron1.shape[2], pre_spike_per_neuron2.shape[2])
@@ -102,6 +106,10 @@ class LIFLayerResidual(AbstractLayer):
         else:
             pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs(pre_spike_per_neuron1, pre_spike_per_neuron2, pre_n_spike_per_neuron1, pre_n_spike_per_neuron2, new_max_n_spike, self.use_delay)
 
+        if cp.any(cp.isnan(pre_spike_per_neuron)):
+            raise ValueError("Nans in the fused input")
+        if cp.any(cp.isnan(pre_n_spike_per_neuron)):
+            raise ValueError("Nans in the fused input count")
         self.__pre_spike_trains = (pre_spike_per_neuron, pre_n_spike_per_neuron)
 
         self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s_res, self.__tau_res)
@@ -208,11 +216,19 @@ class LIFLayerResidual(AbstractLayer):
 
 
 
-def fuse_inputs_append(pre_input, jump_input, count_residual, count_jump, max_n_spike, delay = False) -> Tuple[cp.ndarray, cp.ndarray]:
+def fuse_inputs_append(pre_input, jump_input, count_pre, count_jump, max_n_spike, delay = False) -> Tuple[cp.ndarray, cp.ndarray]:
     # batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
     # batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
-
-    if delay:
+    if cp.any(cp.isnan(pre_input)):
+        raise ValueError("Nans in the pre input")
+    if cp.any(cp.isnan(jump_input)):
+        raise ValueError("Nans in the jump input")
+    og_jump_input = cp.copy(jump_input)
+    og_pre_input = cp.copy(pre_input)
+    # check if all elements of one of the 2 arrays are inf
+    pre_is_inf = cp.all(cp.isinf(pre_input))
+    jump_is_inf = cp.all(cp.isinf(jump_input))
+    if delay and not(pre_is_inf or jump_is_inf):
         copy_pre_spike_per_neuron = cp.copy(pre_input)
         non_inf_values_pre = copy_pre_spike_per_neuron[cp.isfinite(copy_pre_spike_per_neuron)]  # Select non-inf values
         average_non_inf_pre = cp.mean(non_inf_values_pre)
@@ -220,9 +236,8 @@ def fuse_inputs_append(pre_input, jump_input, count_residual, count_jump, max_n_
         non_inf_values_jump = copy_jump_spike_per_neuron[cp.isfinite(copy_jump_spike_per_neuron)]
         average_non_inf_jump = cp.mean(non_inf_values_jump)
         time_delay = average_non_inf_pre - average_non_inf_jump
-        pre_input = pre_input+ time_delay
-        jump_input = jump_input+ time_delay
-    result_count =cp.append(count_residual, count_jump, axis=1)
+        jump_input = jump_input + time_delay
+    result_count =cp.append(count_pre, count_jump, axis=1)
     # this changes the effect
     # result_count = count_residual
     # result_count = cp.zeros((residual_input.shape))
@@ -233,6 +248,8 @@ def fuse_inputs_append(pre_input, jump_input, count_residual, count_jump, max_n_
         raise ValueError("The count of spikes is greater than the max number of spikes")
     # result_count = count_residual
     # result_spikes = residual_input
+    if cp.any(cp.isnan(result_spikes)):
+        raise ValueError("Nans in the fused input")
     return result_spikes, result_count
 
 def fuse_inputs_stack(pre_input, jump_input, count_residual, count_jump, max_n_spike, delay = False) -> Tuple[cp.ndarray, cp.ndarray]:
@@ -245,7 +262,6 @@ def fuse_inputs_stack(pre_input, jump_input, count_residual, count_jump, max_n_s
         non_inf_values_jump = copy_jump_spike_per_neuron[cp.isfinite(copy_jump_spike_per_neuron)]
         average_non_inf_jump = cp.mean(non_inf_values_jump)
         time_delay = average_non_inf_pre - average_non_inf_jump
-        pre_input = pre_input+ time_delay
         jump_input = jump_input+ time_delay
     count = count_residual + count_jump
     result = cp.concatenate([pre_input, jump_input], axis=2)
@@ -269,7 +285,6 @@ def fuse_inputs(pre_input, jump_input, count_residual, count_jump, max_n_spike, 
         non_inf_values_jump = copy_jump_spike_per_neuron[cp.isfinite(copy_jump_spike_per_neuron)]
         average_non_inf_jump = cp.mean(non_inf_values_jump)
         time_delay = average_non_inf_pre - average_non_inf_jump
-        pre_input = pre_input+ time_delay
         jump_input = jump_input+ time_delay
 
     result_count = cp.maximum(count_residual, count_jump)

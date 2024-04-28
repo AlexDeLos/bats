@@ -34,5 +34,6 @@ def propagate_errors_to_pre_spikes_conv(f1: cp.ndarray, f2: cp.ndarray,
         #! maybe something with the max spikes?
         #* all errors are in the final batch, why?
         #* shapes are not the problem....
+        raise RuntimeError("nans in propagate_errors_to_pre_spikes_conv")
         ups = True
     return pre_errors

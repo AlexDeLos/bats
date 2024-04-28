@@ -39,7 +39,8 @@ def compute_spike_times(spike_times: cp.ndarray,
     #     x = 0
     __compute_spike_times_kernel(grid_dim, block_dim, args)
 
-    # if np.isnan(post_spike_times).any():
+    if np.isnan(post_spike_times).any():
+        raise ValueError("NaNs in post_spike_times")
     #     # Some spikes are not computed
     #     # I just could replace the nan values with the max_simulation value
     #     # But I am not sure if this is the right thing to do
