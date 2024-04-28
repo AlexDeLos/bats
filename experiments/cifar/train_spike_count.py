@@ -206,6 +206,7 @@ for run in range(NUMBER_OF_RUNS):
         w_b = wandb_handler("Final_thesis_testing", "CIFAR_MLP_run_"+str(run),
         {"Cluster": CLUSTER,
         "Use_residual": USE_RESIDUAL,
+        "loss": "SpikeCountClassLoss" if not TTFS else "TTFSSoftmaxCrossEntropy",
         "Use_delay": USE_DELAY,
         "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
         "residual_every_n": RESIDUAL_EVERY_N,

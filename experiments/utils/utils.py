@@ -31,6 +31,7 @@ class wandb_handler:
                 "true target": config['True_target'],
                 "false target": config['False_target'],
                 "use_delay": config['Use_delay'],
+                "loss function": config['loss'],
                 "architecture": "SNN",
                 "version": "Shorter_jumps_EMNIST"#"1.1.2",
             }
@@ -55,6 +56,7 @@ class wandb_handler:
                 "epochs": config['epochs'],
                 "true target": config['True_target'],
                 "false target": config['False_target'],
+                "loss function": config['loss'],
                 "use_delay": config['Use_delay'],
                 "version": "1.1.2",
             }
