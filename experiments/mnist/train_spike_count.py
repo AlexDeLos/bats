@@ -38,6 +38,7 @@ USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
 FUSE_FUNCTION = arguments.fuse_func
 USE_DELAY = arguments.use_delay
+TTFS = arguments.ttfs
 #TODO: try to get the non append function to run out of memory
 
 #Residual parameters
@@ -59,12 +60,16 @@ neuron_var = {
     'delta_threshold': 1 * 0.2,
     'spike_buffer_size': 5
 }
+if TTFS:
+    out_buffer_size = 1
+else:
+    out_buffer_size = 20
 neuron_out_var = {
     'n_neurons': 10,
     'tau_s': 0.130,
     'threshold_hat': 1.3,
     'delta_threshold': 1 * 1.3,
-    'spike_buffer_size': 20
+    'spike_buffer_size': out_buffer_size
 }
 neuron_res_var = {
     'n_neurons': 800,
@@ -142,8 +147,10 @@ for run in range(NUMBER_OF_RUNS):
     build_network_SNN(network,weight_initializer,N_INPUTS, N_HIDDEN_LAYERS, neuron_var, neuron_out_var, neuron_res_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, FUSE_FUNCTION, USE_DELAY)
 
     #End of network building
-
-    loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
+    if TTFS:
+        loss_fct = TTFSSoftmaxCrossEntropy(tau=0.005)
+    else:
+        loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
     
     for layer in network.layers:

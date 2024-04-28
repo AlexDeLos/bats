@@ -25,6 +25,7 @@ print("Using residual: ", USE_RESIDUAL)
 RESIDUAL_EVERY_N = arguments.residual_every_n
 FUSE_FUNCTION = arguments.fuse_func
 USE_DELAY = arguments.use_delay
+TTFS = arguments.ttfs
 LEARNING_RATE = arguments.learning_rate
 FULL_METRIC = False
 
@@ -49,12 +50,16 @@ neuron_var = {
     'delta_threshold': 1 * 0.2,
     'spike_buffer_size': 5
 }
+if TTFS:
+    out_buffer_size = 1
+else:
+    out_buffer_size = 20
 neuron_out_var = {
     'n_neurons': 10,
     'tau_s': 0.130,
     'threshold_hat': 1.3,
     'delta_threshold': 1 * 1.3,
-    'spike_buffer_size': 20
+    'spike_buffer_size': out_buffer_size
 }
 neuron_res_var = {
     'n_neurons': 800,
@@ -127,7 +132,11 @@ for run in range(NUMBER_OF_RUNS):
         else:
             print(layer.name)
         print(layer.n_neurons)
-    loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
+    if TTFS:
+        loss_fct = TTFSSoftmaxCrossEntropy(tau=0.005)
+    else:
+        loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
+
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
 
     # Metrics

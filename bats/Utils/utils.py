@@ -32,6 +32,7 @@ def get_arguments():
     parser.add_argument("--use_coarse_labels", default=False, type=bool)
     parser.add_argument("--use_pad", default=True, type=bool)
     parser.add_argument("--use_delay", default=False, type=bool)
+    parser.add_argument("--ttfs", default=False, type=bool)
 
 
     args = parser.parse_args()

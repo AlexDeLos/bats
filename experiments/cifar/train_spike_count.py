@@ -46,6 +46,7 @@ USE_COURSE_LABELS = arguments.use_coarse_labels
 USE_3_CHANNELS = arguments.use_3_channels
 FUSE_FUNCTION = arguments.fuse_func
 USE_DELAY = arguments.use_delay
+TTFS = arguments.ttfs
 #TODO: try to get the non append function to run out of memory
 if USE_CIFAR100:
     DATASET_PATH = "./datasets/cifar-100-python/"
@@ -73,12 +74,16 @@ elif USE_CIFAR100:
     N_OUTPUTS = 100
 else:
     N_OUTPUTS = 10
+if TTFS:
+    out_buffer_size = 1
+else:
+    out_buffer_size = 20
 neuron_out_var = {
     'n_neurons': N_OUTPUTS,
     'tau_s': 0.130,
     'threshold_hat': 1.3,
     'delta_threshold': 1 * 1.3,
-    'spike_buffer_size': 20
+    'spike_buffer_size': out_buffer_size
 }
 neuron_res_var = {
     'n_neurons': 800,
@@ -155,7 +160,10 @@ for run in range(NUMBER_OF_RUNS):
     
     #End of network building
 
-    loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
+    if TTFS:
+        loss_fct = TTFSSoftmaxCrossEntropy(tau=0.005)
+    else:
+        loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
     for layer in network.layers:
         if layer._is_residual:

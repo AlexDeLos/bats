@@ -39,6 +39,7 @@ RESIDUAL_JUMP_LENGTH = arguments.residual_jump_length
 FIX_SEED = False
 USE_PADDING = arguments.use_pad     #! padding gives makes the layer not output in the cluster
 USE_DELAY = arguments.use_delay
+TTFS = arguments.ttfs
 #! residual and padd gives nans
 # what causes nans:
 #! residual layers with pre = jump and nans
@@ -83,12 +84,16 @@ fc_var = {
     'delta_threshold': 1 * 0.3,
     'spike_buffer_size': 20
 }
+if TTFS:
+    out_buffer_size = 1
+else:
+    out_buffer_size = 30
 output_var = {
     'n_neurons': 47,
     'tau_s': 0.130,
     'threshold_hat': 0.3,
     'delta_threshold': 1 * 0.3,
-    'spike_buffer_size': 30
+    'spike_buffer_size': out_buffer_size
 }
 N_TRAINING_EPOCHS = arguments.n_epochs
 
@@ -165,7 +170,10 @@ for run in range(NUMBER_OF_RUNS):
     build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, INPUT_SHAPE, STANDARD, N_HIDDEN_LAYERS, conv_var, conv_res_var, fc_var, output_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, USE_PADDING, USE_DELAY)
 
 
-    loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
+    if TTFS:
+        loss_fct = TTFSSoftmaxCrossEntropy(tau=0.005)
+    else:
+        loss_fct = SpikeCountClassLoss(target_false=TARGET_FALSE, target_true=TARGET_TRUE)
     optimizer = AdamOptimizer(learning_rate=LEARNING_RATE)
 
     print('with padding: ', USE_PADDING)
