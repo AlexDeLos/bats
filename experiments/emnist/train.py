@@ -174,6 +174,7 @@ for run in range(NUMBER_OF_RUNS):
         {"Cluster": CLUSTER,
         "Use_residual": USE_RESIDUAL,
         "Use_delay": USE_DELAY,
+        "loss": "SpikeCountClassLoss" if not TTFS else "TTFSSoftmaxCrossEntropy",
         "N_HIDDEN_LAYERS": N_HIDDEN_LAYERS,
         "residual_every_n": RESIDUAL_EVERY_N,
         "residual_jump_length": RESIDUAL_JUMP_LENGTH,
