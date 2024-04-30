@@ -47,6 +47,7 @@ USE_3_CHANNELS = arguments.use_3_channels
 FUSE_FUNCTION = arguments.fuse_func
 USE_DELAY = arguments.use_delay
 TTFS = arguments.ttfs
+RESTORE = arguments.restore
 #TODO: try to get the non append function to run out of memory
 if USE_CIFAR100:
     DATASET_PATH = "./datasets/cifar-100-python/"
@@ -121,7 +122,7 @@ TARGET_TRUE = 30
 # Plot parameters
 EXPORT_METRICS = False
 EXPORT_DIR = Path("./experiments/mnist/output_metrics")#+"-" + str(USE_RESIDUAL)+"-" +str(N_HIDDEN_LAYERS)+"-"+" hidden every " +str(RESIDUAL_EVERY_N) + " "+str(c) +"th Version 2")
-SAVE_DIR = Path("./experiments/mnist/best_model")
+SAVE_DIR = Path("/cifar/"+str(N_HIDDEN_LAYERS)+"_"+ str(neuron_var['n_neurons'])+"_"+str(neuron_out_var['n_neurons'])+"_"+str(neuron_res_var['n_neurons']))
 
 #Weights and biases
 # start a new wandb run to track this script
@@ -229,6 +230,9 @@ for run in range(NUMBER_OF_RUNS):
     best_acc = 0.0
     tracker = [0.0]* len(network.layers)
     print("Training...")
+    if RESTORE and SAVE_DIR.exists():
+        dic = Path("last"+ str(SAVE_DIR))
+        network.restore(dic)
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
 
@@ -392,9 +396,12 @@ for run in range(NUMBER_OF_RUNS):
                 if USE_WANDB:
                     w_b.save({"Test_mean_spikes_for_times": float(mean_res), "Test_first_spike_for_times": float(mean_first)})
 
+                dic = Path("last" + str(SAVE_DIR))
+                network.store(dic)
+                acc = records[test_accuracy_monitor]
                 if acc > best_acc:
                     best_acc = acc
-                    network.store(SAVE_DIR)
+                    dic = Path("best" + str(SAVE_DIR))
                     print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks save to: {SAVE_DIR}")
         if USE_WANDB:
             w_b.log()

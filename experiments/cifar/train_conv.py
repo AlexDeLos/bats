@@ -45,6 +45,7 @@ FIX_SEED = False
 USE_PADDING = arguments.use_pad #! residual and padd gives nans
 USE_DELAY = arguments.use_delay
 TTFS = arguments.ttfs
+RESTORE = arguments.restore
 USE_CIFAR100 = arguments.cifar100	
 USE_COURSE_LABELS = arguments.use_coarse_labels
 USE_3_CHANNELS = arguments.use_3_channels #! false could be broken
@@ -140,7 +141,7 @@ TARGET_TRUE = 20
 # Plot parameters
 EXPORT_METRICS = True
 EXPORT_DIR = Path("./output_metrics")
-SAVE_DIR = Path("./best_model")
+SAVE_DIR = Path("/cifar/"+str(N_HIDDEN_LAYERS)+"_"+ str(conv_var['n_neurons'])+"_"+str(output_var['n_neurons'])+"_"+str(conv_res_var['n_neurons']))
 
 
 def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:
@@ -256,6 +257,9 @@ for run in range(NUMBER_OF_RUNS):
     best_acc = 0.0
     tracker = [0.0]* len(network.layers)
     print("Training...")
+    if RESTORE and SAVE_DIR.exists():
+        dic = Path("last"+ str(SAVE_DIR))
+        network.restore(dic)
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
         if not FIX_SEED:
@@ -419,9 +423,11 @@ for run in range(NUMBER_OF_RUNS):
 
 
                 acc = records[test_accuracy_monitor]
+                dic = Path("last" + str(SAVE_DIR))
+                network.store(dic)
                 if acc > best_acc:
                     best_acc = acc
-                    # network.store(SAVE_DIR)
+                    dic = Path("best" + str(SAVE_DIR))
                     print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks NOT save to: {SAVE_DIR}")
         if USE_WANDB:
             w_b.log()

@@ -1,5 +1,5 @@
-from operator import ne
 from pathlib import Path
+from re import S
 import cupy as cp
 import numpy as np
 import os
@@ -26,6 +26,7 @@ RESIDUAL_EVERY_N = arguments.residual_every_n
 FUSE_FUNCTION = arguments.fuse_func
 USE_DELAY = arguments.use_delay
 TTFS = arguments.ttfs
+RESTORE = arguments.restore
 LEARNING_RATE = arguments.learning_rate
 FULL_METRIC = False
 
@@ -98,7 +99,7 @@ TARGET_TRUE = 15
 # Plot parameters
 EXPORT_METRICS = False
 EXPORT_DIR = Path("output_metrics")
-SAVE_DIR = Path("best_model")
+SAVE_DIR = Path("/fashion_MLP/"+str(N_HIDDEN_LAYERS)+"_"+ str(neuron_var['n_neurons'])+"_"+str(neuron_out_var['n_neurons'])+"_"+str(neuron_res_var['n_neurons']))
 
 
 def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
@@ -196,6 +197,9 @@ for run in range(NUMBER_OF_RUNS):
     best_acc = 0.0
     tracker = [0.0]* len(network.layers)
     print("Training...")
+    if RESTORE and SAVE_DIR.exists():
+        dic = Path("last"+ str(SAVE_DIR))
+        network.restore(dic)
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
         dataset.shuffle()
@@ -329,9 +333,12 @@ for run in range(NUMBER_OF_RUNS):
                     w_b.save({"Test_mean_spikes_for_times": float(mean_res), "Test_first_spike_for_times": float(mean_first)})
 
                 acc = records[test_accuracy_monitor]
+                dic = Path("last" + str(SAVE_DIR))
+                network.store(dic)
                 if acc > best_acc:
                     best_acc = acc
-                    network.store(SAVE_DIR)
+                    dic = Path("best" + str(SAVE_DIR))
+                    network.store(dic)
                     print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks NOT save to: {SAVE_DIR}")
         if USE_WANDB:
             w_b.log()
