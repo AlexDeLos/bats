@@ -40,7 +40,6 @@ FUSE_FUNCTION = arguments.fuse_func
 USE_DELAY = arguments.use_delay
 TTFS = arguments.ttfs
 RESTORE = arguments.restore
-RESTORE = arguments.restore
 #TODO: try to get the non append function to run out of memory
 
 #Residual parameters

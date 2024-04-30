@@ -125,7 +125,7 @@ TARGET_TRUE = 30
 # Plot parameters
 EXPORT_METRICS = True
 EXPORT_DIR = Path("./output_metrics")
-SAVE_DIR = Path("/emnist/"+str(N_HIDDEN_LAYERS)+"_"+ str(conv_var['n_neurons'])+"_"+str(output_var['n_neurons'])+"_"+str(conv_res_var['n_neurons']))
+SAVE_DIR = Path("/emnist/"+str(N_HIDDEN_LAYERS)+"_"+ str(str(conv_var['filter']))+"_"+str(output_var['n_neurons'])+"_"+str(str(conv_var['filter'])))
 
 
 def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:
