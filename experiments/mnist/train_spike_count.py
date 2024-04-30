@@ -385,7 +385,7 @@ for run in range(NUMBER_OF_RUNS):
 
                 if acc > best_acc:
                     best_acc = acc
-                    # network.store(SAVE_DIR)
+                    network.store(SAVE_DIR)
                     print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks save NOT to: {SAVE_DIR}")
                     
         if USE_WANDB:

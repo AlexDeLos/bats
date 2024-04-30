@@ -345,6 +345,7 @@ for run in range(NUMBER_OF_RUNS):
             del deltas
 
             training_steps += 1
+            print(f"Training steps: {training_steps}")
             epoch_metrics = training_steps * TRAIN_BATCH_SIZE / N_TRAIN_SAMPLES
 
             # Training metrics
