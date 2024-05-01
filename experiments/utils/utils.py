@@ -44,7 +44,6 @@ class wandb_handler:
                 "batch_size": config['batch_size'],
                 "residual_every_n": config['residual_every_n'],
                 "residual_jump_length": config['residual_jump_length'],
-                "use_residual": config['use_residual'],
                 "use_padding": config['use_padding'],
                 "n_of_train_samples": config['n_of_train_samples'],
                 "n_of_test_samples": config['n_of_test_samples'],
