@@ -1,4 +1,6 @@
-from sympy import use
+import json
+import numpy as np
+import cupy as cp
 import wandb
 from bats.Layers import InputLayer, LIFLayer, LIFLayerResidual
 from bats.Losses import *
@@ -33,7 +35,7 @@ class wandb_handler:
                 "use_delay": config['Use_delay'],
                 "loss function": config['loss'],
                 "architecture": "SNN",
-                "version": "1.1.3",
+                "version": "Testing delay 1.1.3",
             }
         else:
             self.config = {
@@ -60,11 +62,25 @@ class wandb_handler:
                 "version": "Testing conv small 1.1.3",
             }
         self.run = wandb.init(project=project_name, name=experiment_name, config=self.config)
+        # self.run = None
         self.cache = {}
     def save(self, log_dict):
         self.cache.update(log_dict)
     def log(self):
+        for key,item in self.cache.items():
+            if type(item) == np.ndarray and item.shape == (1,):
+                self.cache[key] = float(item)
+            if type(item) == cp.array and item.shape == (1,):
+                self.cache[key] = float(item)
+            else:
+                try:
+                    json.dumps(item)
+                except:
+                    self.cache[key] = float(item)
+        # turn the cache into a JSON
+        # cache_json = json.dumps(self.cache)
         self.run.log(self.cache)
+
     def finish(self):
         self.run.finish()
 
