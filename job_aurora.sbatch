@@ -10,16 +10,16 @@
 
 #SBATCH --cpus-per-task=1
 
-#SBATCH --mem=16384
+#SBATCH --mem=8384
 
 #SBATCH --mail-type=END
 
-#SBATCH --gres=gpu
+#SBATCH --gres=gpu:2
 
 # source ~/.bashrc
 
 module use /opt/insy/modulefiles
 module load miniconda/3.9
 conda activate myHomeEnv
-echo "python3 experiments/emnist/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 3 --batch_size 20 --use_residual True --residual_every_n 2 --residual_jump_length 2 --use_wanb True"
-srun python3 experiments/emnist/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 3 --batch_size 20 --use_residual True --residual_every_n 2 --residual_jump_length 2 --use_wanb True
+echo "python3 experiments/emnist/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 4 --batch_size 20 --use_residual True --residual_every_n 3 --residual_jump_length 3 --use_wanb True"
+srun python3 experiments/emnist/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 4 --batch_size 20 --use_residual True --residual_every_n 3 --residual_jump_length 3 --use_wanb True
