@@ -21,5 +21,5 @@
 module use /opt/insy/modulefiles
 module load miniconda/3.9
 conda activate myHomeEnv
-echo "python3 experiments/emnist/train.py --cluster True --n_epochs 100 --runs 1 --n_hidden_layers 9 --batch_size 80 --use_residual True --residual_every_n 4 --residual_jump_length 3 --use_wanb True --fuse_func Append"
-srun python3 experiments/emnist/train.py --cluster True --n_epochs 100 --runs 1 --n_hidden_layers 9 --batch_size 80 --use_residual True --residual_every_n 4 --residual_jump_length 3 --use_wanb True --fuse_func Append
+echo "python3 experiments/emnist/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 3 --batch_size 20 --use_residual True --residual_every_n 2 --residual_jump_length 2 --use_wanb True"
+srun python3 experiments/emnist/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 3 --batch_size 20 --use_residual True --residual_every_n 2 --residual_jump_length 2 --use_wanb True

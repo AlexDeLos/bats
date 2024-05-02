@@ -33,7 +33,7 @@ class wandb_handler:
                 "use_delay": config['Use_delay'],
                 "loss function": config['loss'],
                 "architecture": "SNN",
-                "version": "Testing Delayed Residuals 1.1.2",
+                "version": "Testing conv small 1.1.2",
             }
         else:
             self.config = {

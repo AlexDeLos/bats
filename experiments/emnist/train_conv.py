@@ -63,7 +63,7 @@ else:
 
 INPUT_SHAPE = np.array([28, 28, 1])
 SIMULATION_TIME = 0.2
-CHANNELS = 15
+CHANNELS = 16
 conv_var = {
     'filter': np.array([3, 3, CHANNELS]),
     'tau_s': 0.130,
