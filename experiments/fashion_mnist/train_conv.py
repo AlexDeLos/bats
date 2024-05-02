@@ -64,26 +64,26 @@ N_TRAINING_EPOCHS = arguments.n_epochs
 INPUT_SHAPE = np.array([28, 28, 1])
 # INPUT_SHAPE = np.array([5,5,2])
 SIMULATION_TIME = 0.2
-CHANNELS = 15
+CHANNELS = 16
 conv_var = {
     'filter': np.array([3, 3, CHANNELS]),
     'tau_s': 0.130,
     'threshold_hat': 0.1,
     'delta_threshold': 1 * 0.1,
-    'spike_buffer_size': 15
+    'spike_buffer_size': 10
 }
 conv_res_var = {
     'filter': np.array([3, 3, CHANNELS]),
     'tau_s': 0.130,
-    'threshold_hat': 0.2,
-    'delta_threshold': 1 * 0.2,
-    'spike_buffer_size': 15
+    'threshold_hat': 0.04,
+    'delta_threshold': 1 * 0.04,
+    'spike_buffer_size': 10
 }
 fc_var = {
     'n_neurons': 300,
     'tau_s': 0.130,
-    'threshold_hat': 0.3,
-    'delta_threshold': 1 * 0.3,
+    'threshold_hat': 0.6,
+    'delta_threshold': 1 * 0.6  ,
     'spike_buffer_size': 20
 }
 if TTFS:
@@ -93,8 +93,8 @@ else:
 output_var = {
     'n_neurons': 10,
     'tau_s': 0.130,
-    'threshold_hat': 0.3,
-    'delta_threshold': 1 * 0.3,
+    'threshold_hat': 0.6,
+    'delta_threshold': 1 * 0.6,
     'spike_buffer_size': out_buffer_size
 }
 # Training parameters

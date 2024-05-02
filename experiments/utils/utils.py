@@ -33,7 +33,7 @@ class wandb_handler:
                 "use_delay": config['Use_delay'],
                 "loss function": config['loss'],
                 "architecture": "SNN",
-                "version": "Testing conv small 1.1.2",
+                "version": "1.1.3",
             }
         else:
             self.config = {
@@ -57,7 +57,7 @@ class wandb_handler:
                 "false target": config['False_target'],
                 "loss function": config['loss'],
                 "use_delay": config['Use_delay'],
-                "version": "1.1.2",
+                "version": "Testing conv small 1.1.3",
             }
         self.run = wandb.init(project=project_name, name=experiment_name, config=self.config)
         self.cache = {}

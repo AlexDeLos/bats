@@ -74,15 +74,15 @@ conv_var = {
 conv_res_var = {
     'filter': np.array([3, 3, CHANNELS]),
     'tau_s': 0.130,
-    'threshold_hat': 0.2,
-    'delta_threshold': 1 * 0.2,
+    'threshold_hat': 0.04,
+    'delta_threshold': 1 * 0.04,
     'spike_buffer_size': 10
 }
 fc_var = {
     'n_neurons': 300,
     'tau_s': 0.130,
-    'threshold_hat': 0.3,
-    'delta_threshold': 1 * 0.3,
+    'threshold_hat': 0.6,
+    'delta_threshold': 1 * 0.6  ,
     'spike_buffer_size': 20
 }
 if TTFS:
@@ -92,8 +92,8 @@ else:
 output_var = {
     'n_neurons': 47,
     'tau_s': 0.130,
-    'threshold_hat': 0.3,
-    'delta_threshold': 1 * 0.3,
+    'threshold_hat': 0.6,
+    'delta_threshold': 1 * 0.6,
     'spike_buffer_size': out_buffer_size
 }
 N_TRAINING_EPOCHS = arguments.n_epochs
@@ -274,6 +274,9 @@ for run in range(NUMBER_OF_RUNS):
             # raise ValueError("Up to here")
             # Predictions, loss and errors
             pred = loss_fct.predict(out_spikes, n_out_spikes)
+            # if n_out_spikes is all 0 and we are on the first epoch stop the training
+            if epoch == 0 and cp.sum(n_out_spikes) == 0:
+                raise ValueError("No spikes in the first epoch")
             loss, errors = loss_fct.compute_loss_and_errors(out_spikes, n_out_spikes, labels)
 
             pred_cpu = pred.get()

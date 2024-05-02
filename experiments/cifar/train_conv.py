@@ -70,23 +70,23 @@ else:
     INPUT_SHAPE = np.array([32, 32, 1])
 # INPUT_SHAPE = np.array([5,5,2])
 SIMULATION_TIME = 0.2
-CHANNELS = 32  # we should use 64...
+CHANNELS = 16  # we should use 64...
 conv_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
-    'threshold_hat': 0.04,
-    'delta_threshold': 1 * 0.04,
+    'threshold_hat': 0.15,
+    'delta_threshold': 1 * 0.15,
     'spike_buffer_size': 5
 }
 conv_res_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
-    'threshold_hat': 0.04,
-    'delta_threshold': 1 * 0.04,
+    'threshold_hat': 0.1,
+    'delta_threshold': 1 * 0.1,
     'spike_buffer_size': 5
 }
 fc_var = {
-    'n_neurons': 300,
+    'n_neurons': 500,
     'tau_s': 0.130,
     'threshold_hat': 0.6,
     'delta_threshold': 1 * 0.6,
@@ -144,7 +144,7 @@ SAVE_DIR = Path("/cifar/"+str(N_HIDDEN_LAYERS)+"_"+ str(str(conv_var['filter']))
 
 
 def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:
-    return cp.random.uniform(-1.0, 1.0, size=(c, x, y, pre_c), dtype=cp.float32)
+    return cp.random.uniform(-2.0, 2.0, size=(c, x, y, pre_c), dtype=cp.float32)
 
 
 def weight_initializer_ff(n_post: int, n_pre: int) -> cp.ndarray:
