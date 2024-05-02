@@ -70,16 +70,16 @@ else:
     INPUT_SHAPE = np.array([32, 32, 1])
 # INPUT_SHAPE = np.array([5,5,2])
 SIMULATION_TIME = 0.2
-CHANNELS = 16  # we should use 64...
+CHANNELS = 32  # we should use 64...
 conv_var = {
-    'filter': np.array([3, 3, CHANNELS]),
+    'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
     'threshold_hat': 0.04,
     'delta_threshold': 1 * 0.04,
     'spike_buffer_size': 5
 }
 conv_res_var = {
-    'filter': np.array([3, 3, CHANNELS]),
+    'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
     'threshold_hat': 0.04,
     'delta_threshold': 1 * 0.04,
@@ -113,16 +113,15 @@ output_var = {
 }
 
 N_TRAINING_EPOCHS = arguments.n_epochs
+TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
+TEST_BATCH_SIZE = arguments.batch_size
 if CLUSTER:
     N_TRAIN_SAMPLES = 50000 # arguments.n_train_samples
     N_TEST_SAMPLES = 10000 # arguments.n_test_samples #! used to be 10000
-    TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
-    TEST_BATCH_SIZE = arguments.batch_size
+
 else:
     N_TRAIN_SAMPLES = 5000
     N_TEST_SAMPLES = 1000
-    TRAIN_BATCH_SIZE = 5
-    TEST_BATCH_SIZE = 5
     TRAIN_BATCH_SIZE = arguments.batch_size # 20
     TEST_BATCH_SIZE = arguments.batch_size
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
@@ -257,8 +256,8 @@ for run in range(NUMBER_OF_RUNS):
     best_acc = 0.0
     tracker = [0.0]* len(network.layers)
     print("Training...")
-    if RESTORE and SAVE_DIR.exists():
-        dic = Path("last"+ str(SAVE_DIR))
+    dic = Path("last"+ str(SAVE_DIR))
+    if RESTORE and dic.exists():
         network.restore(dic)
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()

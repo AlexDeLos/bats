@@ -69,14 +69,14 @@ conv_var = {
     'tau_s': 0.130,
     'threshold_hat': 0.1,
     'delta_threshold': 1 * 0.1,
-    'spike_buffer_size': 15
+    'spike_buffer_size': 10
 }
 conv_res_var = {
     'filter': np.array([3, 3, CHANNELS]),
     'tau_s': 0.130,
     'threshold_hat': 0.2,
     'delta_threshold': 1 * 0.2,
-    'spike_buffer_size': 15
+    'spike_buffer_size': 10
 }
 fc_var = {
     'n_neurons': 300,
@@ -98,17 +98,16 @@ output_var = {
 }
 N_TRAINING_EPOCHS = arguments.n_epochs
 
+TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
+TEST_BATCH_SIZE = arguments.batch_size
 # Training parameters
 if CLUSTER:
     N_TRAIN_SAMPLES = 60000
     N_TEST_SAMPLES = 10000 #! used to be 10000
-    TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
-    TEST_BATCH_SIZE = arguments.batch_size
+
 else:
     N_TRAIN_SAMPLES = 6000
     N_TEST_SAMPLES = 1000
-    TRAIN_BATCH_SIZE = 15
-    TEST_BATCH_SIZE = 10
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
 TRAIN_PRINT_PERIOD = 0.1
@@ -248,8 +247,8 @@ for run in range(NUMBER_OF_RUNS):
     else:
         w_b = None
     print("Training...")
-    if RESTORE and SAVE_DIR.exists():
-        dic = Path("last"+ str(SAVE_DIR))
+    dic = Path("last"+ str(SAVE_DIR))
+    if RESTORE and dic.exists():
         network.restore(dic)
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()

@@ -197,8 +197,8 @@ for run in range(NUMBER_OF_RUNS):
     best_acc = 0.0
     tracker = [0.0]* len(network.layers)
     print("Training...")
-    if RESTORE and SAVE_DIR.exists():
-        dic = Path("last"+ str(SAVE_DIR))
+    dic = Path("last"+ str(SAVE_DIR))
+    if RESTORE and dic.exists():
         network.restore(dic)
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
