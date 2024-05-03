@@ -428,6 +428,7 @@ for run in range(NUMBER_OF_RUNS):
                 if acc > best_acc:
                     best_acc = acc
                     dic = Path("best" + str(SAVE_DIR))
+                    network.store(dic)
                     print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks NOT save to: {SAVE_DIR}")
         if USE_WANDB:
             w_b.log()
