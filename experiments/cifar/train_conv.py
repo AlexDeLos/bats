@@ -140,7 +140,7 @@ TARGET_TRUE = 20
 # Plot parameters
 EXPORT_METRICS = True
 EXPORT_DIR = Path("./output_metrics")
-SAVE_DIR = Path("/cifar/"+str(N_HIDDEN_LAYERS)+"_"+ str(str(conv_var['filter']))+"_"+str(output_var['n_neurons'])+"_"+str(str(conv_var['filter'])))
+SAVE_DIR = Path("/cifar_"+str(CLUSTER)+"/"+str(N_HIDDEN_LAYERS)+"_"+ str(str(conv_var['filter']))+"_"+str(output_var['n_neurons'])+"_"+str(str(conv_var['filter'])))
 
 
 def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:
