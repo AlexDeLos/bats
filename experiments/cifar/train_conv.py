@@ -70,7 +70,7 @@ else:
     INPUT_SHAPE = np.array([32, 32, 1])
 # INPUT_SHAPE = np.array([5,5,2])
 SIMULATION_TIME = 0.2
-CHANNELS = 16  # we should use 64...
+CHANNELS = 24  # we should use 64...
 conv_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
@@ -88,8 +88,8 @@ conv_res_var = {
 fc_var = {
     'n_neurons': 500,
     'tau_s': 0.130,
-    'threshold_hat': 0.6,
-    'delta_threshold': 1 * 0.6,
+    'threshold_hat': 0.5,
+    'delta_threshold': 1 * 0.5,
     'spike_buffer_size': 10
 }
 # Output_layer
