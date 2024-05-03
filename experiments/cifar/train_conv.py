@@ -258,6 +258,7 @@ for run in range(NUMBER_OF_RUNS):
     print("Training...")
     dic = Path("last"+ str(SAVE_DIR))
     if RESTORE and dic.exists():
+        print("""Restoring network from last save...""", dic)
         network.restore(dic)
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
