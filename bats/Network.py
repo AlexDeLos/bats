@@ -119,6 +119,7 @@ class Network:
             layer.add_deltas(delta)
 
     def store(self, dir_path: Path) -> None:
+        print(f"Storing network to {dir_path}")
         dir_path.mkdir(parents=True, exist_ok=True)
         for it in self.__layers:
             it.store(dir_path)
