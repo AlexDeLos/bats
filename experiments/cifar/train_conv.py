@@ -239,7 +239,7 @@ for run in range(NUMBER_OF_RUNS):
         "use_padding": USE_PADDING,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
-        "channels": CHANNELS,
+        "channels": str(CHANNELS),
         "conv": str(conv_var),
         "conv_res": str(conv_res_var),
         "learning_rate": LEARNING_RATE,

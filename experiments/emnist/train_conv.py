@@ -65,14 +65,14 @@ INPUT_SHAPE = np.array([28, 28, 1])
 SIMULATION_TIME = 0.2
 CHANNELS = 16
 conv_var = {
-    'filter': np.array([3, 3, CHANNELS]),
+    'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
     'threshold_hat': 0.1,
     'delta_threshold': 1 * 0.1,
     'spike_buffer_size': 10
 }
 conv_res_var = {
-    'filter': np.array([3, 3, CHANNELS]),
+    'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
     'threshold_hat': 0.04,
     'delta_threshold': 1 * 0.04,
@@ -233,7 +233,7 @@ for run in range(NUMBER_OF_RUNS):
         "use_padding": USE_PADDING,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
-        "channels": CHANNELS,
+        "channels": str(CHANNELS),
         "conv": str(conv_var),
         "conv_res": str(conv_res_var),
         "learning_rate": LEARNING_RATE,
