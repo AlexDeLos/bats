@@ -76,14 +76,14 @@ conv_var = {
     'tau_s': 0.130,
     'threshold_hat': 0.15,
     'delta_threshold': 1 * 0.15,
-    'spike_buffer_size': 5
+    'spike_buffer_size': 10
 }
 conv_res_var = {
     'filter': np.array([3, 3, CHANNELS]),
     'tau_s': 0.130,
     'threshold_hat': 0.1,
     'delta_threshold': 1 * 0.1,
-    'spike_buffer_size': 5
+    'spike_buffer_size': 10
 }
 fc_var = {
     'n_neurons': 500,
