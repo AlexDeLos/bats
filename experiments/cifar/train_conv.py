@@ -83,14 +83,14 @@ conv_res_var = {
     'tau_s': 0.130,
     'threshold_hat': 0.1,
     'delta_threshold': 1 * 0.1,
-    'spike_buffer_size': 10
+    'spike_buffer_size': 5
 }
 fc_var = {
     'n_neurons': 500,
     'tau_s': 0.130,
     'threshold_hat': 0.5,
     'delta_threshold': 1 * 0.5,
-    'spike_buffer_size': 10
+    'spike_buffer_size': 5
 }
 # Output_layer
 if USE_COURSE_LABELS and USE_CIFAR100:
