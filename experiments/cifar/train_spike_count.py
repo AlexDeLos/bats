@@ -131,6 +131,8 @@ SAVE_DIR = Path("/cifar/"+str(N_HIDDEN_LAYERS)+"_"+ str(neuron_var['n_neurons'])
 
 def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
     return cp.random.uniform(-1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32) # type: ignore
+    # return cp.random.uniform(-2.0, 2.0, size=(n_post, n_pre), dtype=cp.float32) # type: ignore
+    # return cp.random.uniform(-2.0, 2.0, size=(n_post, n_pre), dtype=cp.float32) # type: ignore
 
 
 for run in range(NUMBER_OF_RUNS):
