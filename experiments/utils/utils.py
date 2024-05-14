@@ -59,7 +59,7 @@ class wandb_handler:
                 "false target": config['False_target'],
                 "loss function": config['loss'],
                 "use_delay": config['Use_delay'],
-                "version": "Testing conv small 1.1.3",
+                "version": "1.2.0",
             }
         self.run = wandb.init(project=project_name, name=experiment_name, config=self.config)
         # self.run = None
