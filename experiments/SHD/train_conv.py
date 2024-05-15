@@ -164,6 +164,7 @@ for run in range(NUMBER_OF_RUNS):
 
     print("Loading datasets...")
     dataset = Dataset(DATASET_PATH)
+    raise ValueError("This is a test")
 
 
     print("Creating network...")

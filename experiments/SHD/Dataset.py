@@ -51,16 +51,34 @@ class Dataset:
 
         print("Number of train samples: %d"%len(labels))
         # times = np.array([np.pad(t, (0, max_len-len(t)), 'constant') for t in times])
-        spike_times = [[[]]*NUMBER_OF_NEURONS]*len(times)
-        # spike_counts = np.zeros((len(times), NUMBER_OF_NEURONS))
+        # spike_times = [[[]]*NUMBER_OF_NEURONS]*len(times)
+        # # spike_counts = np.zeros((len(times), NUMBER_OF_NEURONS))
+        # for inputs in range(len(times)):
+        #     print("Processing input %d"%inputs)
+        #     for u,spike in enumerate(times[inputs]):
+        #         spike_times[inputs][units[inputs][u]].append(spike) #0,384 / 0,680 0, 465
+        #         # spike_counts[inputs][units[inputs][u]] += 1
+        # # np.save("spike_counts.npy", spike_counts)
+        # print("loop Done")
+        # spike_times_np = np.array(spike_times)
+        # print("Saving spike times")
+        # Initialize an empty array of objects with the required shape
+        spike_times = np.empty((len(times), NUMBER_OF_NEURONS), dtype=object)
+
+        # Initialize each element as an empty list
+        for i in range(len(times)):
+            for j in range(NUMBER_OF_NEURONS):
+                spike_times[i, j] = []
+
+        # Processing loop
         for inputs in range(len(times)):
-            for u,spike in enumerate(times[inputs]):
-                spike_times[inputs][units[inputs][u]].append(spike) #0,384 / 0,680 0, 465
-                # spike_counts[inputs][units[inputs][u]] += 1
-        # np.save("spike_counts.npy", spike_counts)
-        spike_times_np = np.array(spike_times)
-        np.save("spike_times.npy", spike_times_np)
-        self.__train_spike_times = spike_times_np
+            print("Processing input %d" % inputs)
+            for u, spike in enumerate(times[inputs]):
+                spike_times[inputs, units[inputs][u]].append(spike)
+                
+        np.save("spike_times.npy", spike_times)
+        print("Done")
+        self.__train_spike_times = spike_times
 
 
         fn_test = files[1]
