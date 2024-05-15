@@ -52,15 +52,15 @@ class Dataset:
         print("Number of train samples: %d"%len(labels))
         # times = np.array([np.pad(t, (0, max_len-len(t)), 'constant') for t in times])
         spike_times = [[[]]*NUMBER_OF_NEURONS]*len(times)
-        spike_counts = np.zeros((len(times), NUMBER_OF_NEURONS))
+        # spike_counts = np.zeros((len(times), NUMBER_OF_NEURONS))
         for inputs in range(len(times)):
             for u,spike in enumerate(times[inputs]):
-                spike_times[inputs][units[inputs][u]].append(spike)
-                spike_counts[inputs][units[inputs][u]] += 1
-        np.save("spike_counts.npy", spike_counts)
-        spike_times = np.array(spike_times)
-        np.save("spike_times.npy", spike_times)
-        self.__train_spike_times = spike_times
+                spike_times[inputs][units[inputs][u]].append(spike) #0,384 / 0,680 0, 465
+                # spike_counts[inputs][units[inputs][u]] += 1
+        # np.save("spike_counts.npy", spike_counts)
+        spike_times_np = np.array(spike_times)
+        np.save("spike_times.npy", spike_times_np)
+        self.__train_spike_times = spike_times_np
 
 
         fn_test = files[1]
