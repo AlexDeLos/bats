@@ -50,20 +50,8 @@ class Dataset:
         labels = fileh.root.labels
 
         print("Number of train samples: %d"%len(labels))
-        # times = np.array([np.pad(t, (0, max_len-len(t)), 'constant') for t in times])
-        # spike_times = [[[]]*NUMBER_OF_NEURONS]*len(times)
-        # # spike_counts = np.zeros((len(times), NUMBER_OF_NEURONS))
-        # for inputs in range(len(times)):
-        #     print("Processing input %d"%inputs)
-        #     for u,spike in enumerate(times[inputs]):
-        #         spike_times[inputs][units[inputs][u]].append(spike) #0,384 / 0,680 0, 465
-        #         # spike_counts[inputs][units[inputs][u]] += 1
-        # # np.save("spike_counts.npy", spike_counts)
-        # print("loop Done")
-        # spike_times_np = np.array(spike_times)
-        # print("Saving spike times")
-        # Initialize an empty array of objects with the required shape
         spike_times = np.empty((len(times), NUMBER_OF_NEURONS), dtype=object)
+        spike_counts = np.empty((len(times), NUMBER_OF_NEURONS), dtype=int)
 
         # Initialize each element as an empty list
         for i in range(len(times)):
@@ -75,8 +63,19 @@ class Dataset:
             print("Processing input %d" % inputs)
             for u, spike in enumerate(times[inputs]):
                 spike_times[inputs, units[inputs][u]].append(spike)
-                
+                spike_counts[inputs, units[inputs][u]] += 1
         np.save("spike_times.npy", spike_times)
+        spike_times = np.load("spike_times.npy",allow_pickle=True)
+        new_spike_times = np.empty((len(times), NUMBER_OF_NEURONS,90), dtype=object)
+        for i in range(len(spike_times)):
+            print("Processing input %d" % i)
+            for j in range(len(spike_times[i])):
+                new_spike_times[i, j] = np.pad(np.array(spike_times[i, j]), (0, 90 - len(spike_times[i, j])), constant_values=np.inf)
+                new_spike_times[i, j] = np.sort(new_spike_times[i, j])
+        np.save("new_spike_times.npy", new_spike_times)
+        print("Done new_spike_times")
+        spike_counts = np.load("spike_counts.npy")
+    
         print("Done")
         self.__train_spike_times = spike_times
 
@@ -85,8 +84,35 @@ class Dataset:
         origin = "%s/%s"%(base_url,fn_test)
         hdf5_file_path_test = get_and_gunzip(origin, fn_test, md5hash=file_hashes[fn_test])
         print(hdf5_file_path_test)
+        print("Loading test data")
         fileh = tables.open_file(hdf5_file_path_train, mode='r')
         units = fileh.root.spikes.units
         times = fileh.root.spikes.times
         labels = fileh.root.labels
         print("Number of test samples: %d"%len(labels))
+        spike_times = np.empty((len(times), NUMBER_OF_NEURONS), dtype=object)
+        spike_counts = np.empty((len(times), NUMBER_OF_NEURONS), dtype=int)
+
+        # Initialize each element as an empty list
+        for i in range(len(times)):
+            for j in range(NUMBER_OF_NEURONS):
+                spike_times[i, j] = []
+
+        # Processing loop
+        for inputs in range(len(times)):
+            print("Processing input %d" % inputs)
+            for u, spike in enumerate(times[inputs]):
+                spike_times[inputs, units[inputs][u]].append(spike)
+        np.save("spike_times_test.npy", spike_times)
+        spike_times = np.load("spike_times_test.npy",allow_pickle=True)
+        new_spike_times = np.empty((len(times), NUMBER_OF_NEURONS,90), dtype=object)
+        for i in range(len(spike_times)):
+            print("Processing input %d" % i)
+            for j in range(len(spike_times[i])):
+                new_spike_times[i, j] = np.pad(np.array(spike_times[i, j]), (0, 90 - len(spike_times[i, j])), constant_values=np.inf)
+                new_spike_times[i, j] = np.sort(new_spike_times[i, j])
+        np.save("new_spike_times_test.npy", new_spike_times)
+        print("Done new_spike_times")
+        spike_counts = np.load("spike_counts_test.npy")
+    
+        print("Done")
