@@ -147,15 +147,26 @@ def build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, 
         hidden_layers = []
         for i in range(n_hidden):
             if i == 0:
-                conv = ConvLIFLayer(previous_layer=input_layer,
-                                filters_shape=conv_var['filter'], use_padding=use_padding,
-                                tau_s=conv_var['tau_s'],
-                                filter_from_next=conv_var['filter'],
-                                theta=conv_var['threshold_hat'],
-                                delta_theta=conv_var['delta_threshold'],
+                if use_residual and res_every_n == 0:
+                    conv = ConvLIFLayer_new_Residual(previous_layer=input_layer, jump_layer=input_layer, filters_shape=conv_res_var['filter'], use_padding=use_padding,
+                                use_delay= use_delay,
+                                tau_s=conv_res_var['tau_s'],
+                                # filter_from_next=conv_res_var['filter'],
+                                theta=conv_res_var['threshold_hat'],
+                                delta_theta=conv_res_var['delta_threshold'],
                                 weight_initializer=weight_initializer_conv,
-                                max_n_spike=conv_var['spike_buffer_size'],
-                                name="Convolution "+str(i))
+                                max_n_spike=conv_res_var['spike_buffer_size'],
+                                name="Convolution Residual "+str(i))
+                else:
+                    conv = ConvLIFLayer(previous_layer=input_layer,
+                                    filters_shape=conv_var['filter'], use_padding=use_padding,
+                                    tau_s=conv_var['tau_s'],
+                                    filter_from_next=conv_var['filter'],
+                                    theta=conv_var['threshold_hat'],
+                                    delta_theta=conv_var['delta_threshold'],
+                                    weight_initializer=weight_initializer_conv,
+                                    max_n_spike=conv_var['spike_buffer_size'],
+                                    name="Convolution "+str(i))
             elif i % res_every_n == 0:
                 if use_residual:
                     if i - res_jump_l < 0:
