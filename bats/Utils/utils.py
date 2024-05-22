@@ -157,9 +157,16 @@ def trimed_errors(errors, previous_filter, pre_channels):
     padding_y_to_remove = int((y_filter-1)/2)
     batch_size, n_neurons, max_n_spike = errors.shape
     x = int(sqrt(n_neurons/channels))
-    y = int(sqrt(n_neurons/channels))
+    if y_filter == 1:
+        y = 1
+        x = int(n_neurons/channels)
+    else:
+        y = int(sqrt(n_neurons/channels))
     errors = cp.reshape(errors, (batch_size, x, y, channels, max_n_spike))
-    errors = errors[:,padding_x_to_remove:-padding_x_to_remove,padding_y_to_remove:-padding_y_to_remove]
+    if padding_y_to_remove == 0:
+        errors = errors[:,padding_x_to_remove:-padding_x_to_remove,:,:]
+    else:
+        errors = errors[:,padding_x_to_remove:-padding_x_to_remove,padding_y_to_remove:-padding_y_to_remove]
     new_n_neurons = (x-padding_x_to_remove*2) * (y-padding_y_to_remove*2) * channels
     shapped_errors = cp.reshape(errors, (batch_size, new_n_neurons, max_n_spike))
     return shapped_errors

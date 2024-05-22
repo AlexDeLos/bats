@@ -36,7 +36,7 @@ class AbstractMonitor(ABC):
     def export(self) -> None:
         if self._export_path is None:
             return
-        np.savez(self._export_path, epochs=self._epochs, values=self._values)
+        # np.savez(self._export_path, epochs=self._epochs, values=self._values)
 
         # plt.plot(self._epochs, self._values)
         # plt.xlabel("Epoch")

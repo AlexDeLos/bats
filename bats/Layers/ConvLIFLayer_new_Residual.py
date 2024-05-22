@@ -27,8 +27,11 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
         if prev_x != jump_layer_x or prev_y != jump_layer_y:
             raise ValueError("The previous layer and the jump layer must have the same shape")
         filter_x, filter_y, filter_c = filters_shape
-        padding= [filter_x-1, filter_y -1]
-        # self.__filter_from_next = filter_from_next
+        if filter_y ==1:
+            # this is a 1D convolution
+            padding = [filter_x-1, 0]
+        else:
+            padding= [filter_x-1, filter_y -1]
         if use_padding:
             prev_x += padding[0]
             prev_y += padding[1]

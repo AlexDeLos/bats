@@ -57,10 +57,10 @@ DATASET_PATH = "./datasets/shd-python/"
 NUMBER_OF_RUNS = arguments.runs
 
 
-INPUT_SHAPE = np.array([32, 32, 1])
+INPUT_SHAPE = np.array([700, 1, 19])
 # INPUT_SHAPE = np.array([5,5,2])
 SIMULATION_TIME = 0.2
-CHANNELS = 24  # we should use 64...
+CHANNELS = 1  # we should use 64...
 conv_var = {
     'filter': np.array([3, 1, CHANNELS]),
     'tau_s': 0.130,
@@ -76,7 +76,7 @@ conv_res_var = {
     'spike_buffer_size': 5
 }
 fc_var = {
-    'n_neurons': 500,
+    'n_neurons': 350,
     'tau_s': 0.130,
     'threshold_hat': 0.5,
     'delta_threshold': 1 * 0.5,
@@ -100,12 +100,12 @@ N_TRAINING_EPOCHS = arguments.n_epochs
 TRAIN_BATCH_SIZE = arguments.batch_size #! used to be 50 -> putting it at 50 crashes the cluster when using append
 TEST_BATCH_SIZE = arguments.batch_size
 if CLUSTER:
-    N_TRAIN_SAMPLES = 50000 # arguments.n_train_samples
-    N_TEST_SAMPLES = 10000 # arguments.n_test_samples #! used to be 10000
+    N_TRAIN_SAMPLES = 8156
+    N_TEST_SAMPLES = 2264
 
 else:
-    N_TRAIN_SAMPLES = 5000
-    N_TEST_SAMPLES = 1000
+    N_TRAIN_SAMPLES = 8156
+    N_TEST_SAMPLES = 2264
     TRAIN_BATCH_SIZE = arguments.batch_size # 20
     TEST_BATCH_SIZE = arguments.batch_size
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
@@ -161,7 +161,6 @@ for run in range(NUMBER_OF_RUNS):
 
     print("Loading datasets...")
     dataset = Dataset(DATASET_PATH)
-    raise ValueError("This is a test")
 
 
     print("Creating network...")

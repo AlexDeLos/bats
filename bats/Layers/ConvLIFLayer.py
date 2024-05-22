@@ -24,8 +24,12 @@ class ConvLIFLayer(AbstractConvLayer):
                  **kwargs):
         prev_x, prev_y, prev_c = previous_layer._neurons_shape.get()
         filter_x, filter_y, filter_c = filters_shape
-        padding= [filter_x-1, filter_y -1]
-        self.__filter_from_next = filter_from_next
+        if filter_y ==1:
+            # this is a 1D convolution
+            padding = [filter_x-1, 0]
+        else:
+            padding= [filter_x-1, filter_y -1]
+        self.__filter_from_next = filter_from_next# this might be able to be removed
         if use_padding:
             prev_x += padding[0]
             prev_y += padding[1]
@@ -149,7 +153,7 @@ class ConvLIFLayer(AbstractConvLayer):
                                                            new_shape_previous, self.neurons_shape,
                                                            self.__filters_shape)
             #? what does the X represent?
-            # count = self.__n_spike_per_neuron
+            count = self.__n_spike_per_neuron
             # print(self.name)
             # print(cp.where(count!=0)[0].shape)
             ewrwe = 0

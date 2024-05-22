@@ -28,7 +28,7 @@ from experiments.utils.utils import build_network_SNN, wandb_handler
 
 arguments = get_arguments()
 # Residual arguments
-N_HIDDEN_LAYERS = arguments.n_hidden_layers
+N_HIDDEN_LAYERS = 1#arguments.n_hidden_layers
 USE_RESIDUAL = arguments.use_residual
 RESIDUAL_EVERY_N = arguments.residual_every_n
 RESIDUAL_JUMP_LENGTH = arguments.residual_jump_length
@@ -49,36 +49,22 @@ USE_DELAY = arguments.use_delay
 TTFS = arguments.ttfs
 RESTORE = arguments.restore
 #TODO: try to get the non append function to run out of memory
-if USE_CIFAR100:
-    DATASET_PATH = "./datasets/cifar-100-python/"
-else:
-    DATASET_PATH = "./datasets/cifar-10-batches-py/"
+DATASET_PATH = "./datasets/shd-python/"
 
 
-if USE_3_CHANNELS:
-    N_INPUTS = 32 * 32 * 3
-else:
-    N_INPUTS = 32 * 32
+N_INPUTS = 700
 SIMULATION_TIME = 0.2
 
 #Residual parameters
 neuron_var = {
-    'n_neurons': 800,
+    'n_neurons': 700,
     'tau_s': 0.130,
     'threshold_hat': 0.4,
     'delta_threshold': 1 * 0.2,
     'spike_buffer_size': 5
 }
-if USE_COURSE_LABELS and USE_CIFAR100:
-    N_OUTPUTS = 20
-elif USE_CIFAR100:
-    N_OUTPUTS = 100
-else:
-    N_OUTPUTS = 10
-if TTFS:
-    out_buffer_size = 1
-else:
-    out_buffer_size = 20
+N_OUTPUTS = 20
+out_buffer_size = 10
 neuron_out_var = {
     'n_neurons': N_OUTPUTS,
     'tau_s': 0.130,
@@ -100,11 +86,11 @@ N_TRAINING_EPOCHS = arguments.n_epochs
 TRAIN_BATCH_SIZE = arguments.batch_size
 TEST_BATCH_SIZE = arguments.batch_size
 if CLUSTER:
-    N_TRAIN_SAMPLES = 50000
-    N_TEST_SAMPLES = 10000 #! used to be 10000
+    N_TRAIN_SAMPLES = 8156
+    N_TEST_SAMPLES = 2264 #! used to be 10000
 else:
-    N_TRAIN_SAMPLES = 10000
-    N_TEST_SAMPLES = 10000
+    N_TRAIN_SAMPLES = 8156
+    N_TEST_SAMPLES = 2264
 
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
@@ -152,7 +138,7 @@ for run in range(NUMBER_OF_RUNS):
 
     # Dataset
     print("Loading datasets...")
-    dataset = Dataset(target_dir=DATASET_PATH, use_multi_channel=USE_3_CHANNELS, cifar100=USE_CIFAR100, use_coarse_labels=USE_COURSE_LABELS)
+    dataset = Dataset(DATASET_PATH)
 
     print(USE_RESIDUAL, CLUSTER, FUSE_FUNCTION, N_HIDDEN_LAYERS, RESIDUAL_EVERY_N, run)
     

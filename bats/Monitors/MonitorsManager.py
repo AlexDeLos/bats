@@ -2,7 +2,6 @@ from ast import Tuple
 from typing import List, Dict
 import numpy as np
 import cupy as cp
-from sympy import im, use
 import wandb
 
 from bats.AbstractMonitor import AbstractMonitor
