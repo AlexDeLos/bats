@@ -68,8 +68,8 @@ CHANNELS = 16
 conv_var = {
     'filter': np.array([3, 3, CHANNELS]),
     'tau_s': 0.130,
-    'threshold_hat': 0.1,
-    'delta_threshold': 1 * 0.1,
+    'threshold_hat': 0.11,
+    'delta_threshold': 1 * 0.11,
     'spike_buffer_size': 10
 }
 conv_res_var = {
