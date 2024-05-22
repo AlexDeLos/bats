@@ -155,7 +155,7 @@ class ConvLIFLayer(AbstractConvLayer):
             #? what does the X represent?
             count = self.__n_spike_per_neuron
             # print(self.name)
-            print(cp.where(count!=0)[0].shape)
+            # print(cp.where(count!=0)[0].shape)
             if cp.where(count!=0)[0].shape[0] == 0:
                 raise ValueError("No spikes in the layer: " + self.name)
             ewrwe = 0

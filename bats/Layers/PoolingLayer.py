@@ -57,7 +57,7 @@ class PoolingLayer(AbstractConvLayer):
         tesete = ''
         count = self.__n_spike_per_neuron
         # print(self.name)
-        print(cp.where(count!=0)[0].shape)
+        # print(cp.where(count!=0)[0].shape)
 
     def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Propagate errors
