@@ -14,7 +14,7 @@
 
 #SBATCH --mail-type=END
 
-#SBATCH --gres=gpu:2
+#SBATCH --gres=gpu
 
 # source ~/.bashrc
 
@@ -24,9 +24,9 @@ conda activate myHomeEnv
 
 echo "fashion_mnist -----------------------------------------------------------------------"
 echo "Starting 1 layers No residual conv on Fashion"
-srun python3 experiments/fashion_mnist/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 1 --batch_size 10 --use_wanb True
+srun python3 experiments/fashion_mnist/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 3 --batch_size 50 --use_wanb True
 echo "Starting 2 layers No residual conv on Fashion"
-srun python3 experiments/fashion_mnist/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 2 --batch_size 10 --use_wanb True
+srun python3 experiments/fashion_mnist/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 2 --batch_size 50 --use_wanb True
 echo "Starting 5 layers No residual conv on Fashion"
 srun python3 experiments/fashion_mnist/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 5 --batch_size 10 --use_wanb True
 echo "Starting 9 layers No residual conv on Fashion"

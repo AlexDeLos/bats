@@ -270,7 +270,7 @@ for run in range(NUMBER_OF_RUNS):
             out_spikes, n_out_spikes = network.output_spike_trains
 
             # check for silent labels
-            # print("Silent labels: ", cp.sum(n_out_spikes, axis=1))
+            print("Silent labels: ", cp.sum(n_out_spikes, axis=1))
             # raise ValueError("Up to here")
             # Predictions, loss and errors
             pred = loss_fct.predict(out_spikes, n_out_spikes)
