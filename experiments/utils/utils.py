@@ -204,10 +204,10 @@ def build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, 
             network.add_layer(conv)
         
 
-        pool_final = PoolingLayer(conv, name="Pooling final")
-        network.add_layer(pool_final)
+        # pool_final = PoolingLayer(conv, name="Pooling final")
+        # network.add_layer(pool_final)
 
-        feedforward = LIFLayer(previous_layer=pool_final, n_neurons=fc_var['n_neurons'], tau_s=fc_var['tau_s'],
+        feedforward = LIFLayer(previous_layer=conv, n_neurons=fc_var['n_neurons'], tau_s=fc_var['tau_s'],
                             theta=fc_var['threshold_hat'],
                             delta_theta=fc_var['delta_threshold'],
                             weight_initializer=weight_initializer_ff,

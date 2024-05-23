@@ -43,8 +43,6 @@ USE_PADDING = arguments.use_pad #! residual and padd gives nans
 USE_DELAY = arguments.use_delay
 TTFS = arguments.ttfs
 RESTORE = arguments.restore
-USE_COURSE_LABELS = arguments.use_coarse_labels
-USE_3_CHANNELS = arguments.use_3_channels #! false could be broken
 #TODO: try to get the non append function to run out of memory
 DATASET_PATH = "./datasets/shd-python/"
 # what causes nans:
@@ -56,11 +54,10 @@ DATASET_PATH = "./datasets/shd-python/"
 
 NUMBER_OF_RUNS = arguments.runs
 
-
 INPUT_SHAPE = np.array([700, 1, 19])
 # INPUT_SHAPE = np.array([5,5,2])
 SIMULATION_TIME = 0.2
-CHANNELS = 1  # we should use 64...
+CHANNELS = 2 # we should use 64...
 conv_var = {
     'filter': np.array([3, 1, CHANNELS]),
     'tau_s': 0.130,

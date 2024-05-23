@@ -113,8 +113,8 @@ class LIFLayer(AbstractLayer):
             # count = self.__n_spike_per_neuron
             # print(self.name)
             # print(cp.where(count!=0)[0].shape)
-            test4 = self.__a
-            test5 = self.__x
+        if cp.any(cp.isnan(spikes)):
+            raise ValueError("NaNs in spikes")
 
     def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
