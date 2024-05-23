@@ -24,7 +24,7 @@ conda activate myHomeEnv
 
 echo "fashion_mnist_RES -----------------------------------------------------------------------"
 echo "Starting 5 layers residual conv on fashion_mnist"
-srun python3 experiments/fashion_mnist/train_conv.py --n_epochs 50 --runs 1 --n_hidden_layers 4 --batch_size 50 --use_residual True --use_wanb True --residual_every_n 3 --residual_jump_length 3
+srun python3 experiments/fashion_mnist/train_conv.py --n_epochs 100 --runs 1 --n_hidden_layers 4 --batch_size 50 --use_residual True --use_wanb True --residual_every_n 3 --residual_jump_length 3
 echo "Starting 9 layers residual conv on fashion_mnist"
 srun python3 experiments/fashion_mnist/train_conv.py --n_epochs 50 --runs 1 --n_hidden_layers 9 --batch_size 50 --use_residual True --use_wanb True --residual_every_n 4 --residual_jump_length 3
 echo "Starting 13 layers residual conv on fashion_mnist"
