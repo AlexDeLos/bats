@@ -241,6 +241,8 @@ for run in range(NUMBER_OF_RUNS):
     if RESTORE and dic.exists():
         print("""Restoring network from last save...""", dic)
         network.restore(dic)
+    else:
+        print("""No restore...""")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
         if not FIX_SEED:
