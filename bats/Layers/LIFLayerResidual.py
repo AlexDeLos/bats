@@ -189,21 +189,15 @@ class LIFLayerResidual(AbstractLayer):
         #!Why are the last two or three entries of delta_weights nan?
         #? I could allow this to be seperate
         # TODO: to make this separate I need to make the gradient separate instead of averaging them in the backward function
-        # delta_split = cp.split(delta_weights, 2, axis=1)
-        # if self.__fuse_function == "Append" and type(delta_weights) is tuple:
-        #     self.__weights_res += delta_weights[0]
-        #     self.__weights_jump += delta_weights[1]
-        # else:
+
         self.__weights_res += delta_weights
     
     def store(self, dir_path: Path) -> None:
         weights = self.weights
-        # if weights is not None:
-        #     pre,_ = WEIGHTS_FILE_SUFFIX.split('.npy')
-        #     filename_res = dir_path / (self._name + pre + "_res" + '.npy')
-        #     filename_jump = dir_path / (self._name + pre + "_jump" + '.npy')
-        #     np.save(filename_res, self.__weights_res.get())
-        #     np.save(filename_jump, self.__weights_jump.get())
+        if weights is not None:
+            pre,_ = WEIGHTS_FILE_SUFFIX.split('.npy')
+            filename_res = dir_path / (self._name + pre + "_res" + '.npy')
+            np.save(filename_res, self.__weights_res.get())
 
     def restore(self, dir_path: Path) -> None:
         pre,_ = WEIGHTS_FILE_SUFFIX.split('.npy')
@@ -211,8 +205,6 @@ class LIFLayerResidual(AbstractLayer):
         filename_jump = dir_path / (self._name + pre + "_jump" + '.npy')
         if filename_res.exists():
             self.__weights_res = np.load(filename_res)
-        if filename_jump.exists():
-            self.__weights_jump = np.load(filename_jump)
 
 
 
