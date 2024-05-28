@@ -48,8 +48,8 @@ SIMULATION_TIME = 0.2
 neuron_var = {
     'n_neurons': 600,
     'tau_s': 0.130,
-    'threshold_hat': 0.2,
-    'delta_threshold': 1 * 0.2,
+    'threshold_hat': 0.3,
+    'delta_threshold': 1 * 0.3,
     'spike_buffer_size': 10
 }
 if TTFS:
@@ -59,15 +59,15 @@ else:
 neuron_out_var = {
     'n_neurons': 47,
     'tau_s': 0.130,
-    'threshold_hat': 1.3,
-    'delta_threshold': 1 * 1.3,
+    'threshold_hat': 1.0,
+    'delta_threshold': 1 * 1.0,
     'spike_buffer_size': out_buffer_size
 }
 neuron_res_var = {
     'n_neurons': 600,
     'tau_s': 0.130,
-    'threshold_hat': 0.4,
-    'delta_threshold': 1 * 0.4,
+    'threshold_hat': 0.3,
+    'delta_threshold': 1 * 0.3,
     'spike_buffer_size': 10
 }
 # Training parameters
