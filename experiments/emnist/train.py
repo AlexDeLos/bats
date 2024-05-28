@@ -50,12 +50,12 @@ neuron_var = {
     'tau_s': 0.130,
     'threshold_hat': 0.2,
     'delta_threshold': 1 * 0.2,
-    'spike_buffer_size': 30
+    'spike_buffer_size': 10
 }
 if TTFS:
     out_buffer_size = 1
 else:
-    out_buffer_size = 30
+    out_buffer_size = 20
 neuron_out_var = {
     'n_neurons': 47,
     'tau_s': 0.130,
