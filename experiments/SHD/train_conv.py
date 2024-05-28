@@ -259,6 +259,9 @@ for run in range(NUMBER_OF_RUNS):
 
             # Inference
             network.reset()
+            # let's reshape them
+            spikes = cp.reshape(spikes, (spikes.shape[0], spikes.shape[1], spikes.shape[2], 1))
+            n_spikes = cp.reshape(n_spikes, (n_spikes.shape[0], n_spikes.shape[1], n_spikes.shape[2], 1))
             network.forward(spikes, n_spikes, max_simulation=SIMULATION_TIME, training=True)
             out_spikes, n_out_spikes = network.output_spike_trains
 
