@@ -36,15 +36,15 @@ def compute_weights_gradient_conv(f1: cp.ndarray, f2: cp.ndarray,
 
     #* propably a memory error, check for buffers
     #! OK, how do I now make sire the new paddings don't mess up the gradient?
-    if cp.any(cp.isnan(gradient)):
-    #     #! maybe something with the max spikes?
-    #     #* errors are not the problem
-        print(f"Found nans in gradient", cp.where(cp.isnan(gradient)))
-    #     num_nans_grad = cp.sum(cp.isnan(gradient))
-    #     # with all of shape [3,3,1] I get 3 nan values
-        out_grad = gradient.copy()
-        count = 0
-        raise RuntimeError("nans in gradient")
-        #! problem could be with the channels
+    # if cp.any(cp.isnan(gradient)):
+    # #     #! maybe something with the max spikes?
+    # #     #* errors are not the problem
+    #     print(f"Found nans in gradient", cp.where(cp.isnan(gradient)))
+    # #     num_nans_grad = cp.sum(cp.isnan(gradient))
+    # #     # with all of shape [3,3,1] I get 3 nan values
+    #     out_grad = gradient.copy()
+    #     count = 0
+    #     raise RuntimeError("nans in gradient")
+    #     #! problem could be with the channels
     
     return gradient

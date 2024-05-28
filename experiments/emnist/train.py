@@ -80,8 +80,6 @@ if CLUSTER:
 else:
     N_TRAIN_SAMPLES = 1128
     N_TEST_SAMPLES = 1880
-    TRAIN_BATCH_SIZE = 50
-    TEST_BATCH_SIZE = 100
 # Training parameters
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
@@ -220,6 +218,8 @@ for run in range(NUMBER_OF_RUNS):
 
             if cp.sum(cp.sum(n_out_spikes, axis=1)) == 0:
                 raise ValueError("Silent labels")
+            if cp.isnan(out_spikes).any():
+                raise ValueError("NaNs in out_spikes")
             # Predictions, loss and errors
             pred = loss_fct.predict(out_spikes, n_out_spikes)
             loss, errors = loss_fct.compute_loss_and_errors(out_spikes, n_out_spikes, labels)

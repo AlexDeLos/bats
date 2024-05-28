@@ -16,9 +16,9 @@ def propagate_recurrent_errors(x: cp.ndarray, exp_tau: cp.ndarray, errors: cp.nd
     grid_dim = (n_neurons, 1, 1)
     __propagate_recurrent_errors_kernel(grid_dim, block_dim, (x, exp_tau, errors, delta_theta_tau,
                                                               cp.int32(max_n_spike)))
-    if cp.any(cp.isnan(errors)):
-        arr_clean = errors[~cp.isnan(errors)]
-        arr_clean= cp.reshape(arr_clean, (batch_size,n_neurons2,max_n_spike))
-        raise ValueError("NaNs in errors")
+    # if cp.any(cp.isnan(errors)):
+    #     arr_clean = errors[~cp.isnan(errors)]
+    #     arr_clean= cp.reshape(arr_clean, (batch_size,n_neurons2,max_n_spike))
+    #     raise ValueError("NaNs in errors")
     
     

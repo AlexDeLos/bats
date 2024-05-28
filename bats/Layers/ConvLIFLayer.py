@@ -158,10 +158,10 @@ class ConvLIFLayer(AbstractConvLayer):
             # print(self.name)
             # print(cp.where(count!=0)[0].shape)
             
-            if cp.any(cp.isnan(spikes)):
-                raise ValueError("NaNs in spikes")
-            if cp.where(count!=0)[0].shape[0] == 0:
-                raise ValueError("No spikes in the layer: " + self.name)
+            # if cp.any(cp.isnan(spikes)):
+            #     raise ValueError("NaNs in spikes")
+            # if cp.where(count!=0)[0].shape[0] == 0:
+            #     raise ValueError("No spikes in the layer: " + self.name)
             ewrwe = 0
 
     def forward_no_pad(self, max_simulation: float, training: bool = False) -> None:
@@ -200,8 +200,8 @@ class ConvLIFLayer(AbstractConvLayer):
 
     def backward(self, errors_in: cp.array, from_res = False) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
-        if cp.any(cp.isnan(errors_in)):
-            raise ValueError("NaNs in errors")
+        # if cp.any(cp.isnan(errors_in)):
+        #     raise ValueError("NaNs in errors")
         if not self._use_padding:
             return self.backward_no_pad(errors_in)
         pre_spike_per_neuron_real, _ = self.__previous_layer.spike_trains

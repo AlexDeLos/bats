@@ -169,8 +169,8 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
 
     def backward(self, errors_in: cp.array, from_res = False) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
         # Compute gradient
-        if cp.any(cp.isnan(errors_in)):
-            raise ValueError("NaNs in errors")
+        # if cp.any(cp.isnan(errors_in)):
+        #     raise ValueError("NaNs in errors")
         # pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
         
         # jump_spike_per_neuron, jump_n_spike_per_neuron = self.jump_layer.spike_trains
