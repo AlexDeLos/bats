@@ -48,8 +48,8 @@ SIMULATION_TIME = 0.2
 neuron_var = {
     'n_neurons': 600,
     'tau_s': 0.130,
-    'threshold_hat': 0.3,
-    'delta_threshold': 1 * 0.3,
+    'threshold_hat': 0.2,
+    'delta_threshold': 1 * 0.2,
     'spike_buffer_size': 10
 }
 if TTFS:
@@ -59,8 +59,8 @@ else:
 neuron_out_var = {
     'n_neurons': 47,
     'tau_s': 0.130,
-    'threshold_hat': 1.0,
-    'delta_threshold': 1 * 1.0,
+    'threshold_hat': 0.9,
+    'delta_threshold': 1 * 0.9,
     'spike_buffer_size': out_buffer_size
 }
 neuron_res_var = {
@@ -203,7 +203,8 @@ for run in range(NUMBER_OF_RUNS):
         network.restore(dic)  
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
-        dataset.shuffle()
+        if CLUSTER:
+            dataset.shuffle()
 
         # Learning rate decay
         if epoch > 0 and epoch % LR_DECAY_EPOCH == 0:
