@@ -120,7 +120,7 @@ if CLUSTER:
     N_TEST_SAMPLES = 10000 # arguments.n_test_samples #! used to be 10000
 
 else:
-    N_TRAIN_SAMPLES = 5000
+    N_TRAIN_SAMPLES = 10000
     N_TEST_SAMPLES = 1000
     TRAIN_BATCH_SIZE = arguments.batch_size # 20
     TEST_BATCH_SIZE = arguments.batch_size
@@ -264,7 +264,8 @@ for run in range(NUMBER_OF_RUNS):
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
         if not FIX_SEED:
-            dataset.shuffle()
+            if CLUSTER:
+                dataset.shuffle()
         # ! remove the shuffle for testability
 
         # Learning rate decay

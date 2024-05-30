@@ -253,7 +253,8 @@ for run in range(NUMBER_OF_RUNS):
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
         if not FIX_SEED:
-            dataset.shuffle()
+            if CLUSTER:
+                dataset.shuffle()
         # ! remove the shuffle for testability
 
         # Learning rate decay

@@ -201,7 +201,8 @@ for run in range(NUMBER_OF_RUNS):
         network.restore(dic)
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
-        dataset.shuffle()
+        if CLUSTER:
+            dataset.shuffle()
 
         # Learning rate decay
         if epoch > 0 and epoch % LR_DECAY_EPOCH == 0:
