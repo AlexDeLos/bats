@@ -99,7 +99,7 @@ TARGET_TRUE = 15
 # Plot parameters
 EXPORT_METRICS = False
 EXPORT_DIR = Path("output_metrics")
-SAVE_DIR = Path("/emnist/"+str(N_HIDDEN_LAYERS)+"_"+ str(neuron_var['n_neurons'])+"_"+str(neuron_out_var['n_neurons'])+"_"+str(neuron_res_var['n_neurons'])+"_"+str(USE_RESIDUAL)+"_"+str(RESIDUAL_EVERY_N)+"_"+str(RESIDUAL_JUMP_LENGTH)+"_"+str(FUSE_FUNCTION)+"_"+str(USE_DELAY)+"_"+str(TTFS))
+SAVE_DIR = Path("/fashion/"+str(N_HIDDEN_LAYERS)+"_"+ str(neuron_var['n_neurons'])+"_"+str(neuron_out_var['n_neurons'])+"_"+str(neuron_res_var['n_neurons'])+"_"+str(USE_RESIDUAL)+"_"+str(RESIDUAL_EVERY_N)+"_"+str(RESIDUAL_JUMP_LENGTH)+"_"+str(FUSE_FUNCTION)+"_"+str(USE_DELAY)+"_"+str(TTFS))
 
 def weight_initializer(n_post: int, n_pre: int) -> cp.ndarray:
     return cp.random.uniform(-1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)

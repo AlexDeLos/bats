@@ -108,7 +108,7 @@ TARGET_TRUE = 30
 # Plot parameters
 EXPORT_METRICS = False
 EXPORT_DIR = Path("./experiments/mnist/output_metrics")#+"-" + str(USE_RESIDUAL)+"-" +str(N_HIDDEN_LAYERS)+"-"+" hidden every " +str(RESIDUAL_EVERY_N) + " "+str(c) +"th Version 2")
-SAVE_DIR = Path("/emnist/"+str(N_HIDDEN_LAYERS)+"_"+ str(neuron_var['n_neurons'])+"_"+str(neuron_out_var['n_neurons'])+"_"+str(neuron_res_var['n_neurons'])+"_"+str(USE_RESIDUAL)+"_"+str(RESIDUAL_EVERY_N)+"_"+str(RESIDUAL_JUMP_LENGTH)+"_"+str(FUSE_FUNCTION)+"_"+str(USE_DELAY)+"_"+str(TTFS))
+SAVE_DIR = Path("/mnist/"+str(N_HIDDEN_LAYERS)+"_"+ str(neuron_var['n_neurons'])+"_"+str(neuron_out_var['n_neurons'])+"_"+str(neuron_res_var['n_neurons'])+"_"+str(USE_RESIDUAL)+"_"+str(RESIDUAL_EVERY_N)+"_"+str(RESIDUAL_JUMP_LENGTH)+"_"+str(FUSE_FUNCTION)+"_"+str(USE_DELAY)+"_"+str(TTFS))
 
 #Weights and biases
 # start a new wandb run to track this script
