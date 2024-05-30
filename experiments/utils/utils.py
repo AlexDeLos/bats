@@ -35,7 +35,7 @@ class wandb_handler:
                 "use_delay": config['Use_delay'],
                 "loss function": config['loss'],
                 "architecture": "SNN",
-                "version": "1.3.0",
+                "version": "1.3.0-Delay_test",
             }
         else:
             self.config = {

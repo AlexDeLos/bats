@@ -27,9 +27,9 @@ echo "MNIST --------------------------------------------------------------------
 # srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 1 --batch_size 50 --use_wanb True
 # echo "Starting 2 layers No residual MLP on MNIST"
 # srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 2 --batch_size 50 --use_wanb True
-# echo "Starting 5 layers No residual MLP on MNIST"
-# srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 5 --batch_size 50 --use_wanb True
-# echo "Starting 9 layers No residual MLP on MNIST"
-# srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 9 --batch_size 50 --use_wanb True
-echo "Starting 13 layers No residual MLP on MNIST"
-srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 13 --batch_size 50 --use_wanb True
+echo "Starting 5 layers No residual MLP on MNIST"
+srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 5 --batch_size 50 --use_wanb True
+echo "Starting 9 layers No residual MLP on MNIST"
+srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 9 --batch_size 50 --use_wanb True
+# echo "Starting 13 layers No residual MLP on MNIST"
+# srun python3 experiments/mnist/train_spike_count.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 13 --batch_size 50 --use_wanb True
