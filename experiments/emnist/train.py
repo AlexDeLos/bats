@@ -73,7 +73,7 @@ neuron_res_var = {
 # Training parameters
 N_TRAINING_EPOCHS = arguments.n_epochs #! used to  be 100
 if CLUSTER:
-    N_TRAIN_SAMPLES = 112800
+    N_TRAIN_SAMPLES = 18800
     N_TEST_SAMPLES = 18800
     TRAIN_BATCH_SIZE = arguments.batch_size
     TEST_BATCH_SIZE = arguments.batch_size
