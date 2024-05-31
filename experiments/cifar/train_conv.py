@@ -121,7 +121,7 @@ if CLUSTER:
 
 else:
     N_TRAIN_SAMPLES = 10000
-    N_TEST_SAMPLES = 1000
+    N_TEST_SAMPLES = 10000
     TRAIN_BATCH_SIZE = arguments.batch_size # 20
     TEST_BATCH_SIZE = arguments.batch_size
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
@@ -140,8 +140,7 @@ TARGET_TRUE = 20
 # Plot parameters
 EXPORT_METRICS = True
 EXPORT_DIR = Path("./output_metrics")
-SAVE_DIR = Path("/cifar_"+str(CLUSTER)+"/"+str(N_HIDDEN_LAYERS)+"_"+ str(str(conv_var['filter']))+"_"+str(output_var['n_neurons'])+"_"+str(str(conv_var['filter'])))
-# SAVE_DIR = Path("/cifar_"+str(CLUSTER)+"/"+str(N_HIDDEN_LAYERS)+"_"+ str(str(conv_var['filter']))+"_"+str(output_var['n_neurons'])+"_"+str(str(conv_var['filter']))+"_use_res"+str(USE_RESIDUAL)+"_res_every_"+str(RESIDUAL_EVERY_N)+"_jump_"+str(RESIDUAL_JUMP_LENGTH)+"_pad_"+str(USE_PADDING)+"_delay_"+str(USE_DELAY))
+SAVE_DIR = Path("/cifar/"+str(N_HIDDEN_LAYERS)+"_"+ str(str(conv_var['filter']))+"_"+str(output_var['n_neurons'])+"_"+str(str(conv_var['filter']))+ str(USE_RESIDUAL)+str(RESIDUAL_EVERY_N)+str(RESIDUAL_JUMP_LENGTH)+str(USE_PADDING))
 
 
 def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:
@@ -281,12 +280,6 @@ for run in range(NUMBER_OF_RUNS):
             network.forward(spikes, n_spikes, max_simulation=SIMULATION_TIME, training=True)
             out_spikes, n_out_spikes = network.output_spike_trains
 
-            # if (n_out_spikes != 0).any():
-            #     print(f"Spikes")
-            # else:
-            #     print(f"No spikes")
-
-            # Predictions, loss and errors
             pred = loss_fct.predict(out_spikes, n_out_spikes)
             loss, errors = loss_fct.compute_loss_and_errors(out_spikes, n_out_spikes, labels)
 
