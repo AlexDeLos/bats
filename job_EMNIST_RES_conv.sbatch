@@ -26,6 +26,6 @@ echo "EMNIST_RES ---------------------------------------------------------------
 echo "Starting 5 layers residual conv on EMNIST"
 srun python3 experiments/emnist/train_conv.py --cluster True --n_epochs 100 --runs 1 --n_hidden_layers 4 --batch_size 15 --use_residual True --use_wanb True --residual_every_n 3 --residual_jump_length 3 --restore True
 echo "Starting 9 layers residual conv on EMNIST"
-srun python3 experiments/emnist/train_conv.py --cluster True --n_epochs 100 --runs 1 --n_hidden_layers 9 --batch_size 20 --use_residual True --use_wanb True --residual_every_n 4 --residual_jump_length 3
+srun python3 experiments/emnist/train_conv.py --cluster True --n_epochs 100 --runs 1 --n_hidden_layers 9 --batch_size 20 --use_residual True --use_wanb True --residual_every_n 4 --residual_jump_length 3 --restore True
 # echo "Starting 13 layers residual conv on EMNIST"
 # srun python3 experiments/emnist/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 13 --batch_size 10 --use_residual True --use_wanb True --residual_every_n 4 --residual_jump_length 3
