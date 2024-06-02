@@ -12,8 +12,6 @@
 
 #SBATCH --mem=8384
 
-#SBATCH --mail-type=END
-
 #SBATCH --gres=gpu:2
 
 # source ~/.bashrc
