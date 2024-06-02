@@ -118,7 +118,7 @@ TARGET_TRUE = 30
 # Plot parameters
 EXPORT_METRICS = True
 EXPORT_DIR = Path("./output_metrics")
-SAVE_DIR = Path("/mnist/"+str(N_HIDDEN_LAYERS)+"_"+ str(str(conv_var['filter']))+"_"+str(output_var['n_neurons'])+"_"+str(str(conv_var['filter'])))
+SAVE_DIR = Path("/MNIST/"+str(N_HIDDEN_LAYERS)+"_"+ str(str(conv_var['filter']))+"_"+str(output_var['n_neurons'])+"_"+str(str(conv_var['filter']))+ str(USE_RESIDUAL)+str(RESIDUAL_EVERY_N)+str(RESIDUAL_JUMP_LENGTH)+str(USE_PADDING))
 
 
 def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:
