@@ -12,7 +12,7 @@
 
 #SBATCH --mem=8384
 
-#SBATCH --gres=gpu:2
+#SBATCH --gres=gpu:1
 
 # source ~/.bashrc
 
