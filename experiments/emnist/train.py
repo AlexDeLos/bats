@@ -46,7 +46,7 @@ SIMULATION_TIME = 0.2
 
 # Hidden layer
 neuron_var = {
-    'n_neurons': 800,
+    'n_neurons': 600,
     'tau_s': 0.130,
     'threshold_hat': 0.2,
     'delta_threshold': 1 * 0.2,
@@ -55,15 +55,15 @@ neuron_var = {
 neuron_out_var = {
     'n_neurons': 47,
     'tau_s': 0.130,
-    'threshold_hat': 0.7,
-    'delta_threshold': 1 * 0.7,
+    'threshold_hat': 0.6,
+    'delta_threshold': 1 * 0.6,
     'spike_buffer_size': 20
 }
 neuron_res_var = {
     'n_neurons': 600,
     'tau_s': 0.130,
-    'threshold_hat': 0.25,
-    'delta_threshold': 1 * 0.25,
+    'threshold_hat': 0.2,
+    'delta_threshold': 1 * 0.2,
     'spike_buffer_size': 5
 }
 # Training parameters
