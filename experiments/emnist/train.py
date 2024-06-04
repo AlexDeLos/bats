@@ -49,8 +49,8 @@ SIMULATION_TIME = 0.2
 neuron_var = {
     'n_neurons': 600,
     'tau_s': 0.130,
-    'threshold_hat': 0.25,
-    'delta_threshold': 1 * 0.25,
+    'threshold_hat': 0.2,
+    'delta_threshold': 1 * 0.2,
     'spike_buffer_size': 30
 }
 neuron_out_var = {
@@ -63,8 +63,8 @@ neuron_out_var = {
 neuron_res_var = {
     'n_neurons': 600,
     'tau_s': 0.130,
-    'threshold_hat': 0.25,
-    'delta_threshold': 1 * 0.25,
+    'threshold_hat': 0.2,
+    'delta_threshold': 1 * 0.2,
     'spike_buffer_size': 30
 }
 # Training parameters
