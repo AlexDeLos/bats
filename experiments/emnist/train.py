@@ -50,21 +50,21 @@ neuron_var = {
     'tau_s': 0.130,
     'threshold_hat': 0.2,
     'delta_threshold': 1 * 0.2,
-    'spike_buffer_size': 5
+    'spike_buffer_size': 30
 }
 neuron_out_var = {
     'n_neurons': 47,
     'tau_s': 0.130,
-    'threshold_hat': 0.6,
-    'delta_threshold': 1 * 0.6,
-    'spike_buffer_size': 20
+    'threshold_hat': 1.3,
+    'delta_threshold': 1 * 1.3,
+    'spike_buffer_size': 30
 }
 neuron_res_var = {
     'n_neurons': 600,
     'tau_s': 0.130,
     'threshold_hat': 0.2,
     'delta_threshold': 1 * 0.2,
-    'spike_buffer_size': 5
+    'spike_buffer_size': 30
 }
 # Training parameters
 N_TRAINING_EPOCHS = arguments.n_epochs #! used to  be 100
@@ -90,7 +90,7 @@ LR_DECAY_EPOCH = 10  # Perform decay very n epochs
 LR_DECAY_FACTOR = 1.0
 MIN_LEARNING_RATE = 1e-4
 TARGET_FALSE = 3
-TARGET_TRUE = 20
+TARGET_TRUE = 30
 
 # Plot parameters
 EXPORT_METRICS = False
