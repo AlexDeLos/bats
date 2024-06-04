@@ -50,25 +50,21 @@ neuron_var = {
     'tau_s': 0.130,
     'threshold_hat': 0.2,
     'delta_threshold': 1 * 0.2,
-    'spike_buffer_size': 10
+    'spike_buffer_size': 5
 }
-if TTFS:
-    out_buffer_size = 1
-else:
-    out_buffer_size = 20
 neuron_out_var = {
     'n_neurons': 47,
     'tau_s': 0.130,
     'threshold_hat': 0.7,
     'delta_threshold': 1 * 0.7,
-    'spike_buffer_size': out_buffer_size
+    'spike_buffer_size': 20
 }
 neuron_res_var = {
     'n_neurons': 600,
     'tau_s': 0.130,
-    'threshold_hat': 0.3,
-    'delta_threshold': 1 * 0.3,
-    'spike_buffer_size': 10
+    'threshold_hat': 0.25,
+    'delta_threshold': 1 * 0.25,
+    'spike_buffer_size': 5
 }
 # Training parameters
 N_TRAINING_EPOCHS = arguments.n_epochs #! used to  be 100
