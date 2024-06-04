@@ -27,6 +27,7 @@ FUSE_FUNCTION = arguments.fuse_func
 USE_DELAY = arguments.use_delay
 TTFS = arguments.ttfs
 RESTORE = arguments.restore
+STORE = True
 LEARNING_RATE = arguments.learning_rate
 FULL_METRIC = False
 
@@ -333,13 +334,14 @@ for run in range(NUMBER_OF_RUNS):
                     w_b.save({"Test_mean_spikes_for_times": float(mean_res), "Test_first_spike_for_times": float(mean_first)})
 
                 acc = records[test_accuracy_monitor]
-                dic = Path("last" + str(SAVE_DIR))
-                network.store(dic)
-                if acc > best_acc:
-                    best_acc = acc
-                    dic = Path("best" + str(SAVE_DIR))
+                if STORE:
+                    dic = Path("last" + str(SAVE_DIR))
                     network.store(dic)
-                    print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks NOT save to: {SAVE_DIR}")
+                    if acc > best_acc:
+                        best_acc = acc
+                        dic = Path("best" + str(SAVE_DIR))
+                        network.store(dic)
+                        print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks NOT save to: {SAVE_DIR}")
         if USE_WANDB:
             w_b.log()
     if USE_WANDB:
