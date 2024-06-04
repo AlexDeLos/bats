@@ -46,7 +46,7 @@ SIMULATION_TIME = 0.2
 
 # Hidden layer
 neuron_var = {
-    'n_neurons': 600,
+    'n_neurons': 800,
     'tau_s': 0.130,
     'threshold_hat': 0.2,
     'delta_threshold': 1 * 0.2,
