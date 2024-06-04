@@ -90,7 +90,7 @@ LR_DECAY_EPOCH = 10  # Perform decay very n epochs
 LR_DECAY_FACTOR = 1.0
 MIN_LEARNING_RATE = 1e-4
 TARGET_FALSE = 3
-TARGET_TRUE = out_buffer_size
+TARGET_TRUE = 20
 
 # Plot parameters
 EXPORT_METRICS = False
