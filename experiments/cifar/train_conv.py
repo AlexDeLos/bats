@@ -46,6 +46,7 @@ USE_PADDING = arguments.use_pad #! residual and padd gives nans
 USE_DELAY = arguments.use_delay
 TTFS = arguments.ttfs
 RESTORE = arguments.restore
+STORE = arguments.store
 USE_CIFAR100 = arguments.cifar100	
 USE_COURSE_LABELS = arguments.use_coarse_labels
 USE_3_CHANNELS = arguments.use_3_channels #! false could be broken
