@@ -28,7 +28,7 @@ USE_DELAY = arguments.use_delay
 TTFS = arguments.ttfs
 RESTORE = arguments.restore
 STORE = arguments.store
-LEARNING_RATE = arguments.learning_rate
+LEARNING_RATE = 0.0005 #arguments.learning_rate
 FULL_METRIC = False
 
 #Residual parameters
