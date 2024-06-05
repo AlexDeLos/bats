@@ -14,6 +14,7 @@ def get_arguments():
     parser.add_argument("--residual_jump_length", default=2, type=int)
     parser.add_argument("--standard", default=False, type=bool)
     parser.add_argument("--runs", default=1, type=int)
+    parser.add_argument("--store", default=True, type=bool)
     parser.add_argument("--n_neurons", default=500, type=int)
     parser.add_argument("--alternate", default=False, type=bool)
     parser.add_argument("--residual_every_n", default=3, type=int)

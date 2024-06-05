@@ -27,7 +27,7 @@ FUSE_FUNCTION = arguments.fuse_func
 USE_DELAY = arguments.use_delay
 TTFS = arguments.ttfs
 RESTORE = arguments.restore
-STORE = True
+STORE = arguments.store
 LEARNING_RATE = arguments.learning_rate
 FULL_METRIC = False
 
