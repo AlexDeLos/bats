@@ -92,12 +92,22 @@ def build_network_SNN(network, weight_initializer,n_input, n_hidden, neuron_var,
     hidden_layers = []
     for i in range(n_hidden):
         if i == 0:
-            hidden_layer = LIFLayer(previous_layer=input_layer, n_neurons=neuron_var['n_neurons'], tau_s=neuron_var['tau_s'],
-                                    theta=neuron_var['threshold_hat'],
-                                    delta_theta=neuron_var['delta_threshold'],
+            if use_residual and res_every_n == 0:
+                hidden_layer = LIFLayerResidual(previous_layer=input_layer, jump_layer=input_layer, n_neurons=res_neuron_var['n_neurons'], tau_s=res_neuron_var['tau_s'],
+                                    theta=res_neuron_var['threshold_hat'],
+                                    fuse_function=fuse_function,
+                                    use_delay = use_delay,
+                                    delta_theta=res_neuron_var['delta_threshold'],
                                     weight_initializer=weight_initializer,
-                                    max_n_spike=neuron_var['spike_buffer_size'],
-                                    name="Hidden layer 0")
+                                    max_n_spike=res_neuron_var['spike_buffer_size'],
+                                    name="Residual layer 0")
+            else:
+                hidden_layer = LIFLayer(previous_layer=input_layer, n_neurons=neuron_var['n_neurons'], tau_s=neuron_var['tau_s'],
+                                        theta=neuron_var['threshold_hat'],
+                                        delta_theta=neuron_var['delta_threshold'],
+                                        weight_initializer=weight_initializer,
+                                        max_n_spike=neuron_var['spike_buffer_size'],
+                                        name="Hidden layer 0")
         elif i % res_every_n ==0 and use_residual:
             if i - res_jump_l < 0:
                 jump_layer = input_layer
