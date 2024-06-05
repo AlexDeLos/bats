@@ -20,6 +20,6 @@ module use /opt/insy/modulefiles
 module load miniconda/3.9
 conda activate myHomeEnv
 
-echo "EMNIST_RES_Average -----------------------------------------------------------------------"
-echo "Starting 9 layers residual Average MLP on EMNIST"
-srun python3 experiments/emnist/train.py --cluster True --n_epochs 100 --runs 1 --n_hidden_layers 9 --batch_size 80 --use_residual True --fuse_func Average --use_wanb True --residual_every_n 4 --residual_jump_length 3 --restore True
+echo "mnist_RES_Average -----------------------------------------------------------------------"
+echo "Starting 9 layers residual Average MLP on mnist"
+srun python3 experiments/mnist/train.py --cluster True --n_epochs 100 --runs 1 --n_hidden_layers 9 --batch_size 80 --use_residual True --fuse_func Average --use_wanb True --residual_every_n 4 --residual_jump_length 3 --restore True
