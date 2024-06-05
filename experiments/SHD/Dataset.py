@@ -21,7 +21,7 @@ class Dataset:
         try:
             self.__train_spike_times = np.load("new_spike_times_train.npy",allow_pickle=True)
             self.__test_spike_times = np.load("new_spike_times_test.npy",allow_pickle=True)
-            self.__train_spike_counts = np.load("spike_counts_train.npy")
+            self.__trains = np.load("spike_counts_train.npy")
             self.__test_spike_counts = np.load("spike_counts_test.npy")
             self.__train_labels = np.load("labels_train.npy")
             self.__test_labels = np.load("labels_test.npy")
@@ -167,7 +167,7 @@ class Dataset:
 
     def get_train_batch(self, batch_index: int, batch_size: int, augment: bool = False) -> \
             Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        return self.__get_batch(self.__train_spike_times, self.__train_spike_counts, self.__train_labels,
+        return self.__get_batch(self.__train_spike_times, self.__trains, self.__train_labels,
                                 batch_index, batch_size, augment)
 
     def get_test_batch(self, batch_index: int, batch_size: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:

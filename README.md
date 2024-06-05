@@ -113,10 +113,10 @@ $ cd experiments/mnist
 $ python3 train_ttfs.py
 ...
 ```
-- a multi-spike model (<em>train_spike_count.py</em>)
+- a multi-spike model (<em>train.py</em>)
 ```console
 $ cd experiments/mnist
-$ python3 train_spike_count.py
+$ python3 train.py
 ...
 ```
 - and a Convolutional SNN  (<em>train_conv.py</em>)

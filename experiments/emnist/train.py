@@ -133,6 +133,7 @@ for run in range(NUMBER_OF_RUNS):
         else:
             print(layer.name)
         print(layer.n_neurons)
+        
     if TTFS:
         loss_fct = TTFSSoftmaxCrossEntropy(tau=0.005)
     else:
