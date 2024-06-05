@@ -62,10 +62,7 @@ neuron_var = {
     'delta_threshold': 1 * 0.2,
     'spike_buffer_size': 5
 }
-if TTFS:
-    out_buffer_size = 1
-else:
-    out_buffer_size = 20
+out_buffer_size = 20
 neuron_out_var = {
     'n_neurons': 10,
     'tau_s': 0.130,
@@ -104,7 +101,7 @@ LR_DECAY_EPOCH = int(N_TRAINING_EPOCHS/10)  # Perform decay very n epochs
 LR_DECAY_FACTOR = 1.0
 MIN_LEARNING_RATE = 0
 TARGET_FALSE = 3
-TARGET_TRUE = 30
+TARGET_TRUE = out_buffer_size
 
 # Plot parameters
 EXPORT_METRICS = False
