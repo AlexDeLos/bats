@@ -35,7 +35,7 @@ class wandb_handler:
                 "use_delay": config['Use_delay'],
                 "loss function": config['loss'],
                 "architecture": "SNN",
-                "version": "1.4.1",
+                "version": "1.4.2",
             }
         else:
             self.config = {
@@ -59,7 +59,7 @@ class wandb_handler:
                 "false target": config['False_target'],
                 "loss function": config['loss'],
                 "use_delay": config['Use_delay'],
-                "version": "1.4.1",
+                "version": "1.4.2",
             }
         self.run = wandb.init(project=project_name, name=experiment_name, config=self.config)
         # self.run = None
