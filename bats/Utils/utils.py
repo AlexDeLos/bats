@@ -25,7 +25,7 @@ def get_arguments():
     parser.add_argument("-s", "--save_model", action="store_true", default=False)
     parser.add_argument("-b", "--batch_size", default=20, type=int)
     parser.add_argument("-n", "--n_epochs", default=10, type=int)
-    parser.add_argument("-l", "--learning_rate", default=5e-3, type=float)
+    parser.add_argument("-l", "--learning_rate", default=None, type=float)
     parser.add_argument("--n_test_samples", default=10000, type=int)
     parser.add_argument("--n_train_samples", default=50000, type=int)
     parser.add_argument("--cifar100", default=False, type=bool)

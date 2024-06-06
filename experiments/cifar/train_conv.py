@@ -131,7 +131,10 @@ TRAIN_PRINT_PERIOD = 0.1
 TRAIN_PRINT_PERIOD_STEP = int(N_TRAIN_SAMPLES * TRAIN_PRINT_PERIOD / TRAIN_BATCH_SIZE)
 TEST_PERIOD = 1.0  # Evaluate on test batch every TEST_PERIOD epochs
 TEST_PERIOD_STEP = int(N_TRAIN_SAMPLES * TEST_PERIOD / TRAIN_BATCH_SIZE)
-LEARNING_RATE = 0.0005#arguments.learning_rate
+if arguments.learning_rate is not None:
+    LEARNING_RATE = arguments.learning_rate
+else:
+    LEARNING_RATE = 0.0005#arguments.learning_rate
 LR_DECAY_EPOCH = 5  # Perform decay very n epochs
 LR_DECAY_FACTOR = 0.25
 MIN_LEARNING_RATE = 1e-6

@@ -41,7 +41,10 @@ SPIKE_BUFFER_SIZE_OUTPUT = 10
 N_TRAINING_EPOCHS = 50
 TARGET_TRUE = 10
 TARGET_FALSE = 0
-LEARNING_RATE = 1e-1  # np.full((3,), 1e-2)
+if arguments.learning_rate is not None:
+    LEARNING_RATE = arguments.learning_rate
+else:
+    LEARNING_RATE = 1e-1  # np.full((3,), 1e-2)
 
 RANGE_MEAN = [0.0, 2.5, 0.2]
 RANGE_STD = [0.0, 2.5, 0.2]
