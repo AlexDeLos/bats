@@ -26,7 +26,7 @@ echo "cifar --------------------------------------------------------------------
 echo "Starting 2 layers No residual conv on cifar"
 srun python3 experiments/cifar/train_conv.py --cluster True --n_epochs 25 --runs 1 --n_hidden_layers 2 --batch_size 30 --use_wanb True --restore True
 echo "Starting 5 layers No residual conv on cifar"
-srun python3 experiments/cifar/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 5 --batch_size 30 --use_wanb True
+srun python3 experiments/cifar/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 4 --batch_size 30 --use_wanb True
 echo "Starting 9 layers No residual conv on cifar"
 srun python3 experiments/cifar/train_conv.py --cluster True --n_epochs 50 --runs 1 --n_hidden_layers 9 --batch_size 60 --use_wanb True
 # echo "Starting 13 layers No residual conv on cifar"d
