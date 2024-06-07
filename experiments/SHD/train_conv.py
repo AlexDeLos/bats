@@ -122,7 +122,7 @@ TARGET_FALSE = 5
 TARGET_TRUE = 20
 
 # Plot parameters
-EXPORT_METRICS = True
+EXPORT_METRICS = False
 EXPORT_DIR = Path("./output_metrics")
 SAVE_DIR = Path("/shd_"+str(CLUSTER)+"/"+str(N_HIDDEN_LAYERS)+"_"+ str(str(conv_var['filter']))+"_"+str(output_var['n_neurons'])+"_"+str(str(conv_var['filter'])))
 
