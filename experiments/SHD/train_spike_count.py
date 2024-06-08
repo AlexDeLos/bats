@@ -103,7 +103,7 @@ if arguments.learning_rate is not None:
 else:
     LEARNING_RATE = arguments.learning_rate
 LR_DECAY_EPOCH = int(N_TRAINING_EPOCHS/10)  # Perform decay very n epochs
-LR_DECAY_FACTOR = 0.75
+LR_DECAY_FACTOR = 0.5
 MIN_LEARNING_RATE = 0
 TARGET_FALSE = 3
 TARGET_TRUE = 30
