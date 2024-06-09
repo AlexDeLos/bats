@@ -405,7 +405,7 @@ for run in range(NUMBER_OF_RUNS):
 
 
                 acc = records[test_accuracy_monitor]
-                dic = Path("last" + str(SAVE_DIR))
+                # dic = Path("last" + str(SAVE_DIR))
                 network.store(dic)
                 if acc > best_acc:
                     best_acc = acc

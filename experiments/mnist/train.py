@@ -387,14 +387,14 @@ for run in range(NUMBER_OF_RUNS):
                     print(f'Output layer first spike: {mean_first}')
                 if USE_WANDB:
                     w_b.save({"Test_mean_spikes_for_times": float(mean_res), "Test_first_spike_for_times": float(mean_first)})
-                dic = Path("last" + str(SAVE_DIR))
+                # dic = Path("last" + str(SAVE_DIR))
                 acc = records[test_accuracy_monitor]
                 network.store(dic)
                 if acc > best_acc:
-                    best_acc = acc
-                    dic = Path("best" + str(SAVE_DIR))
-                    network.store(dic)
-                    print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks save NOT to: {SAVE_DIR}")
+                    # best_acc = acc
+                    # dic = Path("best" + str(SAVE_DIR))
+                    # network.store(dic)
+                    # print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks save NOT to: {SAVE_DIR}")
                     
         if USE_WANDB:
             w_b.log()
