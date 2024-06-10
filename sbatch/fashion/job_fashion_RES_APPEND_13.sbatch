@@ -22,4 +22,4 @@ conda activate myHomeEnv
 
 echo "fashion_mnist_RES_APPEND -----------------------------------------------------------------------"
 echo "Starting 13 layers residual APPEND MLP on fashion_mnist"
-srun python3 experiments/fashion_mnist/train.py --cluster True --n_epochs 150 --runs 1 --n_hidden_layers 13 --batch_size 40 --use_residual True --fuse_func Append --use_wanb True --residual_every_n 4 --residual_jump_length 3
+srun python3 experiments/fashion_mnist/train.py --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 13 --batch_size 40 --use_residual True --fuse_func Append --use_wanb True --residual_every_n 4 --residual_jump_length 3
