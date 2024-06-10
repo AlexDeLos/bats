@@ -92,7 +92,7 @@ else:
     LEARNING_RATE = 0.0003#arguments.learning_rate
     
 LR_DECAY_EPOCH = 10  # Perform decay very n epochs
-LR_DECAY_FACTOR = 0.5
+LR_DECAY_FACTOR = 0.75
 MIN_LEARNING_RATE = 1e-4
 TARGET_FALSE = 3
 TARGET_TRUE = out_buffer_size
