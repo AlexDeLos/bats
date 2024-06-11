@@ -20,10 +20,10 @@ module use /opt/insy/modulefiles
 module load miniconda/3.9
 conda activate myHomeEnv
 
-echo "fashon_mnist -----------------------------------------------------------------------"
-echo "Starting 6 layers No residual MLP on fashon_mnist"
-srun python3 experiments/fashon_mnist/train.py --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 6 --batch_size 50 --use_wanb True
-# echo "Starting 9 layers No residual MLP on fashon_mnist"
-# srun python3 experiments/fashon_mnist/train.py --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 9 --batch_size 50 --use_wanb True
-# echo "Starting 13 layers No residual MLP on fashon_mnist"
-# srun python3 experiments/fashon_mnist/train.py --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 13 --batch_size 50 --use_wanb True
+echo "fashion_mnist -----------------------------------------------------------------------"
+echo "Starting 6 layers No residual MLP on fashion_mnist"
+srun python3 experiments/fashion_mnist/train.py --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 6 --batch_size 50 --use_wanb True
+# echo "Starting 9 layers No residual MLP on fashion_mnist"
+# srun python3 experiments/fashion_mnist/train.py --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 9 --batch_size 50 --use_wanb True
+# echo "Starting 13 layers No residual MLP on fashion_mnist"
+# srun python3 experiments/fashion_mnist/train.py --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 13 --batch_size 50 --use_wanb True
