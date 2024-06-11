@@ -275,7 +275,7 @@ for run in range(NUMBER_OF_RUNS):
 
             # check for silent labels
             if cp.sum(cp.sum(n_out_spikes, axis=1)) == 0:
-                raise ValueError("Silent labels")
+                raise ValueError("Silent spikes in output layer")
             pred = loss_fct.predict(out_spikes, n_out_spikes)
             # if n_out_spikes is all 0 and we are on the first epoch stop the training
             if epoch == 0 and cp.sum(n_out_spikes) == 0:

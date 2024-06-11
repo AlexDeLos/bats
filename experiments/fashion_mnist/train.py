@@ -51,8 +51,8 @@ SIMULATION_TIME = 0.2
 neuron_var = {
     'n_neurons': 600,
     'tau_s': 0.130,
-    'threshold_hat': 0.2,
-    'delta_threshold': 1 * 0.2,
+    'threshold_hat': 0.3,
+    'delta_threshold': 1 * 0.3,
     'spike_buffer_size': 10
 }
 out_buffer_size = 20
@@ -218,6 +218,8 @@ for run in range(NUMBER_OF_RUNS):
             network.forward(spikes, n_spikes, max_simulation=SIMULATION_TIME, training=True)
             out_spikes, n_out_spikes = network.output_spike_trains
 
+            if cp.sum(cp.sum(n_out_spikes, axis=1)) == 0:
+                raise ValueError("Silent spikes in output layer")
             # Predictions, loss and errors
             pred = loss_fct.predict(out_spikes, n_out_spikes)
             loss, errors = loss_fct.compute_loss_and_errors(out_spikes, n_out_spikes, labels)

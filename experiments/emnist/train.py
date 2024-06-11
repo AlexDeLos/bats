@@ -48,9 +48,9 @@ SIMULATION_TIME = 0.2
 neuron_var = {
     'n_neurons': 600,
     'tau_s': 0.130,
-    'threshold_hat': 0.2,
-    'delta_threshold': 1 * 0.2,
-    'spike_buffer_size': 30
+    'threshold_hat': 0.3,
+    'delta_threshold': 1 * 0.3,
+    'spike_buffer_size': 10
 }
 out_buffer_size = 30
 neuron_out_var = {
@@ -65,7 +65,7 @@ neuron_res_var = {
     'tau_s': 0.130,
     'threshold_hat': 0.2,
     'delta_threshold': 1 * 0.2,
-    'spike_buffer_size': 30
+    'spike_buffer_size': 310
 }
 # Training parameters
 N_TRAINING_EPOCHS = arguments.n_epochs #! used to  be 100
@@ -222,10 +222,8 @@ for run in range(NUMBER_OF_RUNS):
             out_spikes, n_out_spikes = network.output_spike_trains
 
             if cp.sum(cp.sum(n_out_spikes, axis=1)) == 0:
-                raise ValueError("Silent labels")
-            if cp.isnan(out_spikes).any():
-                raise ValueError("NaNs in out_spikes")
-            # Predictions, loss and errors
+                raise ValueError("Silent spikes in output layer")
+            
             pred = loss_fct.predict(out_spikes, n_out_spikes)
             loss, errors = loss_fct.compute_loss_and_errors(out_spikes, n_out_spikes, labels)
 

@@ -278,7 +278,7 @@ for run in range(NUMBER_OF_RUNS):
             # check for silent labels
             # print("Silent labels: ", cp.sum(n_out_spikes, axis=1))
             if cp.sum(cp.sum(n_out_spikes, axis=1)) == 0:
-                raise ValueError("Silent labels")
+                raise ValueError("Silent spikes in output layer")
             # raise ValueError("Up to here")
             # Predictions, loss and errors
             pred = loss_fct.predict(out_spikes, n_out_spikes)
