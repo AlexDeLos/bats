@@ -22,4 +22,4 @@ conda activate myHomeEnv
 
 echo "EMNIST_RES_Average -----------------------------------------------------------------------"
 echo "Starting 9 layers residual Average MLP on EMNIST"
-srun python3 experiments/emnist/train.py -l 0.0001 --restore True --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 9 --batch_size 80 --use_residual True --fuse_func Average --use_wanb True --residual_every_n 4 --residual_jump_length 3 
+srun python3 experiments/emnist/train.py --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 9 --batch_size 80 --use_residual True --fuse_func Average --use_wanb True --residual_every_n 4 --residual_jump_length 3 
