@@ -56,7 +56,7 @@ else:
 
 # Hidden layer
 neuron_var = {
-    'n_neurons': 800,
+    'n_neurons': 600,
     'tau_s': 0.130,
     'threshold_hat': 0.3,
     'delta_threshold': 1 * 0.3,
