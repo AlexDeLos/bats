@@ -13,3 +13,4 @@ datasets/cifar-10-batches-py/
 datasets/cifar-100-python/
 
 /datasets
+experiments/test
