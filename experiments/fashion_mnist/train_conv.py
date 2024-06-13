@@ -75,8 +75,8 @@ conv_var = {
 conv_res_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
-    'threshold_hat': 0.5,
-    'delta_threshold': 1 * 0.5,
+    'threshold_hat': 0.3,
+    'delta_threshold': 1 * 0.3,
     'spike_buffer_size': 5
 }
 fc_var = {

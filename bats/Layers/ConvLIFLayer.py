@@ -156,7 +156,7 @@ class ConvLIFLayer(AbstractConvLayer):
             count = self.__n_spike_per_neuron
             spikes = self.__spike_times_per_neuron
             # print(self.name)
-            # print(cp.where(count!=0)[0].shape)
+            print(cp.where(count!=0)[0].shape)
             
             # if cp.any(cp.isnan(spikes)):
             #     raise ValueError("NaNs in spikes")
