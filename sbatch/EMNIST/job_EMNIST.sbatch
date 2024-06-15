@@ -22,10 +22,10 @@ conda activate myHomeEnv
 
 echo "emnist -----------------------------------------------------------------------"
 echo "Starting 1 layers No residual MLP on emnist"
-srun python3 experiments/emnist/train.py --cluster True --n_epochs 100 --runs 1 --n_hidden_layers 1 --batch_size 50 --use_wanb True
+srun python3 experiments/emnist/train.py --restore True  --cluster True --n_epochs 100 --runs 1 --n_hidden_layers 1 --batch_size 50 --use_wanb True
 echo "Starting 4 layers No residual MLP on emnist"
-srun python3 experiments/emnist/train.py --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 4 --batch_size 50 --use_wanb True
+srun python3 experiments/emnist/train.py --restore True  --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 4 --batch_size 50 --use_wanb True
 # echo "Starting 9 layers No residual MLP on emnist"
-# srun python3 experiments/emnist/train.py --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 9 --batch_size 50 --use_wanb True
+# srun python3 experiments/emnist/train.py --restore True  --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 9 --batch_size 50 --use_wanb True
 # echo "Starting 13 layers No residual MLP on emnist"
-# srun python3 experiments/emnist/train.py --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 13 --batch_size 50 --use_wanb True
+# srun python3 experiments/emnist/train.py --restore True  --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 13 --batch_size 50 --use_wanb True

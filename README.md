@@ -113,10 +113,10 @@ $ cd experiments/mnist
 $ python3 train_ttfs.py
 ...
 ```
-- a multi-spike model (<em>train.py</em>)
+- a multi-spike model (<em>train.py --restore True</em>)
 ```console
 $ cd experiments/mnist
-$ python3 train.py
+$ python3 train.py --restore True
 ...
 ```
 - and a Convolutional SNN  (<em>train_conv.py</em>)
@@ -133,7 +133,7 @@ and weights of the best model are saved in the <em>best_model</em> directory.
 
 ```console
 $ cd experiments/emnist
-$ python3 train.py
+$ python3 train.py --restore True
 ...
 ```
 Similarly to the MNIST training, plots are saved in the <em>output_metrics</em> directory
