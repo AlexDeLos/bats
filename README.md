@@ -119,10 +119,10 @@ $ cd experiments/mnist
 $ python3 train.py --restore True
 ...
 ```
-- and a Convolutional SNN  (<em>train_conv.py</em>)
+- and a Convolutional SNN  (<em>train_conv.py  --restore True</em>)
 ```console
 $ cd experiments/mnist
-$ python3 train_conv.py
+$ python3 train_conv.py  --restore True
 ...
 ```
 
