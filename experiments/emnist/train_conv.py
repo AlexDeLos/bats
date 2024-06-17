@@ -125,6 +125,8 @@ TARGET_TRUE = 30
 EXPORT_METRICS = False
 EXPORT_DIR = Path("./output_metrics")
 SAVE_DIR = Path("/emnist/"+str(N_HIDDEN_LAYERS)+"_"+ str(str(conv_var['filter']))+"_"+str(output_var['n_neurons'])+"_"+str(str(conv_var['filter']))+ str(USE_RESIDUAL)+str(RESIDUAL_EVERY_N)+str(RESIDUAL_JUMP_LENGTH)+str(USE_PADDING)+ '_'+str(conv_var['spike_buffer_size'])+'_'+str(conv_res_var['spike_buffer_size']))
+if arguments.fuse_func != "Append":
+    SAVE_DIR = SAVE_DIR / arguments.fuse_func
 
 
 def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:
