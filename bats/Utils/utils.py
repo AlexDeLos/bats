@@ -1,3 +1,4 @@
+from typing import Tuple
 import cupy as cp
 from math import sqrt
 import argparse
@@ -172,33 +173,42 @@ def trimed_errors(errors, previous_filter, pre_channels):
     shapped_errors = cp.reshape(errors, (batch_size, new_n_neurons, max_n_spike))
     return shapped_errors
 
+def fuse_inputs_conv_avg(pre_input, pre_n_spike_per_neuron, jump_input, jump_n_spike_per_neuron, neurons_shape, delay) -> Tuple[cp.ndarray, cp.ndarray]:
+    #TODO: add the delay
+    if delay:
+        copy_pre_spike_per_neuron = cp.copy(pre_input)
+        non_inf_values_pre = copy_pre_spike_per_neuron[cp.isfinite(copy_pre_spike_per_neuron)]  # Select non-inf values
+        average_non_inf_pre = cp.mean(non_inf_values_pre)
+        copy_jump_spike_per_neuron = cp.copy(jump_input)
+        non_inf_values_jump = copy_jump_spike_per_neuron[cp.isfinite(copy_jump_spike_per_neuron)]
+        average_non_inf_jump = cp.mean(non_inf_values_jump)
+        time_delay = average_non_inf_pre - average_non_inf_jump
+        jump_input = jump_input+ time_delay
+    
+    result_count = cp.maximum(pre_n_spike_per_neuron, jump_n_spike_per_neuron)
 
-# NOT USED
-def add_padding_to_x_and_tau(x: cp.ndarray, tau: cp.ndarray, pre_shape: cp.ndarray, padding: list, padding_after: list, errors: cp.ndarray) -> cp.ndarray:
-    raise RuntimeError("This function is not meant to be used")
-    if errors.shape == x.shape:
-        return x, tau
-    error_batch, error_dim, channel = errors.shape
-    x_dim, y_dim, c_dim = pre_shape
-    x_padd, y_padd = padding
-    x_padd_after, y_padd_after = padding_after
-    batch_size, spikes, max_n_spikes = x.shape
-    top_pad = cp.full((batch_size, (x_dim-x_padd + x_padd_after)*int(y_padd_after/2), max_n_spikes), cp.inf)
-    side_pads = cp.full((batch_size,int(x_padd_after/2), max_n_spikes), cp.inf)
-    # top_pad = cp.zeros((batch_size, (x_dim-x_padd + x_padd_after)*int(y_padd_after/2), max_n_spikes))
-    # side_pads = cp.zeros((batch_size,int(x_padd_after/2), max_n_spikes))
-    # we will start from the end to make it simpler
-    splits_x = cp.split(x, (x_dim- x_padd), axis=1)
-    splits_tau = cp.split(tau, (x_dim- x_padd), axis=1)
-    for i in range(len(splits_x)):
-        splits_x[i] = cp.append(cp.append(side_pads, splits_x[i], axis= 1), side_pads, axis=1)
-        splits_tau[i] = cp.append(cp.append(side_pads, splits_tau[i], axis= 1), side_pads, axis=1)
-    # if splits_x[0].shape !=top_pad.shape:
-    #     raise RuntimeError("mismatch in padding dimensions, should not be possible")
-    splits_x.insert(0, top_pad)
-    splits_x.append(top_pad)
-    splits_tau.insert(0, top_pad)
-    splits_tau.append(top_pad)
-    x_new_padded = cp.concatenate(splits_x, axis=1)
-    tau_new_padded = cp.concatenate(splits_tau, axis=1)
-    return x_new_padded, tau_new_padded
+
+    not_inf_mask_res = cp.logical_not(cp.isinf(pre_input))
+    not_inf_mask_jump = cp.logical_not(cp.isinf(jump_input))
+
+    inf_mask_res = cp.isinf(pre_input)
+    inf_mask_jump = cp.isinf(jump_input)
+
+    xor_combined_mask = cp.logical_xor(not_inf_mask_res, not_inf_mask_jump)
+    or_combined_mask = cp.logical_or(not_inf_mask_res, not_inf_mask_jump)
+    and_combined_mask = cp.logical_and(not_inf_mask_res, not_inf_mask_jump)
+
+    #! for now if both are inf we take residual, we should take whichever is not inf
+    get_non_infinite = cp.where(inf_mask_res, jump_input, pre_input)
+    get_non_infinite = cp.where(inf_mask_jump, pre_input, get_non_infinite)
+    result_times = cp.where(or_combined_mask, jump_input, pre_input)
+
+    #if true in mask then take the value, else take average
+    # result = cp.where(or_combined_mask, residual_input, jump_input)
+    
+    # return residual_input
+    result_times = cp.where(xor_combined_mask,
+                        get_non_infinite,
+                      cp.mean(cp.array([ pre_input, pre_input ]), axis=0))
+
+    return result_times, result_count

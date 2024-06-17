@@ -17,13 +17,8 @@ from bats.Layers import LIFLayer
 from bats.Losses import *
 from bats.Network import Network
 from bats.Optimizers import *
-from bats.Layers.ConvInputLayer import ConvInputLayer
 from bats.Layers.ConvLIFLayer import ConvLIFLayer
-
-from bats.Layers.ConvLIFLayer_new_Residual import ConvLIFLayer_new_Residual
 from bats.Utils.utils import get_arguments
-
-from bats.Layers.PoolingLayer import PoolingLayer
 from experiments.utils.utils import build_network_SCNN, wandb_handler
 
 

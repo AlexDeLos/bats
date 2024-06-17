@@ -11,7 +11,7 @@ from bats.CudaKernels.Wrappers.Backpropagation.propagate_errors_to_pre_spikes_co
 from bats.CudaKernels.Wrappers.Inference import *
 from bats.CudaKernels.Wrappers.Backpropagation import *
 from bats.CudaKernels.Wrappers.Inference.compute_spike_times_conv import compute_spike_times_conv
-from bats.Utils.utils import add_padding, trimed_errors, aped_on_channel_dim, split_errors_on_channel_dim
+from bats.Utils.utils import add_padding, trimed_errors, aped_on_channel_dim, split_errors_on_channel_dim, fuse_inputs_conv_avg
 
 
 class ConvLIFLayer_new_Residual(AbstractConvLayer):
@@ -19,11 +19,17 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
                  tau_s: float, theta: float,
                  delta_theta: float,
                  use_delay: bool,
+                 fuse_funct: str = "Append",
                  weight_initializer: Callable[[int, int, int, int], cp.ndarray] = None, max_n_spike: int = 32,
                  **kwargs):
+        self.fuse_funct = fuse_funct
         prev_x, prev_y, prev_c = previous_layer._neurons_shape.get()
         jump_layer_x, jump_layer_y, jump_layer_c = jump_layer._neurons_shape.get()
-        prev_c = prev_c + jump_layer_c
+        if fuse_funct == "Append":
+            prev_c = prev_c + jump_layer_c
+        else:
+            if prev_c != jump_layer_c:
+                raise ValueError("The previous layer and the jump layer must have the same number of channels")
         if prev_x != jump_layer_x or prev_y != jump_layer_y:
             raise ValueError("The previous layer and the jump layer must have the same shape")
         filter_x, filter_y, filter_c = filters_shape
@@ -101,7 +107,10 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
     def forward(self, max_simulation: float, training: bool = False) -> None:
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
         jump_spike_per_neuron, jump_n_spike_per_neuron = self.jump_layer.spike_trains
-        pre_spike_per_neuron_pre_pad, pre_n_spike_per_neuron_pre_pad = aped_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike_per_neuron, jump_n_spike_per_neuron, self.__previous_layer.neurons_shape, delay=self.use_delay)
+        if self.fuse_funct == "Append":
+            pre_spike_per_neuron_pre_pad, pre_n_spike_per_neuron_pre_pad = aped_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike_per_neuron, jump_n_spike_per_neuron, self.__previous_layer.neurons_shape, delay=self.use_delay)
+        elif self.fuse_funct == "Average":
+            pre_spike_per_neuron_pre_pad, pre_n_spike_per_neuron_pre_pad = fuse_inputs_conv_avg(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike_per_neuron, jump_n_spike_per_neuron, self.__previous_layer.neurons_shape, delay=self.use_delay)
 
         new_shape_previous = self.__pre_shape# (self.__previous_layer.neurons_shape[0], self.__previous_layer.neurons_shape[1], self.__previous_layer.neurons_shape[2]+self.jump_layer.neurons_shape[2])
         if self._use_padding: #! using this causes random nans for some reason
@@ -114,9 +123,15 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
             self.__padded_pre_exp_tau_s, self.__padded_pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
             padded_pre_exp_tau_s = self.__padded_pre_exp_tau_s
             padded_pre_exp_tau = self.__padded_pre_exp_tau
-            new_shape_previous = (self.__previous_layer.neurons_shape[0]+ self._padding[0], self.__previous_layer.neurons_shape[1] + self._padding[1], self.__previous_layer.neurons_shape[2]+self.jump_layer.neurons_shape[2])
+            if self.fuse_funct == "Append":
+                new_shape_previous = (self.__previous_layer.neurons_shape[0]+ self._padding[0], self.__previous_layer.neurons_shape[1] + self._padding[1], self.__previous_layer.neurons_shape[2]+self.jump_layer.neurons_shape[2])
+            else:
+                if self.__previous_layer.neurons_shape[2] != self.jump_layer.neurons_shape[2]:
+                    raise ValueError("The number of channels in the previous layer and the jump layer must be the same")
+                new_shape_previous = (self.__previous_layer.neurons_shape[0]+ self._padding[0], self.__previous_layer.neurons_shape[1] + self._padding[1], self.jump_layer.neurons_shape[2])
             new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
         else:
+            raise ValueError("Padding is not supported for this layer")
             self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
             padded_pre_exp_tau_s = self.__pre_exp_tau_s
             padded_pre_exp_tau = self.__pre_exp_tau
@@ -181,10 +196,6 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
         new_shape_previous = self.__pre_shape
         pre_spike_per_neuron, pre_n_spike_per_neuron = self.__pre_spike_trains
         if self._use_padding: #-> adding this alone seems to have no effect on the loss of the model or anything else
-            #? what is I don't use padding in the backward pass?
-            # pre_spike_per_neuron, pre_n_spike_per_neuron = add_padding(pre_spike_per_neuron, pre_n_spike_per_neuron,
-            #                                 new_shape_previous, self._padding)
-            # new_shape_previous = (self.__previous_layer.neurons_shape[0] + self._padding[0], self.__previous_layer.neurons_shape[1] + self._padding[1], self.__previous_layer.neurons_shape[2])
             new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
             padded_pre_exp_tau_s = self.__padded_pre_exp_tau_s
             padded_pre_exp_tau = self.__padded_pre_exp_tau
@@ -239,10 +250,15 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
         #? should I do some reshaping of the pre_errors?
         if self._use_padding:
             if self.__previous_layer.trainable:
-                pre_errors = trimed_errors(pre_errors, self.__filters_shape, new_shape_previous[2])
+                if self.fuse_funct == "Append":
+                    pre_errors = trimed_errors(pre_errors, self.__filters_shape, new_shape_previous[2])
+                else:
+                    pre_errors = trimed_errors(pre_errors, self.__filters_shape, new_shape_previous[2])
         #! maybe I should split the errors to the previous layer and the jump layer
-        if self.__previous_layer.trainable:
+        if self.__previous_layer.trainable and self.fuse_funct == "Append":
             pre_errors, jump_errors =split_errors_on_channel_dim(pre_errors, self.neurons_shape)
+        elif self.__previous_layer.trainable and self.fuse_funct == "Average":
+            return weights_grad, pre_errors
         else:
             pre_errors, jump_errors = None, None
         return weights_grad, (pre_errors, jump_errors)

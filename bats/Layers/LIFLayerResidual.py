@@ -243,6 +243,7 @@ def fuse_inputs_append(pre_input, jump_input, count_pre, count_jump, max_n_spike
     #     raise ValueError("Nans in the fused input")
     return result_spikes, result_count
 
+# never used
 def fuse_inputs_stack(pre_input, jump_input, count_residual, count_jump, max_n_spike, delay = False) -> Tuple[cp.ndarray, cp.ndarray]:
     # in this function we add the 2 inputs together
     if delay:

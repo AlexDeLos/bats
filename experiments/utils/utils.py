@@ -150,7 +150,7 @@ def build_network_SNN(network, weight_initializer,n_input, n_hidden, neuron_var,
                     name="Output layer")
     network.add_layer(output_layer)
 
-def build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, input_shape, standard, n_hidden, conv_var, conv_res_var, fc_var, output_var, use_residual, res_every_n, res_jump_l, use_padding, use_delay):
+def build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, input_shape, standard, n_hidden, conv_var, conv_res_var, fc_var, output_var, use_residual, res_every_n, res_jump_l, use_padding, use_delay, fuse_func):
     input_layer = ConvInputLayer(neurons_shape=input_shape, name="Input layer")
     network.add_layer(input_layer, input=True)
     if not standard:
@@ -162,6 +162,7 @@ def build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, 
                                 use_delay= use_delay,
                                 tau_s=conv_res_var['tau_s'],
                                 # filter_from_next=conv_res_var['filter'],
+                                fuse_funct=fuse_func,
                                 theta=conv_res_var['threshold_hat'],
                                 delta_theta=conv_res_var['delta_threshold'],
                                 weight_initializer=weight_initializer_conv,
@@ -187,6 +188,7 @@ def build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, 
                                                      use_delay= use_delay,
                                 tau_s=conv_res_var['tau_s'],
                                 # filter_from_next=conv_res_var['filter'],
+                                fuse_funct=fuse_func,
                                 theta=conv_res_var['threshold_hat'],
                                 delta_theta=conv_res_var['delta_threshold'],
                                 weight_initializer=weight_initializer_conv,
