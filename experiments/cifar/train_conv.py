@@ -238,6 +238,7 @@ for run in range(NUMBER_OF_RUNS):
         "Use_residual": USE_RESIDUAL,
         "loss": "SpikeCountClassLoss" if not TTFS else "TTFSSoftmaxCrossEntropy",
         "use_padding": USE_PADDING,
+        "Fuse_function": arguments.fuse_func,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
         "channels": str(CHANNELS),

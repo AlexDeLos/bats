@@ -169,7 +169,7 @@ for run in range(NUMBER_OF_RUNS):
 
     print("Creating network...")
     network = Network()
-    build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, INPUT_SHAPE, STANDARD, N_HIDDEN_LAYERS, conv_var, conv_res_var, fc_var, output_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, USE_PADDING, USE_DELAY)
+    build_network_SCNN(network, weight_initializer_conv, weight_initializer_ff, INPUT_SHAPE, STANDARD, N_HIDDEN_LAYERS, conv_var, conv_res_var, fc_var, output_var, USE_RESIDUAL, RESIDUAL_EVERY_N, RESIDUAL_JUMP_LENGTH, USE_PADDING, USE_DELAY, arguments.fuse_func)
 
 
     if TTFS:
@@ -233,6 +233,7 @@ for run in range(NUMBER_OF_RUNS):
         "Use_residual": USE_RESIDUAL,
         "loss": "SpikeCountClassLoss" if not TTFS else "TTFSSoftmaxCrossEntropy",
         "use_padding": USE_PADDING,
+        "Fuse_function": arguments.fuse_func,
         "n_of_train_samples": N_TRAIN_SAMPLES,
         "n_of_test_samples": N_TEST_SAMPLES,
         "channels": str(CHANNELS),

@@ -47,6 +47,7 @@ class wandb_handler:
                 "residual_every_n": config['residual_every_n'],
                 "residual_jump_length": config['residual_jump_length'],
                 "use_padding": config['use_padding'],
+                "Fuse_function": config['Fuse_function'],
                 "n_of_train_samples": config['n_of_train_samples'],
                 "n_of_test_samples": config['n_of_test_samples'],
                 "conv_var": config['conv'],
