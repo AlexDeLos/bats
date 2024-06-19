@@ -21,5 +21,5 @@ module load miniconda/3.9
 conda activate myHomeEnv
 
 echo "cifar_RES -----------------------------------------------------------------------"
-echo "Starting 4 layers residual conv on cifar"
-srun python3 experiments/cifar/train_conv.py  --restore True --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 3 --batch_size 10 --use_residual True --use_wanb True --residual_every_n 2 --residual_jump_length 2 --fuse_func Average
+echo "Starting 9 layers residual conv on cifar"
+srun python3 experiments/cifar/train_conv.py --restore True --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 9 --batch_size 10 --use_residual True --use_wanb True --residual_every_n 4 --residual_jump_length 3 

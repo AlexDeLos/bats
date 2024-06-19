@@ -22,4 +22,4 @@ conda activate myHomeEnv
 
 echo "cifar_RES -----------------------------------------------------------------------"
 echo "Starting 4 layers residual conv on cifar"
-srun python3 experiments/cifar/train_conv.py  --restore True --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 4 --batch_size 10 --use_residual True --use_wanb True --residual_every_n 3 --residual_jump_length 3 --fuse_func Average
+srun python3 experiments/cifar/train_conv.py --restore True --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 3 --batch_size 10 --use_residual True --use_wanb True --residual_every_n 2 --residual_jump_length 2 --fuse_func Average
