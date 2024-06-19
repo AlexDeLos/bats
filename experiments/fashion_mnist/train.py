@@ -31,7 +31,10 @@ STORE = arguments.store
 if arguments.learning_rate is not None:
     LEARNING_RATE = arguments.learning_rate
 else:
-    LEARNING_RATE = 0.0005 #arguments.learning_rate
+    if arguments.restore:
+        LEARNING_RATE= 1e-4
+    else:
+        LEARNING_RATE = 0.0003
 FULL_METRIC = False
 
 #Residual parameters

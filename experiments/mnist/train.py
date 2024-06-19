@@ -99,10 +99,13 @@ TEST_PERIOD_STEP = int(N_TRAIN_SAMPLES * TEST_PERIOD / TRAIN_BATCH_SIZE)
 if arguments.learning_rate is not None:
     LEARNING_RATE = arguments.learning_rate
 else:
-    LEARNING_RATE = 0.0005#arguments.learning_rate
+    if arguments.restore:
+        LEARNING_RATE= 1e-4
+    else:
+        LEARNING_RATE = 0.0003
 LR_DECAY_EPOCH = int(N_TRAINING_EPOCHS/10)  # Perform decay very n epochs
 LR_DECAY_FACTOR = 0.75
-MIN_LEARNING_RATE = 0
+MIN_LEARNING_RATE = 1e-4
 TARGET_FALSE = 3
 TARGET_TRUE = out_buffer_size
 
