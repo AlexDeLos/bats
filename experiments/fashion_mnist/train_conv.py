@@ -254,7 +254,10 @@ for run in range(NUMBER_OF_RUNS):
     dic = Path("last"+ str(SAVE_DIR))
     if RESTORE and dic.exists():
         print("Restoring network from: ", dic)
-        network.restore(dic)
+        try:
+            network.restore(dic)
+        except:
+            print("Failed to restore network")
     else:
         print("No network to restore from")
     for epoch in range(N_TRAINING_EPOCHS):

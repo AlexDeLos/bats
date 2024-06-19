@@ -264,7 +264,10 @@ for run in range(NUMBER_OF_RUNS):
     dic = Path("last"+ str(SAVE_DIR))
     if RESTORE and dic.exists():
         print("""Restoring network from last save...""", dic)
-        network.restore(dic)
+        try:
+            network.restore(dic)
+        except:
+            print("Failed to restore network")
     for epoch in range(N_TRAINING_EPOCHS):
         train_time_monitor.start()
         if not FIX_SEED:

@@ -21,5 +21,5 @@ module load miniconda/3.9
 conda activate myHomeEnv
 
 echo "mnist_RES -----------------------------------------------------------------------"
-echo "Starting 3 layers conv on emnist NO CLUSTER"
+echo "Starting 3 layers conv on mnist NO CLUSTER"
 srun python3 experiments/mnist/train_conv.py  --restore True --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 3 --batch_size 30 --use_wanb True # 
