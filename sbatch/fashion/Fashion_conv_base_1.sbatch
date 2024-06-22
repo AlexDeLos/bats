@@ -22,4 +22,4 @@ conda activate myHomeEnv
 
 echo "fashion_mnist_RES -----------------------------------------------------------------------"
 echo "Starting 3 layers conv on fashion_mnist NO CLUSTER"
-srun python3 experiments/fashion_mnist/train_conv.py  --restore True --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 1 --batch_size 30 --use_wanb True
+srun python3 experiments/fashion_mnist/train_conv.py --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 1 --batch_size 30 --use_wanb True
