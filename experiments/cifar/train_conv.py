@@ -77,8 +77,8 @@ conv_var = {
 conv_res_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
-    'threshold_hat': 0.01,
-    'delta_threshold': 1 * 0.01,
+    'threshold_hat': 0.025,
+    'delta_threshold': 1 * 0.025,
     'spike_buffer_size': 5
 }
 fc_var = {
@@ -142,7 +142,7 @@ TARGET_TRUE = 20
 # Plot parameters
 EXPORT_METRICS = False
 EXPORT_DIR = Path("./output_metrics")
-SAVE_DIR = Path("/cifar/"+str(N_HIDDEN_LAYERS)+"_"+ str(str(conv_var['filter']))+"_"+str(output_var['n_neurons'])+"_"+str(str(conv_var['filter']))+ str(USE_RESIDUAL)+str(RESIDUAL_EVERY_N)+str(RESIDUAL_JUMP_LENGTH)+str(USE_PADDING)+ '_'+str(conv_var['spike_buffer_size'])+'_'+str(conv_res_var['spike_buffer_size'])+'-testing0.01')
+SAVE_DIR = Path("/cifar/"+str(N_HIDDEN_LAYERS)+"_"+ str(str(conv_var['filter']))+"_"+str(output_var['n_neurons'])+"_"+str(str(conv_var['filter']))+ str(USE_RESIDUAL)+str(RESIDUAL_EVERY_N)+str(RESIDUAL_JUMP_LENGTH)+str(USE_PADDING)+ '_'+str(conv_var['spike_buffer_size'])+'_'+str(conv_res_var['spike_buffer_size'])+'-testing0.05')
 if arguments.fuse_func != "Append":
     SAVE_DIR = SAVE_DIR / arguments.fuse_func
 
