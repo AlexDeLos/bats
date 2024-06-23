@@ -142,9 +142,7 @@ TARGET_TRUE = 20
 # Plot parameters
 EXPORT_METRICS = False
 EXPORT_DIR = Path("./output_metrics")
-SAVE_DIR = Path("/cifar/"+str(N_HIDDEN_LAYERS)+"_"+ str(str(conv_var['filter']))+"_"+str(output_var['n_neurons'])+"_"+str(str(conv_var['filter']))+ str(USE_RESIDUAL)+str(RESIDUAL_EVERY_N)+str(RESIDUAL_JUMP_LENGTH)+str(USE_PADDING)+ '_'+str(conv_var['spike_buffer_size'])+'_'+str(conv_res_var['spike_buffer_size'])+'-testing0.05')
-if arguments.fuse_func != "Append":
-    SAVE_DIR = SAVE_DIR / arguments.fuse_func
+SAVE_DIR = Path("/cifar/"+str(N_HIDDEN_LAYERS)+"_"+ str(conv_var)+"_"+str(output_var)+"_"+str(conv_res_var)+'_'+ str(USE_RESIDUAL)+'_'+str(RESIDUAL_EVERY_N)+'_'+str(RESIDUAL_JUMP_LENGTH)+'_'+str(USE_PADDING)+'_'+str(TARGET_FALSE)+'_'+str(TARGET_FALSE)+'-'+ str(USE_DELAY)+ '_'+ str(arguments.fuse_func))
 
 
 def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:

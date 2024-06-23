@@ -64,16 +64,16 @@ CHANNELS = 16
 conv_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
-    'threshold_hat': 0.1,
-    'delta_threshold': 1 * 0.1,
-    'spike_buffer_size': 5
+    'threshold_hat': 0.15,
+    'delta_threshold': 1 * 0.15,
+    'spike_buffer_size': 2
 }
 conv_res_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
     'threshold_hat': 0.025,
     'delta_threshold': 1 * 0.025,
-    'spike_buffer_size': 5
+    'spike_buffer_size': 2
 }
 fc_var = {
     'n_neurons': 300,
@@ -125,9 +125,7 @@ TARGET_TRUE = 30
 # Plot parameters
 EXPORT_METRICS = False
 EXPORT_DIR = Path("./output_metrics")
-SAVE_DIR = Path("/fashion_CNN/"+str(N_HIDDEN_LAYERS)+"_"+ str(str(conv_var['filter']))+"_"+str(output_var['n_neurons'])+"_"+str(str(conv_var['filter']))+ str(USE_RESIDUAL)+str(RESIDUAL_EVERY_N)+str(RESIDUAL_JUMP_LENGTH)+str(USE_PADDING)+ '_'+str(conv_var['spike_buffer_size'])+'_'+str(conv_res_var['spike_buffer_size'])+'-testing0.05')
-if arguments.fuse_func != "Append":
-    SAVE_DIR = SAVE_DIR / arguments.fuse_func
+SAVE_DIR = Path("/fashion/"+str(N_HIDDEN_LAYERS)+"_"+ str(conv_var)+"_"+str(output_var)+"_"+str(conv_res_var)+'_'+ str(USE_RESIDUAL)+'_'+str(RESIDUAL_EVERY_N)+'_'+str(RESIDUAL_JUMP_LENGTH)+'_'+str(USE_PADDING)+'_'+str(TARGET_FALSE)+'_'+str(TARGET_FALSE)+'-'+ str(USE_DELAY)+ '_'+ str(arguments.fuse_func))
 
 def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:
     return cp.random.uniform(-1.0, 1.0, size=(c, x, y, pre_c), dtype=cp.float32)
@@ -283,8 +281,7 @@ for run in range(NUMBER_OF_RUNS):
             # print("Silent labels: ", cp.sum(n_out_spikes, axis=1))
             if cp.sum(cp.sum(n_out_spikes, axis=1)) == 0:
                 raise ValueError("Silent spikes in output layer")
-            # raise ValueError("Up to here")
-            # Predictions, loss and errors
+
             pred = loss_fct.predict(out_spikes, n_out_spikes)
             loss, errors = loss_fct.compute_loss_and_errors(out_spikes, n_out_spikes, labels)
 
