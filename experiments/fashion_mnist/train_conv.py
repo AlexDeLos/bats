@@ -125,7 +125,7 @@ TARGET_TRUE = 30
 # Plot parameters
 EXPORT_METRICS = False
 EXPORT_DIR = Path("./output_metrics")
-SAVE_DIR = Path("/fashion/"+str(N_HIDDEN_LAYERS)+"_"+ str(conv_var)+"_"+str(output_var)+"_"+str(conv_res_var)+'_'+ str(USE_RESIDUAL)+'_'+str(RESIDUAL_EVERY_N)+'_'+str(RESIDUAL_JUMP_LENGTH)+'_'+str(USE_PADDING)+'_'+str(TARGET_FALSE)+'_'+str(TARGET_FALSE)+'-'+ str(USE_DELAY)+ '_'+ str(arguments.fuse_func))
+SAVE_DIR = Path("/fashion/"+str(N_HIDDEN_LAYERS)+"_"+str(conv_var['filter'])+"_"+str(conv_var['threshold_hat'])+"_"+str(conv_var['spike_buffer_size'])+"_"+str(conv_res_var['filter'])+"_"+str(conv_res_var['threshold_hat'])+"_"+str(conv_res_var['spike_buffer_size'])+'_'+str(USE_PADDING)+'_'+ str(arguments.fuse_func))
 
 def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:
     return cp.random.uniform(-1.0, 1.0, size=(c, x, y, pre_c), dtype=cp.float32)
