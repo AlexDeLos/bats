@@ -2,9 +2,9 @@
 
 #SBATCH --partition=general
 
-#SBATCH --qos=medium
+#SBATCH --qos=long
 
-#SBATCH --time=32:00:00
+#SBATCH --time=168:00:00
 
 #SBATCH --ntasks=1
 
