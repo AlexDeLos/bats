@@ -2,9 +2,9 @@
 
 #SBATCH --partition=general
 
-#SBATCH --qos=medium
+#SBATCH --qos=long
 
-#SBATCH --time=32:00:00
+#SBATCH --time=168:00:00
 
 #SBATCH --ntasks=1
 
@@ -22,4 +22,4 @@ conda activate myHomeEnv
 
 echo "cifar -----------------------------------------------------------------------"
 echo "Starting 2 layers No residual conv on cifar"
-srun python3 experiments/cifar/train_conv.py --restore True --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 3 --batch_size 20 --use_wanb True 
+srun python3 experiments/cifar/train_conv.py --restore False --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 3 --batch_size 20 --use_wanb True 

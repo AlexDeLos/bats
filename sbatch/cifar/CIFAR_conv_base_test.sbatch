@@ -2,9 +2,9 @@
 
 #SBATCH --partition=general
 
-#SBATCH --qos=medium
+#SBATCH --qos=long
 
-#SBATCH --time=32:00:00
+#SBATCH --time=168:00:00
 
 #SBATCH --ntasks=1
 
@@ -21,4 +21,4 @@ module load miniconda/3.9
 conda activate myHomeEnv
 
 echo "Starting 9 layers No residual MLP on cifar"
-srun python3 experiments/cifar/train.py --restore True --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 3 --batch_size 50 --use_wanb True
+srun python3 experiments/cifar/train.py --restore False --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 3 --batch_size 50 --use_wanb True

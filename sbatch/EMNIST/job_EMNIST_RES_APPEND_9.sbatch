@@ -2,9 +2,9 @@
 
 #SBATCH --partition=general
 
-#SBATCH --qos=medium
+#SBATCH --qos=long
 
-#SBATCH --time=32:00:00
+#SBATCH --time=168:00:00
 
 #SBATCH --ntasks=1
 
@@ -22,4 +22,4 @@ conda activate myHomeEnv
 
 echo "EMNIST_RES_APPEND -----------------------------------------------------------------------"
 echo "Starting 9 layers residual APPEND MLP on EMNIST"
-srun python3 experiments/emnist/train.py --restore True  --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 9 --batch_size 15 --use_residual True --fuse_func Append --use_wanb True --residual_every_n 4 --residual_jump_length 3 
+srun python3 experiments/emnist/train.py --restore False  --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 9 --batch_size 15 --use_residual True --fuse_func Append --use_wanb True --residual_every_n 4 --residual_jump_length 3 

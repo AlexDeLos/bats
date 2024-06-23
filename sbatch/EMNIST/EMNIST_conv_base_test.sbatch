@@ -2,9 +2,9 @@
 
 #SBATCH --partition=general
 
-#SBATCH --qos=medium
+#SBATCH --qos=long
 
-#SBATCH --time=32:00:00
+#SBATCH --time=168:00:00
 
 #SBATCH --ntasks=1
 
@@ -22,4 +22,4 @@ conda activate myHomeEnv
 
 echo "emnist_RES -----------------------------------------------------------------------"
 echo "Starting 3 layers conv on emnist NO CLUSTER"
-srun python3 experiments/emnist/train_conv.py  --restore True --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 3 --batch_size 30 --use_wanb True  --use_residual True --residual_every_n 2 --residual_jump_length 2 # 
+srun python3 experiments/emnist/train_conv.py --restore False --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 3 --batch_size 30 --use_wanb True  --use_residual True --residual_every_n 2 --residual_jump_length 2 # 

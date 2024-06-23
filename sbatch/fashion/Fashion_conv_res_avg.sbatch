@@ -2,9 +2,9 @@
 
 #SBATCH --partition=general
 
-#SBATCH --qos=medium
+#SBATCH --qos=long
 
-#SBATCH --time=32:00:00
+#SBATCH --time=168:00:00
 
 #SBATCH --ntasks=1
 
@@ -22,4 +22,4 @@ conda activate myHomeEnv
 
 echo "fashion_mnist_RES -----------------------------------------------------------------------"
 echo "Starting 5 layers residual conv on fashion_mnist"
-srun python3 experiments/fashion_mnist/train_conv.py --restore True --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 4 --batch_size 20 --use_residual True --residual_every_n 3 --residual_jump_length 3 --use_wanb True --fuse_func Average
+srun python3 experiments/fashion_mnist/train_conv.py --restore False --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 4 --batch_size 20 --use_residual True --residual_every_n 3 --residual_jump_length 3 --use_wanb True --fuse_func Average
