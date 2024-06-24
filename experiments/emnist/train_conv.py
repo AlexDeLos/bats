@@ -71,15 +71,15 @@ conv_var = {
 conv_res_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
-    'threshold_hat': 0.025,
-    'delta_threshold': 1 * 0.025,
+    'threshold_hat': 0.05,
+    'delta_threshold': 1 * 0.05,
     'spike_buffer_size': 2
 }
 fc_var = {
     'n_neurons': 300,
     'tau_s': 0.130,
     'threshold_hat': 0.6,
-    'delta_threshold': 1 * 0.6  ,
+    'delta_threshold': 1 * 0.6,
     'spike_buffer_size': 20
 }
 if TTFS:
