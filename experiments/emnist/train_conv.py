@@ -103,8 +103,8 @@ if CLUSTER:
     N_TEST_SAMPLES = 10000 #! used to be 10000
 
 else:
-    N_TRAIN_SAMPLES = 6000
-    N_TEST_SAMPLES = 1000
+    N_TRAIN_SAMPLES = 600
+    N_TEST_SAMPLES = 100
 N_TRAIN_BATCH = int(N_TRAIN_SAMPLES / TRAIN_BATCH_SIZE)
 N_TEST_BATCH = int(N_TEST_SAMPLES / TEST_BATCH_SIZE)
 TRAIN_PRINT_PERIOD = 0.1
@@ -117,10 +117,10 @@ else:
     if arguments.restore:
         LEARNING_RATE= 1e-4
     else:
-        LEARNING_RATE = 0.0003
-LR_DECAY_EPOCH = 10  # Perform decay very n epochs
+        LEARNING_RATE = 0.1
+LR_DECAY_EPOCH = 5  # Perform decay very n epochs
 LR_DECAY_FACTOR = 0.75
-MIN_LEARNING_RATE = 1e-4
+MIN_LEARNING_RATE = 1e-5
 TARGET_FALSE = 3
 TARGET_TRUE = 30
 
@@ -136,7 +136,7 @@ def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:
 
 def weight_initializer_ff(n_post: int, n_pre: int) -> cp.ndarray:
     return cp.random.uniform(-1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
-    # return cp.random.uniform(1.0, 1.0, size=(n_post, n_pre), dtype=cp.float32)
+    # return cp.random.uniform(-1.0, 2.0, size=(n_post, n_pre), dtype=cp.float32)
 
 
 for run in range(NUMBER_OF_RUNS):
@@ -266,8 +266,14 @@ for run in range(NUMBER_OF_RUNS):
         # ! remove the shuffle for testability
 
         # Learning rate decay
-        if epoch > 0 and epoch % LR_DECAY_EPOCH == 0:
-            optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
+        if epoch >= LR_DECAY_EPOCH:
+            loss = train_loss_monitor._values
+            recent_loss = loss[-LR_DECAY_EPOCH*10:]
+            # we use linear regression to find the slope of the recent loss
+            slope = np.polyfit(np.arange(len(recent_loss)), recent_loss, 1)[0]
+        
+            if slope > -0.1:
+                optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
 
         for batch_idx in range(N_TRAIN_BATCH):
             # Get next batch
