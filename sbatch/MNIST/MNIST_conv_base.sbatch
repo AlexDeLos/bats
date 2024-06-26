@@ -22,8 +22,8 @@ conda activate myHomeEnv
 
 echo "mnist_RES -----------------------------------------------------------------------"
 echo "Starting 3 layers conv on emnist NO CLUSTER"
-srun python3 experiments/mnist/train_conv.py --restore False --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 3 --batch_size 30 --use_wanb True # 
+srun python3 experiments/mnist/train_conv.py --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 3 --batch_size 30 --use_wanb True # 
 # echo "Starting 9 layers residual conv on emnist"
-# srun python3 experiments/emnist/train_conv.py --restore False --n_epochs 200 --runs 1 --n_hidden_layers 9 --batch_size 50 --use_wanb True
+# srun python3 experiments/emnist/train_conv.py --n_epochs 200 --runs 1 --n_hidden_layers 9 --batch_size 50 --use_wanb True
 # echo "Starting 13 layers residual conv on emnist"
-# srun python3 experiments/emnist/train_conv.py --restore False --n_epochs 200 --runs 1 --n_hidden_layers 13 --batch_size 50 --use_wanb True
+# srun python3 experiments/emnist/train_conv.py --n_epochs 200 --runs 1 --n_hidden_layers 13 --batch_size 50 --use_wanb True
