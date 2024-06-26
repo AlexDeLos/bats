@@ -71,15 +71,15 @@ conv_var = {
 conv_res_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,
-    'threshold_hat': 0.01,
-    'delta_threshold': 1 * 0.01,
+    'threshold_hat': 0.025,
+    'delta_threshold': 1 * 0.025,
     'spike_buffer_size': 5
 }
 fc_var = {
     'n_neurons': 300,
     'tau_s': 0.130,
-    'threshold_hat': 0.2,
-    'delta_threshold': 1 * 0.2,
+    'threshold_hat': 0.6,
+    'delta_threshold': 1 * 0.6,
     'spike_buffer_size': 20
 }
 if TTFS:
@@ -115,7 +115,7 @@ else:
     if arguments.restore:
         LEARNING_RATE= 1e-4
     else:
-        LEARNING_RATE = 0.1
+        LEARNING_RATE = 0.05
 LR_DECAY_EPOCH = 5  # Perform decay very n epochs
 LR_DECAY_FACTOR = 0.75
 MIN_LEARNING_RATE = 1e-5
