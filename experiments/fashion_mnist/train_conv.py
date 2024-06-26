@@ -78,8 +78,8 @@ conv_res_var = {
 fc_var = {
     'n_neurons': 300,
     'tau_s': 0.130,
-    'threshold_hat': 0.6,
-    'delta_threshold': 1 * 0.6,
+    'threshold_hat': 0.2,
+    'delta_threshold': 1 * 0.2,
     'spike_buffer_size': 20
 }
 if TTFS:
