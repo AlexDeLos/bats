@@ -270,6 +270,7 @@ for run in range(NUMBER_OF_RUNS):
             recent_loss = loss[-LR_DECAY_EPOCH*10:]
             # we use linear regression to find the slope of the recent loss
             slope = np.polyfit(np.arange(len(recent_loss)), recent_loss, 1)[0]
+            print("Slope: ", slope)
         
             if slope > -0.1:
                 print("decay learning rate")
