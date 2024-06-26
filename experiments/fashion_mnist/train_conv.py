@@ -116,7 +116,7 @@ else:
         LEARNING_RATE= 1e-4
     else:
         LEARNING_RATE = 0.01
-LR_DECAY_EPOCH = 1  # Perform decay very n epochs
+LR_DECAY_EPOCH = 2  # Perform decay very n epochs
 LR_DECAY_FACTOR = 0.75
 MIN_LEARNING_RATE = 1e-5
 TARGET_FALSE = 3
