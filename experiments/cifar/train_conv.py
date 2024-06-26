@@ -133,7 +133,7 @@ else:
         LEARNING_RATE= 1e-4
     else:
         LEARNING_RATE = 0.01
-LR_DECAY_EPOCH = 5  # Perform decay very n epochs
+LR_DECAY_EPOCH = 3  # Perform decay very n epochs
 LR_DECAY_FACTOR = 0.75
 MIN_LEARNING_RATE = 1e-5
 TARGET_FALSE = 3
@@ -246,6 +246,9 @@ for run in range(NUMBER_OF_RUNS):
         "conv": str(conv_var),
         "conv_res": str(conv_res_var),
         "learning_rate": LEARNING_RATE,
+        "learning_rate_decay": LR_DECAY_FACTOR,
+        "min_learning_rate": MIN_LEARNING_RATE,
+        "lr_decay_epoch": LR_DECAY_EPOCH,
         "architecture": "CNN",
         "dataset": "CIFAR100" if USE_CIFAR100 else "CIFAR10",
         "epochs": N_TRAINING_EPOCHS,
@@ -279,9 +282,12 @@ for run in range(NUMBER_OF_RUNS):
             recent_loss = loss[-LR_DECAY_EPOCH*10:]
             # we use linear regression to find the slope of the recent loss
             slope = np.polyfit(np.arange(len(recent_loss)), recent_loss, 1)[0]
+            print("Slope: ", slope)
         
             if slope > -0.1:
+                print("decay learning rate")
                 optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
+                print("New learning rate: ", optimizer.learning_rate)
 
         for batch_idx in range(N_TRAIN_BATCH):
             # Get next batch
@@ -321,10 +327,6 @@ for run in range(NUMBER_OF_RUNS):
                 else:
                     averaged_values = cp.mean(g, axis=0)
                     avg_gradient.append(averaged_values)
-            # for i in range(len(avg_gradient)):
-            #     if i == 3:
-            #         print("Gradient_avg: ", cp.max(avg_gradient[i][1]), cp.min(avg_gradient[i][1]), cp.mean(avg_gradient[i][1]))
-            #         print("Gradient: ", cp.max(gradient[i][1]), cp.min(gradient[i][1]), cp.mean(gradient[i][1]))
             del gradient
 
             if FULL_METRIC:
