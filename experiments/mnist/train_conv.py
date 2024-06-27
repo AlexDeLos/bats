@@ -110,7 +110,7 @@ else:
     if arguments.restore:
         LEARNING_RATE= 1e-4
     else:
-        LEARNING_RATE = 0.01
+        LEARNING_RATE = 0.003
     
 LR_DECAY_EPOCH = 3  # Perform decay very n epochs
 LR_DECAY_FACTOR = 0.75
