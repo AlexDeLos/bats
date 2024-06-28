@@ -247,6 +247,7 @@ for run in range(NUMBER_OF_RUNS):
         "conv": str(conv_var),
         "conv_res": str(conv_res_var),
         "learning_rate": LEARNING_RATE,
+        "slope_decay": SLOPE_DECAY,
         "learning_rate_decay": LR_DECAY_FACTOR,
         "min_learning_rate": MIN_LEARNING_RATE,
         "lr_decay_epoch": LR_DECAY_EPOCH,
