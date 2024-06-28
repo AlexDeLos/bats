@@ -159,7 +159,7 @@ for run in range(NUMBER_OF_RUNS):
 
     max_int = np.iinfo(np.int32).max
     # np_seed = 319596201
-
+    lowest_loss = [1000000,-1]
     if not FIX_SEED:
         np_seed = int(cp.random.randint(low=0, high=max_int))
     else:

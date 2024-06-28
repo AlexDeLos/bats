@@ -141,7 +141,7 @@ for run in range(NUMBER_OF_RUNS):
     if ALTERNATE and CLUSTER:
         USE_RESIDUAL = run%2 == 0
         print("Using Residual: ", USE_RESIDUAL)
-
+    lowest_loss = [1000000,-1]
     max_int = np.iinfo(np.int32).max
     # np_seed = 319596201
 
