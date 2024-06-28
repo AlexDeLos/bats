@@ -270,9 +270,9 @@ for run in range(NUMBER_OF_RUNS):
 
         # Learning rate decay
         if epoch >= LR_DECAY_EPOCH:
+            loss = train_loss_monitor._values
+            losses_per_epoch = len(loss) // epoch
             if SLOPE_DECAY:
-                loss = train_loss_monitor._values
-                losses_per_epoch = len(loss) // epoch
                 recent_loss = loss[-LR_DECAY_EPOCH*losses_per_epoch:]
                 # we use linear regression to find the slope of the recent loss
                 slope = np.polyfit(np.arange(len(recent_loss)), recent_loss, 1)[0]
