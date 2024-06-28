@@ -132,7 +132,7 @@ SAVE_DIR = Path("/emnist/"+str(N_HIDDEN_LAYERS)+"_"+str(conv_var['filter'])+"_"+
 
 
 def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:
-    return cp.random.uniform(-1.0, 1.0, size=(c, x, y, pre_c), dtype=cp.float32)
+    return cp.random.uniform(-1.0, 2.0, size=(c, x, y, pre_c), dtype=cp.float32)
 
 
 def weight_initializer_ff(n_post: int, n_pre: int) -> cp.ndarray:
