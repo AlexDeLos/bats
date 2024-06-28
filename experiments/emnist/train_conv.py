@@ -120,7 +120,7 @@ else:
         LEARNING_RATE = 0.001
 LR_DECAY_EPOCH = 3  # Perform decay very n epochs
 LR_DECAY_FACTOR = 0.75
-MIN_LEARNING_RATE = 1e-5
+MIN_LEARNING_RATE = 1e-6
 TARGET_FALSE = 3
 TARGET_TRUE = 30
 
@@ -276,7 +276,7 @@ for run in range(NUMBER_OF_RUNS):
             slope = np.polyfit(np.arange(len(recent_loss)), recent_loss, 1)[0]
             print("Slope: ", slope)
         
-            if slope > -0.1:
+            if slope > 0:
                 print("decay learning rate")
                 optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
                 print("New learning rate: ", optimizer.learning_rate)
