@@ -36,6 +36,7 @@ def get_arguments():
     parser.add_argument("--use_delay", default=False, type=bool)
     parser.add_argument("--ttfs", default=False, type=bool)
     parser.add_argument("--restore", default=False, type=bool)
+    parser.add_argument("--slope_decay", default=False, type=bool)
 
 
     args = parser.parse_args()

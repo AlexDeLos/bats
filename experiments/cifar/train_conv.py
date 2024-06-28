@@ -44,6 +44,7 @@ RESTORE = arguments.restore
 STORE = arguments.store
 USE_CIFAR100 = arguments.cifar100	
 USE_COURSE_LABELS = arguments.use_coarse_labels
+SLOPE_DECAY = arguments.slope_decay
 USE_3_CHANNELS = arguments.use_3_channels #! false could be broken
 #TODO: try to get the non append function to run out of memory
 if USE_CIFAR100:
@@ -278,16 +279,28 @@ for run in range(NUMBER_OF_RUNS):
 
         # Learning rate decay
         if epoch >= LR_DECAY_EPOCH:
-            loss = train_loss_monitor._values
-            recent_loss = loss[-LR_DECAY_EPOCH*10:]
-            # we use linear regression to find the slope of the recent loss
-            slope = np.polyfit(np.arange(len(recent_loss)), recent_loss, 1)[0]
-            print("Slope: ", slope)
-        
-            if slope > -0.1:
-                print("decay learning rate")
-                optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
-                print("New learning rate: ", optimizer.learning_rate)
+            if SLOPE_DECAY:
+                loss = train_loss_monitor._values
+                losses_per_epoch = len(loss) // epoch
+                recent_loss = loss[-LR_DECAY_EPOCH*losses_per_epoch:]
+                # we use linear regression to find the slope of the recent loss
+                slope = np.polyfit(np.arange(len(recent_loss)), recent_loss, 1)[0]
+                print("Slope: ", slope)
+            
+                if slope > -0.1:
+                    print("decay learning rate")
+                    optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
+                    print("New learning rate: ", optimizer.learning_rate)
+            else:
+                #
+                losses_of_the_epoch = np.mean(train_loss_monitor._values[-losses_per_epoch:])
+                if losses_of_the_epoch < lowest_loss[0]:
+                    lowest_loss = [losses_of_the_epoch, epoch]
+                    print("Lowest loss: ", lowest_loss)
+                elif epoch - lowest_loss[1] > LR_DECAY_EPOCH:
+                    print("decay learning rate")
+                    optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
+                    print("New learning rate: ", optimizer.learning_rate)
 
         for batch_idx in range(N_TRAIN_BATCH):
             # Get next batch

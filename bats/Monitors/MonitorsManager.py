@@ -30,6 +30,8 @@ class MonitorsManager:
             if use_wandb:
                 value = monitor._values[-1]
                 if type(value) == cp.ndarray:
+                    # we take the mean of the array
+                    # value = np.mean(value)
                     value = float(value)
                 w_b.save({self._print_prefix + monitor._name: value})
             returns.append((monitor._name, monitor._values[-1]))
