@@ -53,6 +53,7 @@ class wandb_handler:
                 "conv_var": config['conv'],
                 "conv_res_var": config['conv_res'],
                 "learning_rate": config['learning_rate'],
+                "slope_decay": config['slope_decay'],
                 "learning_rate_decay": config['learning_rate_decay'],
                 "min_learning_rate": config['min_learning_rate'],
                 "lr_decay_epoch": config['lr_decay_epoch'],

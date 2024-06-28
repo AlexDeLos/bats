@@ -242,6 +242,7 @@ for run in range(NUMBER_OF_RUNS):
         "conv": str(conv_var),
         "conv_res": str(conv_res_var),
         "learning_rate": LEARNING_RATE,
+        "slope_decay": SLOPE_DECAY,
         "learning_rate_decay": LR_DECAY_FACTOR,
         "min_learning_rate": MIN_LEARNING_RATE,
         "lr_decay_epoch": LR_DECAY_EPOCH,
@@ -448,11 +449,6 @@ for run in range(NUMBER_OF_RUNS):
                 # dic = Path("last" + str(SAVE_DIR))
                 print("last save to: ", dic)
                 network.store(dic)
-                # if acc > best_acc:
-                #     best_acc = acc
-                #     dic = Path("best" + str(SAVE_DIR))
-                #     network.store(dic)
-                #     print(f"Best accuracy: {np.around(best_acc, 2)}%, Networks NOT save to: {SAVE_DIR}")
         if USE_WANDB:
             w_b.log()
     if USE_WANDB:
