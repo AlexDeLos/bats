@@ -290,6 +290,7 @@ for run in range(NUMBER_OF_RUNS):
             
                 if slope > -0.1:
                     print("decay learning rate")
+                    lowest_loss = [1000000, -1]
                     optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
                     print("New learning rate: ", optimizer.learning_rate)
             else:
@@ -300,6 +301,7 @@ for run in range(NUMBER_OF_RUNS):
                     print("Lowest loss: ", lowest_loss)
                 elif epoch - lowest_loss[1] > LR_DECAY_EPOCH:
                     print("decay learning rate")
+                    lowest_loss = [1000000, -1]
                     optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
                     print("New learning rate: ", optimizer.learning_rate)
 
