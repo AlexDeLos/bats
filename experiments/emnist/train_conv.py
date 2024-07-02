@@ -39,6 +39,7 @@ USE_DELAY = arguments.use_delay
 TTFS = arguments.ttfs
 RESTORE = arguments.restore
 SLOPE_DECAY = arguments.slope_decay
+WEIGHTS= [-arguments.w1, arguments.w2]
 #! residual and padd gives nans
 # what causes nans:
 #! residual layers with pre = jump and nans
@@ -125,7 +126,6 @@ MIN_LEARNING_RATE = 1e-10
 TARGET_FALSE = 3
 TARGET_TRUE = 30
 
-WEIGHTS= [-arguments.w1, arguments.w2]
 
 # Plot parameters
 EXPORT_METRICS = False

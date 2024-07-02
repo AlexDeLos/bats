@@ -46,6 +46,7 @@ USE_CIFAR100 = arguments.cifar100
 USE_COURSE_LABELS = arguments.use_coarse_labels
 SLOPE_DECAY = arguments.slope_decay
 USE_3_CHANNELS = arguments.use_3_channels #! false could be broken
+WEIGHTS= [-arguments.w1, arguments.w2]
 #TODO: try to get the non append function to run out of memory
 if USE_CIFAR100:
     DATASET_PATH = "./datasets/cifar-100-python/"
@@ -140,7 +141,6 @@ MIN_LEARNING_RATE = 1e-10
 TARGET_FALSE = 3
 TARGET_TRUE = 30
 
-WEIGHTS= [-arguments.w1, arguments.w2]
 
 # Plot parameters
 EXPORT_METRICS = False
