@@ -59,7 +59,7 @@ class wandb_handler:
                 "min_learning_rate": config['min_learning_rate'],
                 "lr_decay_epoch": config['lr_decay_epoch'],
                 "architecture": "CNN",
-        "weight_initializer": WEIGHTS,
+                "weight_initializer": config['weight_initializer'],
                 "dataset": config['dataset'],
                 "epochs": config['epochs'],
                 "true target": config['True_target'],
