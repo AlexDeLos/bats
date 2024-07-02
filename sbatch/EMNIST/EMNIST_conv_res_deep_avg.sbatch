@@ -4,7 +4,7 @@
 
 #SBATCH --qos=long
 
-#SBATCH --time=90:00:00
+#SBATCH --time=168:00:00
 
 #SBATCH --ntasks=1
 

@@ -35,6 +35,7 @@ class wandb_handler:
                 "use_delay": config['Use_delay'],
                 "loss function": config['loss'],
                 "architecture": "SNN",
+                "weight_initializer": config['weight_initializer'],
                 "version": "1.4.8-restore-2",
             }
         else:
@@ -58,13 +59,14 @@ class wandb_handler:
                 "min_learning_rate": config['min_learning_rate'],
                 "lr_decay_epoch": config['lr_decay_epoch'],
                 "architecture": "CNN",
+        "weight_initializer": WEIGHTS,
                 "dataset": config['dataset'],
                 "epochs": config['epochs'],
                 "true target": config['True_target'],
                 "false target": config['False_target'],
                 "loss function": config['loss'],
                 "use_delay": config['Use_delay'],
-                "version": "1.5.2-weights(-5,5)",
+                "version": "1.5.3",
             }
         self.run = wandb.init(project=project_name, name=experiment_name, config=self.config)
         # self.run = None

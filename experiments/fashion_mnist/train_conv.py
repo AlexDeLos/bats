@@ -123,13 +123,16 @@ MIN_LEARNING_RATE = 1e-10
 TARGET_FALSE = 3
 TARGET_TRUE = 30
 
+WEIGHTS= [-arguments.w1, arguments.w2]
+
+
 # Plot parameters
 EXPORT_METRICS = False
 EXPORT_DIR = Path("./output_metrics")
 SAVE_DIR = Path("/fashion/"+str(N_HIDDEN_LAYERS)+"_"+str(conv_var['filter'])+"_"+str(conv_var['threshold_hat'])+"_"+str(conv_var['spike_buffer_size'])+"_"+str(conv_res_var['filter'])+"_"+str(conv_res_var['threshold_hat'])+"_"+str(conv_res_var['spike_buffer_size'])+'_'+str(USE_PADDING)+'_'+ str(arguments.fuse_func))
 
 def weight_initializer_conv(c: int, x: int, y: int, pre_c: int) -> cp.ndarray:
-    return cp.random.uniform(-5.0, 5.0, size=(c, x, y, pre_c), dtype=cp.float32)
+    return cp.random.uniform(WEIGHTS[0], WEIGHTS[1], size=(c, x, y, pre_c), dtype=cp.float32)
 
 
 def weight_initializer_ff(n_post: int, n_pre: int) -> cp.ndarray:
@@ -245,6 +248,7 @@ for run in range(NUMBER_OF_RUNS):
         "min_learning_rate": MIN_LEARNING_RATE,
         "lr_decay_epoch": LR_DECAY_EPOCH,
         "architecture": "CNN",
+        "weight_initializer": WEIGHTS,
         "dataset": "fashion MNIST",
         "epochs": N_TRAINING_EPOCHS,
         "True_target": TARGET_TRUE,
@@ -288,11 +292,11 @@ for run in range(NUMBER_OF_RUNS):
                 #
                 losses_of_the_epoch = np.mean(train_loss_monitor._values[-losses_per_epoch:])
                 if losses_of_the_epoch < lowest_loss[0]:
-                    lowest_loss = [losses_of_the_epoch, epoch]
+                    lowest_loss[1] = epoch
                     print("Lowest loss: ", lowest_loss)
                 elif epoch - lowest_loss[1] > LR_DECAY_EPOCH:
                     print("decay learning rate")
-                    lowest_loss = [1000000, -1]
+                    lowest_loss = [1000000, epoch]
                     optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
                     print("New learning rate: ", optimizer.learning_rate)
                 

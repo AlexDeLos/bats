@@ -37,6 +37,8 @@ def get_arguments():
     parser.add_argument("--ttfs", default=False, type=bool)
     parser.add_argument("--restore", default=False, type=bool)
     parser.add_argument("--slope_decay", default=False, type=bool)
+    parser.add_argument("--w1", default=-1, type=int)
+    parser.add_argument("--w2", default=1, type=int)
 
 
     args = parser.parse_args()

@@ -252,6 +252,7 @@ for run in range(NUMBER_OF_RUNS):
         "min_learning_rate": MIN_LEARNING_RATE,
         "lr_decay_epoch": LR_DECAY_EPOCH,
         "architecture": "CNN",
+        "weight_initializer": WEIGHTS,
         "dataset": "CIFAR100" if USE_CIFAR100 else "CIFAR10",
         "epochs": N_TRAINING_EPOCHS,
         "True_target": TARGET_TRUE,
@@ -297,11 +298,11 @@ for run in range(NUMBER_OF_RUNS):
                 #
                 losses_of_the_epoch = np.mean(train_loss_monitor._values[-losses_per_epoch:])
                 if losses_of_the_epoch < lowest_loss[0]:
-                    lowest_loss = [losses_of_the_epoch, epoch]
+                    lowest_loss[1] = epoch
                     print("Lowest loss: ", lowest_loss)
                 elif epoch - lowest_loss[1] > LR_DECAY_EPOCH:
                     print("decay learning rate")
-                    lowest_loss = [1000000, -1]
+                    lowest_loss = [1000000, epoch]
                     optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
                     print("New learning rate: ", optimizer.learning_rate)
 
