@@ -125,6 +125,8 @@ MIN_LEARNING_RATE = 1e-10
 TARGET_FALSE = 3
 TARGET_TRUE = 30
 
+WEIGHTS= [-arguments.w1, arguments.w2]
+
 # Plot parameters
 EXPORT_METRICS = False
 EXPORT_DIR = Path("./output_metrics")
