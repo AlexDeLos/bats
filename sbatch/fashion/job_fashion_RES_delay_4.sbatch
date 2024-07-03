@@ -4,6 +4,8 @@
 
 #SBATCH --qos=long
 
+#SBATCH --mail-type=END
+
 #SBATCH --time=168:00:00
 
 #SBATCH --ntasks=1
