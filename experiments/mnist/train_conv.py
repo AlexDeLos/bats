@@ -284,7 +284,7 @@ for run in range(NUMBER_OF_RUNS):
                 # we check if the avarage of the losses_per_epoch  
                 losses_of_the_epoch = np.mean(train_loss_monitor._values[-losses_per_epoch:])
                 if losses_of_the_epoch < lowest_loss[0]:
-                    lowest_loss[1] = epoch
+                    lowest_loss = [losses_of_the_epoch,epoch]
                     print("Lowest loss: ", lowest_loss)
                 elif epoch - lowest_loss[1] > LR_DECAY_EPOCH:
                     print("decay learning rate")
