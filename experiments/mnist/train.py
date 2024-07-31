@@ -48,6 +48,7 @@ USE_RESIDUAL = arguments.use_residual
 RESIDUAL_EVERY_N = arguments.residual_every_n
 RESIDUAL_JUMP_LENGTH = arguments.residual_jump_length
 N_HIDDEN_LAYERS = arguments.n_hidden_layers
+SLOPE_DECAY = arguments.slope_decay
 
 if CLUSTER:
     NUMBER_OF_RUNS = arguments.runs
@@ -104,7 +105,6 @@ else:
     else:
         LEARNING_RATE = 0.0003
 LR_DECAY_EPOCH = 5
-int(N_TRAINING_EPOCHS/10)  # Perform decay very n epochs
 LR_DECAY_FACTOR = 0.75
 MIN_LEARNING_RATE = 1e-4
 TARGET_FALSE = 3
@@ -237,8 +237,31 @@ for run in range(NUMBER_OF_RUNS):
         dataset.shuffle()
 
         # Learning rate decay
-        if epoch > 0 and epoch % LR_DECAY_EPOCH == 0:
-            optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE) # type: ignore
+        if epoch >= LR_DECAY_EPOCH:
+            loss = train_loss_monitor._values
+            losses_per_epoch = len(loss) // epoch
+            if SLOPE_DECAY:
+                recent_loss = loss[-LR_DECAY_EPOCH*losses_per_epoch:]
+                # we use linear regression to find the slope of the recent loss
+                slope = np.polyfit(np.arange(len(recent_loss)), recent_loss, 1)[0]
+                print("Slope: ", slope)
+            
+                if slope > -0.1:
+                    print("decay learning rate")
+                    lowest_loss = [1000000, -1]
+                    optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
+                    print("New learning rate: ", optimizer.learning_rate)
+            else:
+                losses_of_the_epoch = np.mean(train_loss_monitor._values[-losses_per_epoch:])
+                if losses_of_the_epoch < lowest_loss[0]:
+                    lowest_loss = [losses_of_the_epoch,epoch]
+                    print("Lowest loss: ", lowest_loss)
+                elif epoch - lowest_loss[1] > LR_DECAY_EPOCH:
+                    print("decay learning rate")
+                    lowest_loss = [1000000, epoch]
+                    optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
+                    print("New learning rate: ", optimizer.learning_rate)
+
 
         for batch_idx in range(N_TRAIN_BATCH):
             # print("batch_idx: ", batch_idx)

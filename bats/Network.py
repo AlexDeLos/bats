@@ -84,16 +84,10 @@ class Network:
                     else:
                         errors = (errors + errors_jump_array[index])/2
                     weights_grad, errors = layer.backward(errors)
-
             elif layer._is_residual:
                 weights_grad, errors_temp = layer.backward(errors)
                 if type(errors_temp) is tuple:
                     (errors,errors_jump) = errors_temp
-                    # what if I make an average of the errors? and feed the same error to both layers?
-                    #! this doesn't work, the errors are different
-                    # errors_temp = (errors + errors_jump)/2
-                    # errors_jump = errors_temp.copy()
-                    # errors = errors_temp.copy()
                 else:
                     try:
                         errors = errors_temp

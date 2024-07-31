@@ -37,8 +37,7 @@ RESIDUAL_JUMP_LENGTH = arguments.residual_jump_length
 CLUSTER = arguments.cluster
 USE_WANDB = arguments.use_wanb
 ALTERNATE = arguments.alternate
-
-
+SLOPE_DECAY = arguments.slope_decay
 NUMBER_OF_RUNS = arguments.runs
 
 N_INPUTS = 28 * 28
@@ -213,11 +212,32 @@ for run in range(NUMBER_OF_RUNS):
         train_time_monitor.start()
         if CLUSTER:
             dataset.shuffle()
-
         # Learning rate decay
-        if epoch > 0 and epoch % LR_DECAY_EPOCH == 0:
-            optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
-
+        if epoch >= LR_DECAY_EPOCH:
+            loss = train_loss_monitor._values
+            losses_per_epoch = len(loss) // epoch
+            if SLOPE_DECAY:
+                recent_loss = loss[-LR_DECAY_EPOCH*losses_per_epoch:]
+                # we use linear regression to find the slope of the recent loss
+                slope = np.polyfit(np.arange(len(recent_loss)), recent_loss, 1)[0]
+                print("Slope: ", slope)
+            
+                if slope > -0.1:
+                    print("decay learning rate")
+                    lowest_loss = [1000000, -1]
+                    optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
+                    print("New learning rate: ", optimizer.learning_rate)
+            else:
+                losses_of_the_epoch = np.mean(train_loss_monitor._values[-losses_per_epoch:])
+                if losses_of_the_epoch < lowest_loss[0]:
+                    lowest_loss = [losses_of_the_epoch,epoch]
+                    print("Lowest loss: ", lowest_loss)
+                elif epoch - lowest_loss[1] > LR_DECAY_EPOCH:
+                    print("decay learning rate")
+                    lowest_loss = [1000000, epoch]
+                    optimizer.learning_rate = np.maximum(LR_DECAY_FACTOR * optimizer.learning_rate, MIN_LEARNING_RATE)
+                    print("New learning rate: ", optimizer.learning_rate)
+                
         for batch_idx in range(N_TRAIN_BATCH):
             # Get next batch
             spikes, n_spikes, labels = dataset.get_train_batch(batch_idx, TRAIN_BATCH_SIZE)
