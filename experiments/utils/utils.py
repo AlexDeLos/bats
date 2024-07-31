@@ -35,8 +35,8 @@ class wandb_handler:
                 "use_delay": config['Use_delay'],
                 "loss function": config['loss'],
                 "architecture": "SNN",
-                "weight_initializer": config['weight_initializer'],
-                "version": "1.5.0",
+                # "weight_initializer": config['weight_initializer'],
+                "version": "1.5.1",
             }
         else:
             self.config = {
