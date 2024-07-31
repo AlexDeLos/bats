@@ -129,7 +129,7 @@ for run in range(NUMBER_OF_RUNS):
     if ALTERNATE and CLUSTER:
         USE_RESIDUAL = run%2 == 0
 
-
+    lowest_loss = [1000000,-1]
     
     max_int = np.iinfo(np.int32).max
     np_seed = np.random.randint(low=0, high=max_int)
