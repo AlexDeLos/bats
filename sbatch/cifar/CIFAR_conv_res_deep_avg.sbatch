@@ -6,7 +6,7 @@
 
 #SBATCH --mail-type=END
 
-#SBATCH --time=60:00:00
+#SBATCH --time=100:00:00
 
 #SBATCH --ntasks=1
 
