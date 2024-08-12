@@ -36,7 +36,7 @@ class wandb_handler:
                 "loss function": config['loss'],
                 "architecture": "SNN",
                 # "weight_initializer": config['weight_initializer'],
-                "version": "1.5.2",
+                "version": "1.6.0",
             }
         else:
             self.config = {
