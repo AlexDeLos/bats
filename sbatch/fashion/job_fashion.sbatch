@@ -24,7 +24,7 @@ conda activate myHomeEnv
 
 echo "fashion_mnist -----------------------------------------------------------------------"
 echo "Starting 1 layers No residual MLP on fashion_mnist"
-srun python3 experiments/fashion_mnist/train.py  --cluster True --n_epochs 100 --runs 1 --n_hidden_layers 1 --batch_size 100 --use_wanb True
+srun python3 experiments/fashion_mnist/train.py  --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 1 --batch_size 100 --use_wanb True
 echo "Starting 4 layers No residual MLP on fashion_mnist"
 srun python3 experiments/fashion_mnist/train.py  --cluster True --n_epochs 200 --runs 1 --n_hidden_layers 4 --batch_size 100 --use_wanb True
 # echo "Starting 9 layers No residual MLP on fashion_mnist"
