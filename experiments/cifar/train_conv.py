@@ -68,7 +68,8 @@ else:
     INPUT_SHAPE = np.array([32, 32, 1])
 # INPUT_SHAPE = np.array([5,5,2])
 SIMULATION_TIME = 0.2
-CHANNELS = 24  # we should use 64...
+CHANNELS = arguments.cnn_channels # we should use 64...
+
 conv_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,

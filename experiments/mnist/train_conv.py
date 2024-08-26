@@ -55,7 +55,7 @@ INPUT_SHAPE = np.array([28, 28, 1])
 # INPUT_SHAPE = np.array([5,5,2])
 N_INPUTS = 28 * 28
 SIMULATION_TIME = 0.2
-CHANNELS = 16
+CHANNELS = arguments.cnn_channels
 conv_var = {
     'filter': np.array([5, 5, CHANNELS]),
     'tau_s': 0.130,

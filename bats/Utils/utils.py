@@ -25,7 +25,7 @@ def get_arguments():
     parser.add_argument("--use_3_channels", default=True, type=bool)
     parser.add_argument("-s", "--save_model", action="store_true", default=False)
     parser.add_argument("-b", "--batch_size", default=20, type=int)
-    parser.add_argument("-n", "--n_epochs", default=10, type=int)
+    parser.add_argument("-n", "--n_epochs", default=200, type=int)
     parser.add_argument("-l", "--learning_rate", default=None, type=float)
     parser.add_argument("--n_test_samples", default=10000, type=int)
     parser.add_argument("--n_train_samples", default=50000, type=int)
@@ -39,6 +39,7 @@ def get_arguments():
     parser.add_argument("--slope_decay", default=False, type=bool)
     parser.add_argument("--w1", default=-1, type=int)
     parser.add_argument("--w2", default=1, type=int)
+    parser.add_argument("--cnn_channels", default=16, type=int)
 
 
     args = parser.parse_args()
