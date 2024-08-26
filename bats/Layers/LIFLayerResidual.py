@@ -23,9 +23,6 @@ class LIFLayerResidual(AbstractLayer):
         self.__theta_tau_res: cp.float32 = cp.float32(theta / self.__tau_res) # type: ignore
         self.__delta_theta_tau_res: cp.float32 = cp.float32(delta_theta / self.__tau_res) # type: ignore
         self.__fuse_function = fuse_function
-        #! for testing REMOVE:
-        # Change teh size of the weights
-        #TODO: Change the initial state of the weights
         if weight_initializer is None:
             if fuse_function == "Append": 
                 self.__weights_res: cp.ndarray = cp.zeros((self.n_neurons, previous_layer.n_neurons+jump_layer.n_neurons), dtype=cp.float32) # type: ignore
@@ -92,12 +89,6 @@ class LIFLayerResidual(AbstractLayer):
     def forward(self, max_simulation: float, training: bool = False) -> None:
         pre_spike_per_neuron1, pre_n_spike_per_neuron1 = self.__previous_layer.spike_trains
         pre_spike_per_neuron2, pre_n_spike_per_neuron2 = self.__jump_layer.spike_trains
-        # if cp.any(cp.isnan(pre_spike_per_neuron1)):
-        #     raise ValueError("Nans in the previous layer input")
-        # if cp.any(cp.isnan(pre_spike_per_neuron2)):
-        #     raise ValueError("Nans in the jump layer input")
-        # pre_spike_per_neuron2 = cp.full(pre_spike_per_neuron2.shape, cp.inf)
-        # pre_n_spike_per_neuron2 = cp.zeros(pre_n_spike_per_neuron2.shape, dtype=cp.int32)
         new_max_n_spike = max(pre_spike_per_neuron1.shape[2], pre_spike_per_neuron2.shape[2])
         if self.__fuse_function == "Append":
             pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs_append(pre_spike_per_neuron1, pre_spike_per_neuron2, pre_n_spike_per_neuron1, pre_n_spike_per_neuron2, new_max_n_spike, self.use_delay)
@@ -106,16 +97,10 @@ class LIFLayerResidual(AbstractLayer):
         else:
             pre_spike_per_neuron, pre_n_spike_per_neuron = fuse_inputs(pre_spike_per_neuron1, pre_spike_per_neuron2, pre_n_spike_per_neuron1, pre_n_spike_per_neuron2, new_max_n_spike, self.use_delay)
 
-        # if cp.any(cp.isnan(pre_spike_per_neuron)):
-        #     raise ValueError("Nans in the fused input")
-        # if cp.any(cp.isnan(pre_n_spike_per_neuron)):
-        #     raise ValueError("Nans in the fused input count")
         self.__pre_spike_trains = (pre_spike_per_neuron, pre_n_spike_per_neuron)
 
         self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s_res, self.__tau_res)
         # END OF PREVIOUS LAYER INPUTS
-
-        # Sort spikes for inference
         new_shape, sorted_indices, spike_times_reshaped = get_sorted_spikes_indices(pre_spike_per_neuron,
                                                                                     pre_n_spike_per_neuron)
         if sorted_indices.size == 0:  # No input spike in the batch
@@ -144,17 +129,13 @@ class LIFLayerResidual(AbstractLayer):
                                                     pre_spike_weights, self.__c_res,
                                                     self.__delta_theta_tau_res,
                                                     self.__tau_res, cp.float32(max_simulation), self.__max_n_spike)
-            spikes = self.__spike_times_per_neuron
-            count = self.__n_spike_per_neuron
-            t = 'f'
-
+            
     def backward(self, errors: cp.array) -> Optional[Tuple[cp.ndarray, cp.ndarray]]: # type: ignore
         # The problem was that in the forward I took the res input not the jump
         if self.__fuse_function == "Append":
             weights_grad, pre_errors = self.backward_append(errors) # type: ignore
             #! split the errors
             pre_errors_res, pre_errors_jump=cp.split(pre_errors, 2, axis=1)
-            # weights_grad_res, weights_grad_jump = cp.split(weights_grad, 2, axis=1)
             return weights_grad, (pre_errors_res, pre_errors_jump)
         #! problem with the errors
         else:
@@ -191,32 +172,8 @@ class LIFLayerResidual(AbstractLayer):
         # TODO: to make this separate I need to make the gradient separate instead of averaging them in the backward function
 
         self.__weights_res += delta_weights
-    
-    # def store(self, dir_path: Path) -> None:
-    #     weights = self.weights
-    #     if weights is not None:
-    #         pre,_ = WEIGHTS_FILE_SUFFIX.split('.npy')
-    #         filename_res = dir_path / (self._name + pre + "_res" + '.npy')
-    #         np.save(filename_res, self.__weights_res.get())
-
-    # def restore(self, dir_path: Path) -> None:
-    #     pre,_ = WEIGHTS_FILE_SUFFIX.split('.npy')
-    #     filename_res = dir_path / (self._name + pre + "_res" + '.npy')
-    #     if filename_res.exists():
-    #         self.__weights_res = np.load(filename_res)
-
-
 
 def fuse_inputs_append(pre_input, jump_input, count_pre, count_jump, max_n_spike, delay = False) -> Tuple[cp.ndarray, cp.ndarray]:
-    # batch_size_res, n_of_neurons_res, max_n_spike_res = residual_input.shape
-    # batch_size_jump, n_of_neurons_jump, max_n_spike_jump = jump_input.shape
-    # if cp.any(cp.isnan(pre_input)):
-    #     raise ValueError("Nans in the pre input")
-    # if cp.any(cp.isnan(jump_input)):
-    #     raise ValueError("Nans in the jump input")
-    og_jump_input = cp.copy(jump_input)
-    og_pre_input = cp.copy(pre_input)
-    # check if all elements of one of the 2 arrays are inf
     pre_is_inf = cp.all(cp.isinf(pre_input))
     jump_is_inf = cp.all(cp.isinf(jump_input))
     if delay and not(pre_is_inf or jump_is_inf):
@@ -229,18 +186,9 @@ def fuse_inputs_append(pre_input, jump_input, count_pre, count_jump, max_n_spike
         time_delay = average_non_inf_pre - average_non_inf_jump
         jump_input = jump_input + time_delay
     result_count =cp.append(count_pre, count_jump, axis=1)
-    # this changes the effect
-    # result_count = count_residual
-    # result_count = cp.zeros((residual_input.shape))
     if jump_input.shape[2] != pre_input.shape[2]:
         jump_input = cp.pad(jump_input, ((0, 0), (0, 0), (0, pre_input.shape[2] - jump_input.shape[2])), mode='constant', constant_values=cp.inf)
     result_spikes = np.append(pre_input, jump_input, axis=1)
-    # if cp.any(result_count > max_n_spike):
-    #     raise ValueError("The count of spikes is greater than the max number of spikes")
-    # result_count = count_residual
-    # result_spikes = residual_input
-    # if cp.any(cp.isnan(result_spikes)):
-    #     raise ValueError("Nans in the fused input")
     return result_spikes, result_count
 
 # never used
@@ -262,13 +210,6 @@ def fuse_inputs_stack(pre_input, jump_input, count_residual, count_jump, max_n_s
     return result, count
 
 def fuse_inputs(pre_input, jump_input, count_residual, count_jump, max_n_spike, delay = False) -> Tuple[cp.ndarray, cp.ndarray]:
-    #! Illegal memory error still occurs even without this code
-
-    #! how does it handle the spikes when there are too many?
-    #! buffer should check all the spikes and if too many it crashes
-    # HOW DOES THE spike buffer break?
-    # make it break and see what happens
-    
     if delay:
         copy_pre_spike_per_neuron = cp.copy(pre_input)
         non_inf_values_pre = copy_pre_spike_per_neuron[cp.isfinite(copy_pre_spike_per_neuron)]  # Select non-inf values

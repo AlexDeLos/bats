@@ -47,8 +47,6 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
         neurons_shape: cp.ndarray = np.array([n_x, n_y, filter_c], dtype=cp.int32)
 
         super().__init__(neurons_shape=neurons_shape, use_padding = use_padding,padding= [filter_x-1, filter_y -1], **kwargs)
-        self.__pre_channels = prev_c
-        self.__jump_channels = jump_layer_c
         self.use_delay = use_delay
         self.jump_layer: AbstractConvLayer = jump_layer
         self.__filters_shape = cp.array([filter_c, filter_x, filter_y, prev_c], dtype=cp.int32)
@@ -74,7 +72,6 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
         self.__padded_pre_exp_tau_s: Optional[cp.ndarray] = None
         self.__pre_exp_tau: Optional[cp.ndarray] = None
         self.__padded_pre_exp_tau: Optional[cp.ndarray] = None
-        self.__pre_spike_weights: Optional[cp.ndarray] = None
         self.__c: Optional[cp.float32] = self.__theta_tau
         self.__pre_spike_trains = None
 
@@ -99,7 +96,6 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
         self.__spike_times_per_neuron = None
         self.__pre_exp_tau_s = None
         self.__pre_exp_tau = None
-        self.__pre_spike_weights = None
         self.__a = None
         self.__x = None
         self.__post_exp_tau = None
@@ -132,11 +128,6 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
             new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
         else:
             raise ValueError("Padding is not supported for this layer")
-            self.__pre_exp_tau_s, self.__pre_exp_tau = compute_pre_exps(pre_spike_per_neuron, self.__tau_s, self.__tau)
-            padded_pre_exp_tau_s = self.__pre_exp_tau_s
-            padded_pre_exp_tau = self.__pre_exp_tau
-            pre_spike_per_neuron, pre_n_spike_per_neuron= pre_spike_per_neuron_pre_pad, pre_n_spike_per_neuron_pre_pad
-            # new_shape_previous = self.__previous_layer.neurons_shape\
 
         self.__pre_spike_trains = pre_spike_per_neuron, pre_n_spike_per_neuron
 
@@ -171,31 +162,11 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
                                                            self.__tau, cp.float32(max_simulation), self.__max_n_spike,
                                                            new_shape_previous, self.neurons_shape,
                                                            self.__filters_shape)
-            # self.neurons_shape = new_shape_neuron
-
-            spikes = self.__spike_times_per_neuron
-            count = self.__n_spike_per_neuron #! they no longer have the 28*28 size
-            # new_x = self.__x #-> the X here is always the same size as the spikes
-            # #? what does the X represent?
-            # count = self.__n_spike_per_neuron
-            # print(self.name)
-            # print(cp.where(count!=0)[0].shape)
-            sad = ""
 
     def backward(self, errors_in: cp.array, from_res = False) -> Optional[Tuple[cp.ndarray, cp.ndarray]]:
-        # Compute gradient
-        # if cp.any(cp.isnan(errors_in)):
-        #     raise ValueError("NaNs in errors")
-        # pre_spike_per_neuron, pre_n_spike_per_neuron = self.__previous_layer.spike_trains
-        
-        # jump_spike_per_neuron, jump_n_spike_per_neuron = self.jump_layer.spike_trains
-        #TODO: these operations that I do twice could be done once and then passed to the forward and backward functions
-        # pre_spike_per_neuron, pre_n_spike_per_neuron = aped_on_channel_dim(pre_spike_per_neuron, pre_n_spike_per_neuron, jump_spike_per_neuron, jump_n_spike_per_neuron, self.__previous_layer.neurons_shape)
-        
-        #TODO: change the size to reflect the new channel size->DONE, not tested
         new_shape_previous = self.__pre_shape
-        pre_spike_per_neuron, pre_n_spike_per_neuron = self.__pre_spike_trains
-        if self._use_padding: #-> adding this alone seems to have no effect on the loss of the model or anything else
+        pre_spike_per_neuron, _ = self.__pre_spike_trains
+        if self._use_padding:
             new_shape_previous = cp.array(new_shape_previous, dtype=cp.int32)
             padded_pre_exp_tau_s = self.__padded_pre_exp_tau_s
             padded_pre_exp_tau = self.__padded_pre_exp_tau
@@ -207,8 +178,6 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
         new_x = self.__x
         new_post_exp_tau = self.__post_exp_tau
         if new_x.shape != errors_in.shape:
-            # errors = trimed_errors(errors_in, self.__filter_from_next, self.neurons_shape[2])
-            # print("errors shape is not the same as the x shape")
             if new_x.shape != errors.shape:
                 raise ValueError(f"Shapes of new_x and errors do not match: {new_x.shape} != {errors.shape}")
         else:
@@ -242,12 +211,8 @@ class ConvLIFLayer_new_Residual(AbstractConvLayer):
                                                              self.__previous_layer.neurons_shape,
                                                              self.neurons_shape,
                                                              self.__filters_shape)
-            testsd = 0
         else:
             pre_errors = None
-
-        stop_for_errors = 0
-        #? should I do some reshaping of the pre_errors?
         if self._use_padding:
             if self.__previous_layer.trainable:
                 if self.fuse_funct == "Append":

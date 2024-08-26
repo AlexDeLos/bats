@@ -177,7 +177,6 @@ def trimed_errors(errors, previous_filter, pre_channels):
     return shapped_errors
 
 def fuse_inputs_conv_avg(pre_input, pre_n_spike_per_neuron, jump_input, jump_n_spike_per_neuron, neurons_shape, delay) -> Tuple[cp.ndarray, cp.ndarray]:
-    #TODO: add the delay
     if delay:
         copy_pre_spike_per_neuron = cp.copy(pre_input)
         non_inf_values_pre = copy_pre_spike_per_neuron[cp.isfinite(copy_pre_spike_per_neuron)]  # Select non-inf values
@@ -205,9 +204,6 @@ def fuse_inputs_conv_avg(pre_input, pre_n_spike_per_neuron, jump_input, jump_n_s
     get_non_infinite = cp.where(inf_mask_res, jump_input, pre_input)
     get_non_infinite = cp.where(inf_mask_jump, pre_input, get_non_infinite)
     result_times = cp.where(or_combined_mask, jump_input, pre_input)
-
-    #if true in mask then take the value, else take average
-    # result = cp.where(or_combined_mask, residual_input, jump_input)
     
     # return residual_input
     result_times = cp.where(xor_combined_mask,
