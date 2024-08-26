@@ -1,4 +1,4 @@
-# Residual Connections in Spiking Neural Networks
+# Residual Connections in Spiking Neural Networks (Res-BATS)
 
 This is the repository containing the source code for the Residual Connections in Spiking Neural Networks (Res-BATS) [1] which is part of the author's master's thesis. This repository builds upon Error Backpropagation Through Spikes (BATS) [2] is a GPU-compatible algorithm that extends Fast & Deep [3], a method to performs exact gradient descent in Deep Spiking Neural Networks (SNNs).
 
