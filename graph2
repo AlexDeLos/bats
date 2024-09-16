@@ -4,25 +4,11 @@ import matplotlib.pyplot as plt
 
 # Data preparation
 data = {
-    'Layers': [4, 4, 5, 4],
-    'Datasets': ['MNIST']*1 + ['EMNIST']*2 + ['Fashion']*1,
-    'No_residual': [ 97.6, 82.6, 76.4,88.6],
-    'Average': [97.8, 78.6, 80.1, 89.9],
-    'Append': [97.2, 81.3, 82.7, 88.8]
-}
-# data = {
-#     'Layers': [1, 4, 9, 13, 1, 4, 5, 9, 13, 1, 4, 9, 13],
-#     'Datasets': ['MNIST']*4 + ['EMNIST']*5 + ['Fashion']*4,
-#     'No_residual': [98.9, 99.6, None, None, 76.7, 88.4, 80.1, None, None, 91.6, 99.1, None, None],
-#     'Average': [None, 99.8, 99.2, 98.0, None, 80.2, 81.4, 79.2, 73.0, None, 98.5, 98.9, 87.2],
-#     'Append': [None, 99.8, 99.8, 99.8, None, 85.5, 86.2, 88.5, 80.9, None, 99.4, 88.7, 87.2]
-# }
-data = {
-    'Layers': [3, 4, 3, 4, 3, 4],
-    'Datasets': ['MNIST', 'MNIST', 'EMNIST', 'EMNIST', 'Fashion', 'Fashion'],
-    'No_residual': [96.6, None, 71.6, None, 84.3, None],
-    'Append': [98.4, 98.0, 72.0, 80.0, 87.1, 87.8],
-    'Average': [97.2, 98.0, 71.9, 79.6, 85.8, 87.7]
+    'Layers': [3, 3, 3],
+    'Datasets': ['MNIST', 'EMNIST', 'Fashion'],
+    'No_residual': [96.6, 71.6, 84.3],
+    'Append': [98.4, 72.0,  87.1],
+    'Average': [97.2,  71.9,  85.8]
 }
 df = pd.DataFrame(data)
 
